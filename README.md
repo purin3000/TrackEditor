@@ -1,0 +1,2 @@
+# TrackEditor
+エディタ拡張でTimeline的なトラック編集を行うためのフレームワーク
