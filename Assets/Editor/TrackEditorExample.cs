@@ -58,23 +58,21 @@ public class TrackEditorExample : EditorWindow
     {
         public override void PropertyDrawer(Rect rect)
         {
-            rect.x = 0;
-            rect.y = 0;
-            using (new GUILayout.AreaScope(rect, "", "box")) {
-                using (new GUILayout.VerticalScope()) {
-
-                    if (GUILayout.Button("Add")) {
-                        AddElement(new PositionElement());
-                    }
-                    GUILayout.Label("DrawProperty:" + name);
-                }
-                GUILayout.Label("Elem:" + elements.Count);
-
+            if (GUILayout.Button("Add")) {
+                AddElement(new PositionElement());
             }
         }
 
         class PositionElement : ElementBase
         {
+            public override void PropertyDrawer(Rect rect)
+            {
+                base.PropertyDrawer(rect);
+
+                if (GUILayout.Button("Remove")) {
+                    parent.RemoveElement(this);
+                }
+            }
         }
     }
 }

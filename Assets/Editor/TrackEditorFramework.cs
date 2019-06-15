@@ -197,7 +197,16 @@ namespace track_editor_fw
 
         void drawProperty(Rect rect)
         {
-            selectionTrack?.PropertyDrawer(rect);
+            if (selectionTrack != null) {
+                Rect rectProperty = new Rect(0, 0, rect.width, rect.height);
+
+                using (new GUILayout.AreaScope(rectProperty, "", "box")) {
+                    using (new GUILayout.VerticalScope()) {
+
+                        selectionTrack.DrawProperty(rect);
+                    }
+                }
+            }
         }
 
         void drawTime(Rect rect)

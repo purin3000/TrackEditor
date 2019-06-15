@@ -23,7 +23,8 @@ namespace track_editor_fw
 
         public bool IsSelection { get => trackEditor.selectionTrack == this; }
 
-        List<TrackBase> _removeRequest = new List<TrackBase>();
+        List<TrackBase> _removeTracks = new List<TrackBase>();
+        List<ElementBase> _removeElements = new List<ElementBase>();
 
         int _nestLevel = 0;
 
@@ -50,19 +51,41 @@ namespace track_editor_fw
 
         public void RemoveTrack(TrackBase track)
         {
-            _removeRequest.Add(track);
+            _removeTracks.Add(track);
+        }
+
+        public void RemoveElement(ElementBase element)
+        {
+            _removeElements.Add(element);
+
+            if (selectionElement == element) {
+                selectionElement = null;
+
+                foreach (var elem in elements) {
+                    if (elem != element) {
+                        selectionElement = elem;
+                        break;
+                    }
+                }
+            }
         }
 
         public T AddElement<T>(T element) where T : ElementBase
         {
             elements.Add(element);
             element.Initialize(this);
+            SetSelectionElement(element);
             return element;
         }
 
         public void SetSelectionElement(ElementBase element)
         {
             selectionElement = element;
+        }
+
+        public void Repaint()
+        {
+            trackEditor.Repaint();
         }
 
         public void DrawTrack(Rect rect) {
@@ -103,29 +126,30 @@ namespace track_editor_fw
             }
 
             // 安全なタイミングで削除
-            foreach (var track in _removeRequest) {
+            foreach (var track in _removeTracks) {
                 int index = childs.IndexOf(track);
                 if (index != -1) {
                     childs.RemoveAt(index);
                 }
             }
-            _removeRequest.Clear();
+            _removeTracks.Clear();
+
+            foreach (var element in _removeElements) {
+                int index = elements.IndexOf(element);
+                if (index != -1) {
+                    elements.RemoveAt(index);
+                }
+            }
+            _removeElements.Clear();
         }
 
         public void DrawElement(Rect rect) {
+            Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackEditor.settings.trackHeight);
+            foreach (var element in elements) {
+                element.DrawElement(rectElement);
+            }
+
             if (childs.Count == 0) {
-                Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackEditor.settings.trackHeight);
-                foreach (var element in elements) {
-
-                    element.DrawElement(rectElement);
-
-                    if (Event.current.type == EventType.MouseDown) {
-                        if (rect.Contains(Event.current.mousePosition)) {
-                            SetSelectionElement(element);
-                            Event.current.Use();
-                        }
-                    }
-                }
             } else {
                 if (expand) {
                     float y = rect.y;
@@ -138,6 +162,15 @@ namespace track_editor_fw
             }
         }
 
+        public void DrawProperty(Rect rect)
+        {
+            PropertyDrawer(rect);
+
+            if (selectionElement != null) {
+                selectionElement.PropertyDrawer(rect);
+            }
+        }
+
         public virtual void TrackDrawer(Rect rect)
         {
             Rect labelRect = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
@@ -146,13 +179,8 @@ namespace track_editor_fw
 
         public virtual void PropertyDrawer(Rect rect)
         {
-            GUI.Label(new Rect(Vector2.zero, rect.size), "DrawProperty:" + name, "box");
-
-
-            if (selectionElement != null) {
-                Rect elementRect = new Rect(rect.x, rect.y + 40, rect.width, rect.height - 40);
-                selectionElement.PropertyDrawer(elementRect);
-            }
+            //GUI.Label(new Rect(Vector2.zero, rect.size), "DrawProperty:" + name, "box");
+            GUILayout.Label("DrawProperty:" + name, "box");
         }
 
         public virtual void OnTrackSelection()
