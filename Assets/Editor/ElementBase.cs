@@ -73,13 +73,9 @@ namespace track_editor_fw
 
         public virtual void PropertyDrawer(Rect rect)
         {
-            using (new GUILayout.HorizontalScope()) {
-
-                start = EditorGUILayout.IntField("Start", start);
-            }
-            using (new GUILayout.HorizontalScope()) {
-                length = EditorGUILayout.IntField("Length", length);
-            }
+            GUILayout.Label("Element");
+            start = Mathf.Max(0, EditorGUILayout.IntField("Start", start));
+            length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
         }
     }
 }

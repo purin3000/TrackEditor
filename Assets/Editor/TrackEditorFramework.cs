@@ -200,7 +200,7 @@ namespace track_editor_fw
             if (selectionTrack != null) {
                 Rect rectProperty = new Rect(0, 0, rect.width, rect.height);
 
-                using (new GUILayout.AreaScope(rectProperty, "", "box")) {
+                using (new GUILayout.AreaScope(rectProperty)) {
                     using (new GUILayout.VerticalScope()) {
 
                         selectionTrack.DrawProperty(rect);

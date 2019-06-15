@@ -40,6 +40,19 @@ public class TrackEditorExample : EditorWindow
            : base(root)
         {
         }
+
+        public override void DrawHeader(Rect rect)
+        {
+            base.DrawHeader(rect);
+
+            using (new GUILayout.HorizontalScope()) {
+
+                if (GUILayout.Button("Add ObjectTrack")) {
+                    var track = root.top.AddTrack(string.Format("Track:{0}", root.top.childs.Count + 1), new ObjectTrackData());
+                    root.SetSelectionTrack(track);
+                }
+            }
+        }
     }
 
     class ObjectTrackData : TrackBase
@@ -52,12 +65,24 @@ public class TrackEditorExample : EditorWindow
             AddTrack("Object", new PositionTrackData());
             AddTrack("Object", new PositionTrackData());
         }
+
+        public override void PropertyDrawer(Rect rect)
+        {
+            base.PropertyDrawer(rect);
+
+            if (GUILayout.Button("Remove")) {
+                parent.RemoveTrack(this);
+            }
+        }
+
     }
 
     class PositionTrackData : TrackBase
     {
         public override void PropertyDrawer(Rect rect)
         {
+            base.PropertyDrawer(rect);
+
             if (GUILayout.Button("Add")) {
                 AddElement(new PositionElement());
             }

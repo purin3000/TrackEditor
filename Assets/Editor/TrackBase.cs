@@ -52,6 +52,21 @@ namespace track_editor_fw
         public void RemoveTrack(TrackBase track)
         {
             _removeTracks.Add(track);
+
+            if (trackEditor.selectionTrack == track) {
+                trackEditor.SetSelectionTrack(null);
+
+                if (2 <= childs.Count) {
+                    int index = childs.IndexOf(track) + 1;
+                    if (childs.Count <= index) {
+                        index -= 2;
+                    }
+
+                    if (0 <= index && index < childs.Count) {
+                        trackEditor.SetSelectionTrack(childs[index]);
+                    }
+                }
+            }
         }
 
         public void RemoveElement(ElementBase element)
@@ -61,10 +76,14 @@ namespace track_editor_fw
             if (selectionElement == element) {
                 selectionElement = null;
 
-                foreach (var elem in elements) {
-                    if (elem != element) {
-                        selectionElement = elem;
-                        break;
+                if (2 <= elements.Count) {
+                    int index = elements.IndexOf(element) + 1;
+                    if (childs.Count <= index) {
+                        index -= 2;
+                    }
+
+                    if (0 <= index && index < elements.Count) {
+                        selectionElement = elements[index];
                     }
                 }
             }
@@ -90,7 +109,9 @@ namespace track_editor_fw
 
         public void DrawTrack(Rect rect) {
 
-            TrackDrawer(rect);
+            if (0 < _nestLevel) {
+                TrackDrawer(rect);
+            }
 
             if (expand) {
                 // 深さに応じて表示位置をずらす
@@ -164,10 +185,16 @@ namespace track_editor_fw
 
         public void DrawProperty(Rect rect)
         {
-            PropertyDrawer(rect);
+            using (new GUILayout.VerticalScope("box")) {
+                PropertyDrawer(rect);
+
+            }
 
             if (selectionElement != null) {
-                selectionElement.PropertyDrawer(rect);
+                using (new GUILayout.VerticalScope("box")) {
+                    selectionElement.PropertyDrawer(rect);
+
+                }
             }
         }
 
@@ -180,7 +207,7 @@ namespace track_editor_fw
         public virtual void PropertyDrawer(Rect rect)
         {
             //GUI.Label(new Rect(Vector2.zero, rect.size), "DrawProperty:" + name, "box");
-            GUILayout.Label("DrawProperty:" + name, "box");
+            GUILayout.Label("Type:" + name);
         }
 
         public virtual void OnTrackSelection()

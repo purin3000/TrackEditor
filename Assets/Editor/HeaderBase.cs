@@ -17,8 +17,8 @@ namespace track_editor_fw
         public virtual void DrawHeader(Rect rect)
         {
             using (new GUILayout.HorizontalScope()) {
-                root.currentFrame = EditorGUILayout.IntField("Frame", root.currentFrame);
-                root.frameLength = EditorGUILayout.IntField("Length", root.frameLength);
+                root.currentFrame = Mathf.Max(0, EditorGUILayout.IntField("Frame", root.currentFrame));
+                root.frameLength = Mathf.Max(0, EditorGUILayout.IntField("Length", root.frameLength));
             }
         }
     }
