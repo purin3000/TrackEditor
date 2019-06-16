@@ -19,6 +19,8 @@ namespace track_editor_fw
 
         public ElementBase selectionElement { get; private set; }
 
+        public float trackHeight { get => trackEditor.settings.trackHeight; }
+
         public bool expand { get; set; } = true;
 
         public bool IsSelection { get => trackEditor.selectionTrack == this; }
@@ -165,7 +167,7 @@ namespace track_editor_fw
         }
 
         public void DrawElement(Rect rect) {
-            Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackEditor.settings.trackHeight);
+            Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
             foreach (var element in elements) {
                 element.DrawElement(rectElement);
             }
@@ -200,8 +202,8 @@ namespace track_editor_fw
 
         public virtual void TrackDrawer(Rect rect)
         {
-            Rect labelRect = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
-            GUI.Label(labelRect, "DrawTrack:" + name, IsSelection ? "flow node 0 on" : "flow node 0");
+            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
+            GUI.Label(rectLabel, "DrawTrack:" + name, IsSelection ? "flow node 0 on" : "flow node 0");
         }
 
         public virtual void PropertyDrawer(Rect rect)
@@ -237,7 +239,7 @@ namespace track_editor_fw
             if (expand && 0 < childs.Count) {
                 return childs.Sum(child => child.CalcTrackHeight());
             }
-            return trackEditor.settings.trackHeight;
+            return trackHeight;
         }
     }
 }

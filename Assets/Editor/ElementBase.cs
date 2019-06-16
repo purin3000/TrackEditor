@@ -12,11 +12,20 @@ namespace track_editor_fw
 
         public TrackBase parent { get; private set; }
 
+        public float pixelScale { get => parent.trackEditor.pixelScale; }
+
+        public float trackHeight { get => parent.trackEditor.settings.trackHeight; }
+
+        public Vector2 scrollPos { get => parent.trackEditor.scrollPos; }
+
+
+
         public bool IsSelection { get => parent.selectionElement == this; }
 
 
         Vector2 mouseOffset;
         bool isDrag;
+        bool isLengthDrag;
 
         public virtual void Initialize(TrackBase parent)
         {
@@ -27,32 +36,55 @@ namespace track_editor_fw
 
         public void DrawElement(Rect rect)
         {
-            var pixelScale = parent.trackEditor.pixelScale;
-            var scrPos = parent.trackEditor.scrollPos;
+            Rect rectLabel = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);
+            Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, pixelScale * 1, trackHeight);
 
-            Rect labelRect = new Rect(rect.x + pixelScale * start - scrPos.x, rect.y - scrPos.y, pixelScale * length, parent.trackEditor.settings.trackHeight);
-
-            ElementDrawer(labelRect);
+            ElementDrawer(rectLabel);
 
             if (Event.current.type == EventType.MouseDown) {
-                if (labelRect.Contains(Event.current.mousePosition)) {
+                if (rectLabel.Contains(Event.current.mousePosition)) {
                     parent.SetSelectionElement(this);
                     parent.Repaint();
-                    Event.current.Use();
 
-                    mouseOffset = labelRect.position - Event.current.mousePosition;
                     isDrag = true;
+                    mouseOffset = rectLabel.position - Event.current.mousePosition;
+
+                    Event.current.Use();
+                }
+
+                if (rectLength.Contains(Event.current.mousePosition)) {
+                    //Event.current.
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Move;
+                    int id = GUIUtility.GetControlID(FocusType.Passive);
+                    DragAndDrop.activeControlID = id;
+
+                    isLengthDrag = true;
+                    mouseOffset = rectLength.position - Event.current.mousePosition;
+
+                    Event.current.Use();
                 }
 
             } else if (Event.current.type == EventType.MouseUp) {
                 isDrag = false;
+                isLengthDrag = false;
+
+                DragAndDrop.visualMode = DragAndDropVisualMode.None;
+                DragAndDrop.activeControlID = 0;
 
             } else if (Event.current.type == EventType.MouseDrag) {
                 if (isDrag) {
-                    var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrPos.x + mouseOffset.x) / pixelScale);
+                    var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + mouseOffset.x) / pixelScale);
 
                     start = currentFrame;
+                    parent.Repaint();
 
+                    Event.current.Use();
+                }
+
+                if (isLengthDrag) {
+                    var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + mouseOffset.x) / pixelScale);
+
+                    length = Mathf.Max(1, currentFrame - start);
                     parent.Repaint();
 
                     Event.current.Use();
@@ -62,11 +94,7 @@ namespace track_editor_fw
 
         public virtual void ElementDrawer(Rect rect)
         {
-            var pixelScale = parent.trackEditor.pixelScale;
-            var scrPos = parent.trackEditor.scrollPos;
-
-            //Rect labelRect = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
-            Rect labelRect = new Rect(rect.x + pixelScale * start - scrPos.x, rect.y - scrPos.y, pixelScale * length, parent.trackEditor.settings.trackHeight);
+            Rect labelRect = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);
             GUI.Label(rect, "", IsSelection ? "flow node 5 on" : "flow node 5");
         }
 

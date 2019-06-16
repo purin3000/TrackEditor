@@ -244,16 +244,16 @@ namespace track_editor_fw
         void drawTrack(Rect rect)
         {
             using (new GUI.ClipScope(new Rect(0, 0, rect.width, rect.height - 16))) {   // スクロールバー端の描画の都合で範囲調整
-                Rect trackRect = new Rect(0, -scrPos.y, settings.trackWidth, top.CalcTrackHeight());
-                top.DrawTrack(trackRect);
+                Rect rectTrack = new Rect(0, -scrPos.y, settings.trackWidth, top.CalcTrackHeight());
+                top.DrawTrack(rectTrack);
             }
         }
 
         void drawElement(Rect rect)
         {
             using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height - 16))) {   // スクロールバー端の描画の都合で範囲調整
-                Rect trackRect = new Rect(-scrPos.x, -scrPos.y, 0, settings.trackHeight);
-                top.DrawElement(trackRect);
+                Rect rectTrack = new Rect(-scrPos.x, -scrPos.y, 0, settings.trackHeight);
+                top.DrawElement(rectTrack);
             }
 
             using (var scope = new EditorGUILayout.ScrollViewScope(scrPos)) {
