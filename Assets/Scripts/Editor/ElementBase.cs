@@ -5,104 +5,22 @@ using UnityEditor;
 
 namespace track_editor_fw
 {
+    [System.Serializable]
     public class ElementBase
+#if UNITY_EDITOR
+        : ElementGUIParam
+#endif
     {
         public int start;
         public int length;
 
-        public TrackBase parent { get; private set; }
-
-        public float pixelScale { get => parent.trackEditor.pixelScale; }
-
-        public float trackHeight { get => parent.trackEditor.trackHeight; }
-
-        public Vector2 scrollPos { get => parent.trackEditor.scrollPos; }
-
-
-
-        public bool IsSelection { get => parent.selectionElement == this; }
-
-
-        Vector2 mouseOffset;
-        bool isDrag;
-        bool isLengthDrag;
-
-        public virtual void Initialize(TrackBase parent)
+#if UNITY_EDITOR
+        public override void Initialize(TrackBase parent)
         {
-            this.parent = parent;
-            this.start = parent.trackEditor.currentFrame;
+            base.Initialize(parent);
+
+            this.start = parent.manager.currentFrame;
             this.length = 1;
-        }
-
-        public void Selection()
-        {
-            parent.Selection();
-            parent.SetSelectionElement(this);
-            parent.Repaint();
-        }
-
-        /// <summary>
-        /// ドラッグ関連
-        /// 描画優先度とイベント優先度が逆のため、DrawElementとUpdateElemenetに関数を分離して回す必要がある
-        /// </summary>
-        /// <param name="rect"></param>
-        public void UpdateElement(Rect rect)
-        {
-            Rect rectLabel = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);
-            Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, pixelScale * 1, trackHeight);
-
-            if (Event.current.type == EventType.MouseDown) {
-                if (rectLabel.Contains(Event.current.mousePosition)) {
-                    Selection();
-
-                    isDrag = true;
-                    mouseOffset = rectLabel.position - Event.current.mousePosition;
-
-                    Event.current.Use();
-
-                } else if (rectLength.Contains(Event.current.mousePosition)) {
-                    //DragAndDrop.visualMode = DragAndDropVisualMode.Move;
-                    //int id = GUIUtility.GetControlID(FocusType.Passive);
-                    //DragAndDrop.activeControlID = id;
-
-                    isLengthDrag = true;
-                    mouseOffset = rectLength.position - Event.current.mousePosition;
-
-                    Event.current.Use();
-                }
-
-            } else if (Event.current.type == EventType.MouseUp) {
-                isDrag = false;
-                isLengthDrag = false;
-
-                //DragAndDrop.visualMode = DragAndDropVisualMode.None;
-                //DragAndDrop.activeControlID = 0;
-
-            } else if (Event.current.type == EventType.MouseDrag) {
-                if (isDrag) {
-                    var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + mouseOffset.x) / pixelScale);
-
-                    start = currentFrame;
-                    parent.Repaint();
-
-                    Event.current.Use();
-
-                } else if (isLengthDrag) {
-                    var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + mouseOffset.x) / pixelScale);
-
-                    length = Mathf.Max(1, currentFrame - start);
-                    parent.Repaint();
-
-                    Event.current.Use();
-                }
-            }
-        }
-
-        public void DrawElement(Rect rect)
-        {
-            Rect rectLabel = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);
-
-            ElementDrawer(rectLabel);
         }
 
         public virtual void ElementDrawer(Rect rect)
@@ -117,5 +35,35 @@ namespace track_editor_fw
             start = Mathf.Max(0, EditorGUILayout.IntField("Start", start));
             length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
         }
+#endif
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// エディット時のみ使用可能なもの
+    /// </summary>
+    public class ElementGUIParam
+    {
+        public virtual void Initialize(TrackBase parent)
+        {
+            this.parent = parent;
+        }
+
+        public TrackBase parent { get; private set; }
+
+        public bool IsSelection { get => parent.selectionElement == this; }
+
+        public float pixelScale { get => parent.pixelScale; }
+
+        public float trackHeight { get => parent.trackHeight; }
+
+        public Vector2 scrollPos { get => parent.scrollPos; }
+
+        public Vector2 mouseOffset { get; set; }
+
+        public bool isDrag { get; set; }
+
+        public bool isLengthDrag { get; set; }
+    }
+#endif
 }

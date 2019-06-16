@@ -34,9 +34,9 @@ namespace track_editor_fw
 
         public bool repaintRequest { get; private set; }
 
+        public float elementWidth { get; private set; }
 
         Vector2 scrPos;
-
 
 
         public TrackManager(TrackEditorSettings settings)
@@ -57,12 +57,81 @@ namespace track_editor_fw
             Repaint();
         }
 
+        public void SetSelectionElement(TrackBase track, ElementBase element)
+        {
+            SetSelectionTrack(track);
+
+            track.selectionElement = element;
+
+            // 選択した要素を必ず先頭に置く。描画優先度とイベント判定優先度に影響する
+            var index = track.elements.IndexOf(element);
+            if (0 < index) {
+                track.elements.SwapAt(0, 1);
+            }
+
+            Repaint();
+        }
+
+        public T AddTrack<T>(TrackBase parent, string name, T child) where T : TrackBase
+        {
+            parent.childs.Add(child);
+            child.Initialize(this, name, parent);
+            return child;
+        }
+
+        public void RemoveTrack(TrackBase parent,TrackBase track)
+        {
+            parent.removeTracks.Add(track);
+
+            if (selectionTrack == track) {
+                SetSelectionTrack(null);
+
+                if (2 <= parent.childs.Count) {
+                    int index = parent.childs.IndexOf(track) + 1;
+                    if (parent.childs.Count <= index) {
+                        index -= 2;
+                    }
+
+                    if (0 <= index && index < parent.childs.Count) {
+                        SetSelectionTrack(parent.childs[index]);
+                    }
+                }
+            }
+        }
+
+        public T AddElement<T>(TrackBase track, T element) where T : ElementBase
+        {
+            track.elements.Add(element);
+            element.Initialize(track);
+            SetSelectionElement(track, element);
+            return element;
+        }
+
+        public void RemoveElement(TrackBase track, ElementBase element)
+        {
+            track.removeElements.Add(element);
+
+            if (track.selectionElement == element) {
+                track.selectionElement = null;
+
+                if (2 <= track.elements.Count) {
+                    int index = track.elements.IndexOf(element) + 1;
+                    if (track.childs.Count <= index) {
+                        index -= 2;
+                    }
+
+                    if (0 <= index && index < track.elements.Count) {
+                        track.selectionElement = track.elements[index];
+                    }
+                }
+            }
+        }
+
         public void Repaint()
         {
             repaintRequest |= true;
         }
 
-        public float elementWidth { get; private set; }
         public void OnGUI(Rect rect)
         {
             repaintRequest = false;
@@ -189,8 +258,19 @@ namespace track_editor_fw
 
                 using (new GUILayout.AreaScope(rectProperty)) {
                     using (new GUILayout.VerticalScope()) {
+                        var track = selectionTrack;
 
-                        selectionTrack.DrawProperty(rect);
+                        using (new GUILayout.VerticalScope("box")) {
+                            track.PropertyDrawer(rect);
+
+                        }
+
+                        if (track.selectionElement != null) {
+                            using (new GUILayout.VerticalScope("box")) {
+                                track.selectionElement.PropertyDrawer(rect);
+
+                            }
+                        }
                     }
                 }
             }
@@ -225,7 +305,7 @@ namespace track_editor_fw
         {
             using (new GUI.ClipScope(new Rect(0, 0, rect.width, rect.height - 16))) {   // スクロールバー端の描画の都合で範囲調整
                 Rect rectTrack = new Rect(0, -scrPos.y, settings.trackWidth, top.CalcTrackHeight());
-                top.DrawTrack(rectTrack);
+                drawTrack(top, rectTrack);
             }
         }
 
@@ -233,7 +313,7 @@ namespace track_editor_fw
         {
             using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height - 16))) {   // スクロールバー端の描画の都合で範囲調整
                 Rect rectTrack = new Rect(-scrPos.x, -scrPos.y, 0, settings.trackHeight);
-                top.DrawElement(rectTrack);
+                DrawElement(top, rectTrack);
             }
 
             using (var scope = new EditorGUILayout.ScrollViewScope(scrPos)) {
@@ -306,14 +386,14 @@ namespace track_editor_fw
                         if (track.expand) {
                             foreach (var child in track.childs) {
                                 if (index == trackIndex) {
-                                    child.Selection();
+                                    SetSelectionTrack(child);
                                     return;
                                 }
                                 ++index;
                             }
                         } else {
                             if (index == trackIndex) {
-                                track.Selection();
+                                SetSelectionTrack(track);
                                 return;
                             }
                             ++index;
@@ -394,6 +474,145 @@ namespace track_editor_fw
             }
             return list;
         }
+
+        void drawTrack(TrackBase track, Rect rect)
+        {
+            if (0 < track.nestLevel) {
+                track.TrackDrawer(rect);
+            }
+
+            if (track.expand) {
+                // 深さに応じて表示位置をずらす
+                var slideSize = (track.nestLevel == 0) ? 0.0f : rect.width * childTrackSlide;
+
+                float x = rect.x + slideSize;
+                float y = rect.y;
+                float width = rect.width - slideSize;
+                foreach (var child in track.childs) {
+                    Rect rectChild = new Rect(x, y, width, child.CalcTrackHeight());
+                    drawTrack(child, rectChild);
+                    y += rectChild.height;
+                }
+            }
+
+            if (Event.current.type == EventType.MouseDown) {
+                if (rect.Contains(Event.current.mousePosition)) {
+                    if (track.childs.Count == 0) {
+                        SetSelectionTrack(track);
+
+                    } else {
+                        if (track.IsSelection) {
+                            track.expand = !track.expand;
+                            Repaint();
+
+                        } else {
+                            SetSelectionTrack(track);
+                        }
+
+                    }
+                    Event.current.Use();
+                }
+            }
+
+            // 安全なタイミングで削除
+            foreach (var removeTrack in track.removeTracks) {
+                int index = track.childs.IndexOf(removeTrack);
+                if (index != -1) {
+                    track.childs.RemoveAt(index);
+                }
+            }
+            track.removeTracks.Clear();
+
+            foreach (var removeElement in track.removeElements) {
+                int index = track.elements.IndexOf(removeElement);
+                if (index != -1) {
+                    track.elements.RemoveAt(index);
+                }
+            }
+            track.removeElements.Clear();
+        }
+
+        void DrawElement(TrackBase track, Rect rect)
+        {
+
+            // マウスイベントの取得順序と描画順序は逆
+            Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
+            for (int i = 0; i < track.elements.Count; ++i) {
+                updateElement(track, track.elements[i], rectElement);
+            }
+
+            for (int i = track.elements.Count - 1; 0 <= i; --i) {
+                drawElement(track.elements[i], rectElement);
+            }
+
+            if (track.expand) {
+                float y = rect.y;
+                foreach (var child in track.childs) {
+                    Rect rectChild = new Rect(rect.x, y, rect.width, child.CalcTrackHeight());
+                    DrawElement(child, rectChild);
+                    y += rectChild.height;
+                }
+            }
+        }
+
+        /// <summary>
+        /// ドラッグ関連
+        /// 描画優先度とイベント優先度が逆のため、DrawElementとUpdateElemenetに関数を分離して回す必要がある
+        /// </summary>
+        /// <param name="rect"></param>
+        void updateElement(TrackBase track, ElementBase element, Rect rect)
+        {
+            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
+            Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, pixelScale * 1, trackHeight);
+
+            if (Event.current.type == EventType.MouseDown) {
+                if (rectLabel.Contains(Event.current.mousePosition)) {
+                    SetSelectionElement(track, element);
+
+                    element.isDrag = true;
+                    element.mouseOffset = rectLabel.position - Event.current.mousePosition;
+
+                    Event.current.Use();
+
+                } else if (rectLength.Contains(Event.current.mousePosition)) {
+                    element.isLengthDrag = true;
+                    element.mouseOffset = rectLength.position - Event.current.mousePosition;
+
+                    Event.current.Use();
+                }
+
+            } else if (Event.current.type == EventType.MouseUp) {
+                element.isDrag = false;
+                element.isLengthDrag = false;
+
+            } else if (Event.current.type == EventType.MouseDrag) {
+                if (element.isDrag) {
+                    var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + element.mouseOffset.x) / pixelScale);
+
+                    element.start = currentFrame;
+                    Repaint();
+
+                    Event.current.Use();
+
+                } else if (element.isLengthDrag) {
+                    var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + element.mouseOffset.x) / pixelScale);
+
+                    element.length = Mathf.Max(1, currentFrame - element.start);
+                    Repaint();
+
+                    Event.current.Use();
+                }
+            }
+        }
+
+        void drawElement(ElementBase element, Rect rect)
+        {
+            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
+
+            element.ElementDrawer(rectLabel);
+        }
+
+
 
     }
 }

@@ -13,23 +13,23 @@ public class TrackEditorExample : EditorWindow
         GetWindow<TrackEditorExample>("TrackEditorExample");
     }
 
-    TrackManager _trackEditor = new TrackManager(new TrackEditorSettings());
+    TrackManager _manager = new TrackManager(new TrackEditorSettings());
 
     private void OnEnable()
     {
         for (int i = 0; i < 10; ++i) {
-            _trackEditor.top.AddTrack("Track:" + i, new ObjectTrackData());
+            _manager.AddTrack(_manager.top, "Track:" + i, new ObjectTrackData());
         }
 
-        _trackEditor.SetHeader(new TestHeader(_trackEditor));
-        _trackEditor.top.childs[2].Selection();
+        _manager.SetHeader(new TestHeader(_manager));
+        _manager.SetSelectionTrack(_manager.top.childs[2]);
     }
 
     private void OnGUI()
     {
-        _trackEditor.OnGUI(new Rect(10, 10, Screen.width - 20, Screen.height - 20 - 24));
+        _manager.OnGUI(new Rect(10, 10, Screen.width - 20, Screen.height - 20 - 24));
 
-        if (_trackEditor.repaintRequest) {
+        if (_manager.repaintRequest) {
             Repaint();
         }
     }
@@ -37,8 +37,8 @@ public class TrackEditorExample : EditorWindow
     [System.Serializable]
     public class TestHeader : HeaderBase
     {
-        public TestHeader(TrackManager trackEditor)
-           : base(trackEditor)
+        public TestHeader(TrackManager manager)
+           : base(manager)
         {
         }
 
@@ -49,12 +49,13 @@ public class TrackEditorExample : EditorWindow
             using (new GUILayout.HorizontalScope()) {
 
                 if (GUILayout.Button("Add ObjectTrack")) {
-                    var track = trackEditor.top.AddTrack(string.Format("Track:{0}", trackEditor.top.childs.Count + 1), new ObjectTrackData());
-                    track.Selection();
+                    var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new ObjectTrackData());
+                    manager.SetSelectionTrack(track);
+
                 }
 
                 if (GUILayout.Button("Save")) {
-                    trackEditor.Save<TrackEditorExampleAsset>("Assets/TrackEditorData.asset");
+                    manager.Save<TrackEditorExampleAsset>("Assets/TrackEditorData.asset");
                 }
 
                 if (GUILayout.Button("Load")) {
@@ -66,13 +67,13 @@ public class TrackEditorExample : EditorWindow
 
     class ObjectTrackData : TrackBase
     {
-        public override void Initialize(TrackManager trackEditor, string name, TrackBase parent)
+        public override void Initialize(TrackManager manager, string name, TrackBase parent)
         {
-            base.Initialize(trackEditor, name, parent);
+            base.Initialize(manager, name, parent);
 
             // 初期化時にトラックを生成する場合、Initialize()以降に行う必要がある
-            AddTrack("Object", new PositionTrackData());
-            AddTrack("Object", new PositionTrackData());
+            manager.AddTrack(this, "Object", new PositionTrackData());
+            manager.AddTrack(this, "Object", new PositionTrackData());
         }
 
         public override void PropertyDrawer(Rect rect)
@@ -80,7 +81,7 @@ public class TrackEditorExample : EditorWindow
             base.PropertyDrawer(rect);
 
             if (GUILayout.Button("Remove")) {
-                parent.RemoveTrack(this);
+                manager.RemoveTrack(parent, this);
             }
         }
 
@@ -96,7 +97,7 @@ public class TrackEditorExample : EditorWindow
             base.PropertyDrawer(rect);
 
             if (GUILayout.Button("Add")) {
-                AddElement(new PositionElement());
+                manager.AddElement(this, new PositionElement());
             }
         }
 
@@ -107,7 +108,7 @@ public class TrackEditorExample : EditorWindow
                 base.PropertyDrawer(rect);
 
                 if (GUILayout.Button("Remove")) {
-                    parent.RemoveElement(this);
+                    parent.manager.RemoveElement(parent, this);
                 }
             }
         }

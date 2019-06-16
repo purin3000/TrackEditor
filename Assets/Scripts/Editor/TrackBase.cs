@@ -7,6 +7,9 @@ namespace track_editor_fw
 {
     [System.Serializable]
     public class TrackBase
+#if UNITY_EDITOR
+        : TrackGUIParam
+#endif
     {
         public string name;
 
@@ -14,205 +17,12 @@ namespace track_editor_fw
 
         public List<ElementBase> elements = new List<ElementBase>();
 
-        public TrackManager trackEditor { get; private set; }
-
-        public TrackBase parent { get; private set; }
-
-        public ElementBase selectionElement { get; private set; }
-
-        public float trackHeight { get => trackEditor.trackHeight; }
-
-        public bool expand { get; set; } = true;
-
-        public bool IsSelection { get => trackEditor.selectionTrack == this; }
-
-        List<TrackBase> _removeTracks = new List<TrackBase>();
-        List<ElementBase> _removeElements = new List<ElementBase>();
-
-        int _nestLevel = 0;
-
-        public virtual void Initialize(TrackManager trackEditor, string name, TrackBase parent)
+#if UNITY_EDITOR
+        public override void Initialize(TrackManager manager, string name, TrackBase parent)
         {
+            base.Initialize(manager, name, parent);
+
             this.name = name;
-            this.trackEditor = trackEditor;
-            this.parent = parent;
-
-            _nestLevel = 0;
-            var current = parent;
-            while (current != null) {
-                ++_nestLevel;
-                current = current.parent;
-            }
-        }
-
-        public T AddTrack<T>(string name, T child) where T : TrackBase
-        {
-            childs.Add(child);
-            child.Initialize(trackEditor, name, this);
-            return child;
-        }
-
-        public void RemoveTrack(TrackBase track)
-        {
-            _removeTracks.Add(track);
-
-            if (trackEditor.selectionTrack == track) {
-                trackEditor.SetSelectionTrack(null);
-
-                if (2 <= childs.Count) {
-                    int index = childs.IndexOf(track) + 1;
-                    if (childs.Count <= index) {
-                        index -= 2;
-                    }
-
-                    if (0 <= index && index < childs.Count) {
-                        childs[index].Selection();
-                    }
-                }
-            }
-        }
-
-        public void RemoveElement(ElementBase element)
-        {
-            _removeElements.Add(element);
-
-            if (selectionElement == element) {
-                selectionElement = null;
-
-                if (2 <= elements.Count) {
-                    int index = elements.IndexOf(element) + 1;
-                    if (childs.Count <= index) {
-                        index -= 2;
-                    }
-
-                    if (0 <= index && index < elements.Count) {
-                        selectionElement = elements[index];
-                    }
-                }
-            }
-        }
-
-        public T AddElement<T>(T element) where T : ElementBase
-        {
-            elements.Add(element);
-            element.Initialize(this);
-            SetSelectionElement(element);
-            return element;
-        }
-
-        public void Selection()
-        {
-            trackEditor.SetSelectionTrack(this);
-        }
-
-        public void SetSelectionElement(ElementBase element)
-        {
-            selectionElement = element;
-
-            // 選択した要素を必ず先頭に置く。描画優先度とイベント判定優先度に影響する
-            var index = elements.IndexOf(element);
-            if (0 < index) {
-                elements.SwapAt(0, 1);
-            }
-        }
-
-        public void Repaint()
-        {
-            trackEditor.Repaint();
-        }
-
-        public void DrawTrack(Rect rect) {
-
-            if (0 < _nestLevel) {
-                TrackDrawer(rect);
-            }
-
-            if (expand) {
-                // 深さに応じて表示位置をずらす
-                var slideSize = (_nestLevel == 0) ? 0.0f : rect.width * trackEditor.childTrackSlide;
-
-                float x = rect.x + slideSize;
-                float y = rect.y;
-                float width  = rect.width - slideSize;
-                foreach (var child in childs) {
-                    Rect rectChild = new Rect(x, y, width, child.CalcTrackHeight());
-                    child.DrawTrack(rectChild);
-                    y += rectChild.height;
-                }
-            }
-
-            if (Event.current.type == EventType.MouseDown) {
-                if (rect.Contains(Event.current.mousePosition)) {
-                    if (childs.Count == 0) {
-                        OnTrackSelection();
-
-                    } else {
-                        if (IsSelection) {
-                            expand = !expand;
-                            trackEditor.Repaint();
-
-                        } else {
-                            Selection();
-                        }
-
-                    }
-                    Event.current.Use();
-                }
-            }
-
-            // 安全なタイミングで削除
-            foreach (var track in _removeTracks) {
-                int index = childs.IndexOf(track);
-                if (index != -1) {
-                    childs.RemoveAt(index);
-                }
-            }
-            _removeTracks.Clear();
-
-            foreach (var element in _removeElements) {
-                int index = elements.IndexOf(element);
-                if (index != -1) {
-                    elements.RemoveAt(index);
-                }
-            }
-            _removeElements.Clear();
-        }
-
-        public void DrawElement(Rect rect) {
-
-            // マウスイベントの取得順序と描画順序は逆
-            Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
-            for (int i = 0; i < elements.Count; ++i) {
-                elements[i].UpdateElement(rectElement);
-            }
-
-            for (int i = elements.Count-1; 0 <= i; --i) {
-                elements[i].DrawElement(rectElement);
-            }
-
-            if (expand) {
-                float y = rect.y;
-                foreach (var child in childs) {
-                    Rect rectChild = new Rect(rect.x, y, rect.width, child.CalcTrackHeight());
-                    child.DrawElement(rectChild);
-                    y += rectChild.height;
-                }
-            }
-        }
-
-        public void DrawProperty(Rect rect)
-        {
-            using (new GUILayout.VerticalScope("box")) {
-                PropertyDrawer(rect);
-
-            }
-
-            if (selectionElement != null) {
-                using (new GUILayout.VerticalScope("box")) {
-                    selectionElement.PropertyDrawer(rect);
-
-                }
-            }
         }
 
         public virtual void TrackDrawer(Rect rect)
@@ -227,16 +37,6 @@ namespace track_editor_fw
             GUILayout.Label("Type:" + name);
         }
 
-        public virtual void OnTrackSelection()
-        {
-            Selection();
-        }
-
-        public virtual void OnElementSelection()
-        {
-            Selection();
-        }
-
         public virtual float CalcElementWidth()
         {
             if (0 < childs.Count) {
@@ -244,7 +44,7 @@ namespace track_editor_fw
             }
 
             if (0 < elements.Count) {
-                return elements.Max(element => (element.start + element.length) * trackEditor.pixelScale);
+                return elements.Max(element => (element.start + element.length) * manager.pixelScale);
             }
             return 200;
         }
@@ -257,12 +57,52 @@ namespace track_editor_fw
             return trackHeight;
         }
 
-        public virtual void Write<T>(T asset) where T: TrackEditorAsset
+        public virtual void Write<T>(T asset) where T : TrackEditorAsset
         {
 
         }
-
+#endif
     }
+
+#if UNITY_EDITOR
+    public class TrackGUIParam
+    {
+        public virtual void Initialize(TrackManager manager, string name, TrackBase parent)
+        {
+            this.manager = manager;
+            this.parent = parent;
+
+            nestLevel = 0;
+            var current = parent;
+            while (current != null) {
+                ++nestLevel;
+                current = current.parent;
+            }
+        }
+
+        public TrackManager manager { get; private set; }
+
+        public TrackBase parent { get; private set; }
+
+        public ElementBase selectionElement { get; set; }
+
+        public float trackHeight { get => manager.trackHeight; }
+
+        public bool IsSelection { get => manager.selectionTrack == this; }
+
+        public float pixelScale { get => manager.pixelScale; }
+
+        public Vector2 scrollPos { get => manager.scrollPos; }
+
+        public bool expand { get; set; } = true;
+
+        public List<TrackBase> removeTracks { get; set; } = new List<TrackBase>();
+
+        public List<ElementBase> removeElements { get; set; } = new List<ElementBase>();
+
+        public int nestLevel { get; set; } = 0;
+    }
+
 
     static class ContainerSwap
     {
@@ -273,4 +113,5 @@ namespace track_editor_fw
             list[indexA] = tmp;
         }
     }
+#endif
 }
