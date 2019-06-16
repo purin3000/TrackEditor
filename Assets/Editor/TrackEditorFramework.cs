@@ -29,9 +29,11 @@ namespace track_editor_fw
         public int propertyWidth = 300;
 
         public int trackWidth = 200;
-        public int trackHeight = 50;
+        public int trackHeight = 35;
 
         public float childTrackSlide = 0.5f;
+
+        public int gridScaleMax = 30;
     }
 
     public class TrackEditor
@@ -39,6 +41,10 @@ namespace track_editor_fw
         public int frameLength = 100;
 
         public int currentFrame = 0;
+
+        public float gridScale = 4.0f;
+
+        public float pixelScale { get => 5.0f / gridScale * settings.pixelScale; }
 
         public TrackEditorSettings settings { get; private set; }
 
@@ -93,7 +99,7 @@ namespace track_editor_fw
             var elementWidth = rect.width - settings.trackWidth - settings.propertyWidth;
             var elementHeight = rect.height - settings.headerHeight - settings.timeHeight;
 
-            Rect rectHeader = new Rect(rect.x, rect.y, headerWidth, settings.headerHeight);
+            Rect rectHeader = new Rect(rect.x, rect.y, headerWidth - 16, settings.headerHeight);
             Rect rectTime = new Rect(elementX, timeY, elementWidth, settings.timeHeight);
             Rect rectProperty = new Rect(propertyX, rect.y, settings.propertyWidth, propertyHeight);
             Rect rectTrack = new Rect(rect.x, elementY, settings.trackWidth, elementHeight);
@@ -136,7 +142,7 @@ namespace track_editor_fw
             }
         }
 
-      void drawAreaLine(Rect rect)
+        void drawAreaLine(Rect rect)
         {
             Handles.color = Color.gray;
 
@@ -161,10 +167,10 @@ namespace track_editor_fw
 
                 if (rect.Contains(mousePos)) {
                     var relativePos = mousePos.x - rect.x + scrPos.x;
-                    int frame = (int)(relativePos / settings.pixelScale);
+                    int frame = (int)(relativePos / pixelScale);
 
                     currentFrame = frame;
-                    GUI.FocusControl("");   
+                    GUI.FocusControl("");
                     Repaint();
 
                     Event.current.Use();
@@ -173,7 +179,8 @@ namespace track_editor_fw
 
 
             {
-                var x = rect.x + currentFrame * settings.pixelScale - scrPos.x;
+                //var x = PixelToRectWidth(rect, FrameToPixel(currentFrame));
+                var x = rect.x + currentFrame * pixelScale - scrPos.x;
                 if (rect.Contains(new Vector2(x, rect.y))) {
                     Handles.color = Color.white;
                     Handles.DrawLine(new Vector3(x, rect.y, 0), new Vector3(x, rect.y + rect.height, 0));
@@ -182,7 +189,7 @@ namespace track_editor_fw
 
 
             {
-                var x = rect.x + frameLength * settings.pixelScale - scrPos.x;
+                var x = rect.x + frameLength * pixelScale - scrPos.x;
                 if (rect.Contains(new Vector2(x, rect.y))) {
                     Handles.color = Color.red;
                     Handles.DrawLine(new Vector3(x, rect.y, 0), new Vector3(x, rect.y + rect.height, 0));
@@ -211,14 +218,25 @@ namespace track_editor_fw
 
         void drawTime(Rect rect)
         {
-            using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height))) {   // スクロールバー端の描画の都合で範囲調整
-                float x = settings.pixelScale * 10;
-                int frame = 10;
-                while (x < frameLength * 10 + 100) {
-                    GUI.Label(new Rect(x - scrPos.x, 0, 40, 40), frame.ToString());
+            int baseFrame = 10;
 
-                    x += settings.pixelScale * 10;
-                    frame += 10;
+            if (15 < gridScale) {
+                baseFrame = 100;
+            } else if (10 < gridScale) {
+                baseFrame = 50;
+            } else if (5 < gridScale) {
+                baseFrame = 20;
+            }
+
+
+            using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height))) {   // スクロールバー端の描画の都合で範囲調整
+                var start= (int)(scrollPos.x / pixelScale);
+                var end = (int)((scrollPos.x + rect.width - 16) / pixelScale);
+
+                for (int frame = start; frame <= end; frame += baseFrame) {
+                    float x = frame * pixelScale;
+
+                    GUI.Label(new Rect(x - scrPos.x, 0, 40, 40), frame.ToString());
                 }
             }
         }
@@ -239,12 +257,51 @@ namespace track_editor_fw
             }
 
             using (var scope = new EditorGUILayout.ScrollViewScope(scrPos)) {
-                float scrollWidth = top.CalcElementWidth();
-                float scrollHeight = top.CalcTrackHeight();
+                float scrollWidth = Mathf.Max(top.CalcElementWidth(), (frameLength + 30) * pixelScale);
+                float scrollHeight = top.CalcTrackHeight() + settings.trackHeight;
 
                 GUILayout.Label("", GUILayout.Width(scrollWidth - 24), GUILayout.Height(scrollHeight - 20));
 
                 scrPos = scope.scrollPosition;
+            }
+
+            {
+                var start = (int)(scrollPos.x / pixelScale);
+                var end = (int)((scrollPos.x + rect.width - 16) / pixelScale);
+
+                if (gridScale < 7) {
+                    for (int frame = start; frame <= end; ++frame) {
+                        var x = frame * pixelScale - scrollPos.x;
+                        if (rect.Contains(new Vector2(x + rect.x, rect.y))) {
+                            Handles.color = new Color(0, 0, 0, 0.1f);
+                            Handles.DrawLine(new Vector3(x, 0, 0), new Vector3(x, rect.height - 16, 0));
+                        }
+                    }
+                }
+
+                {
+                    for (int frame = start; frame <= end; frame += 10) {
+                        var x = frame * pixelScale - scrollPos.x;
+                        if (rect.Contains(new Vector2(x + rect.x, rect.y))) {
+                            Handles.color = new Color(0, 0, 0, 0.1f);
+                            Handles.DrawLine(new Vector3(x, 0, 0), new Vector3(x, rect.height - 16, 0));
+                        }
+                    }
+                }
+            }
+
+
+            {
+                var start = (int)(scrollPos.y / settings.trackHeight);
+                var end = (int)((scrollPos.y + rect.height - 16) / settings.trackHeight);
+
+                for (int index = start; index <= end; ++index) {
+                    var y = index * settings.trackHeight - scrollPos.y;
+                    if (rect.Contains(new Vector2(rect.x, rect.y + y))) {
+                        Handles.color = new Color(0, 0, 0, 0.3f);
+                        Handles.DrawLine(new Vector3(0, y, 0), new Vector3(rect.width - 16, y, 0));
+                    }
+                }
             }
         }
     }

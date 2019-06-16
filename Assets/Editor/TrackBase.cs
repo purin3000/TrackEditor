@@ -223,7 +223,11 @@ namespace track_editor_fw
         public virtual float CalcElementWidth()
         {
             if (0 < childs.Count) {
-                return childs.Max(element => element.CalcElementWidth());
+                return childs.Max(child => child.CalcElementWidth());
+            }
+
+            if (0 < elements.Count) {
+                return elements.Max(element => (element.start + element.length) * trackEditor.pixelScale);
             }
             return 200;
         }
@@ -231,7 +235,7 @@ namespace track_editor_fw
         public virtual float CalcTrackHeight()
         {
             if (expand && 0 < childs.Count) {
-                return childs.Sum(element => element.CalcTrackHeight());
+                return childs.Sum(child => child.CalcTrackHeight());
             }
             return trackEditor.settings.trackHeight;
         }

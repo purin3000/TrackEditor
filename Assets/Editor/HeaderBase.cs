@@ -7,18 +7,19 @@ namespace track_editor_fw
 {
     public class HeaderBase
     {
-        public TrackEditor root { get; private set; }
+        public TrackEditor trackEditor { get; private set; }
 
         public HeaderBase(TrackEditor root)
         {
-            this.root = root;
+            this.trackEditor = root;
         }
 
         public virtual void DrawHeader(Rect rect)
         {
             using (new GUILayout.HorizontalScope()) {
-                root.currentFrame = Mathf.Max(0, EditorGUILayout.IntField("Frame", root.currentFrame));
-                root.frameLength = Mathf.Max(0, EditorGUILayout.IntField("Length", root.frameLength));
+                trackEditor.currentFrame = Mathf.Max(0, EditorGUILayout.IntField("Frame", trackEditor.currentFrame));
+                trackEditor.frameLength = Mathf.Max(0, EditorGUILayout.IntField("Length", trackEditor.frameLength));
+                trackEditor.gridScale = EditorGUILayout.IntSlider("Scale", (int)trackEditor.gridScale, 1, trackEditor.settings.gridScaleMax);
             }
         }
     }

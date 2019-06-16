@@ -48,8 +48,8 @@ public class TrackEditorExample : EditorWindow
             using (new GUILayout.HorizontalScope()) {
 
                 if (GUILayout.Button("Add ObjectTrack")) {
-                    var track = root.top.AddTrack(string.Format("Track:{0}", root.top.childs.Count + 1), new ObjectTrackData());
-                    root.SetSelectionTrack(track);
+                    var track = trackEditor.top.AddTrack(string.Format("Track:{0}", trackEditor.top.childs.Count + 1), new ObjectTrackData());
+                    trackEditor.SetSelectionTrack(track);
                 }
             }
         }

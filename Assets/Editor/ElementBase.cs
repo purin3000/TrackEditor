@@ -27,10 +27,9 @@ namespace track_editor_fw
 
         public void DrawElement(Rect rect)
         {
-            var pixelScale = parent.trackEditor.settings.pixelScale;
+            var pixelScale = parent.trackEditor.pixelScale;
             var scrPos = parent.trackEditor.scrollPos;
 
-            //Rect labelRect = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
             Rect labelRect = new Rect(rect.x + pixelScale * start - scrPos.x, rect.y - scrPos.y, pixelScale * length, parent.trackEditor.settings.trackHeight);
 
             ElementDrawer(labelRect);
@@ -63,7 +62,7 @@ namespace track_editor_fw
 
         public virtual void ElementDrawer(Rect rect)
         {
-            var pixelScale = parent.trackEditor.settings.pixelScale;
+            var pixelScale = parent.trackEditor.pixelScale;
             var scrPos = parent.trackEditor.scrollPos;
 
             //Rect labelRect = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
