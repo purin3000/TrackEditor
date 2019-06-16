@@ -22,7 +22,7 @@ public class TrackEditorExample : EditorWindow
         }
 
         _trackEditor.SetHeader(new TestHeader(_trackEditor));
-        _trackEditor.SetSelectionTrack(_trackEditor.top.childs[2]);
+        _trackEditor.top.childs[2].Selection();
     }
 
     private void OnGUI()
@@ -36,8 +36,8 @@ public class TrackEditorExample : EditorWindow
 
     class TestHeader : HeaderBase
     {
-        public TestHeader(TrackEditor root)
-           : base(root)
+        public TestHeader(TrackEditor trackEditor)
+           : base(trackEditor)
         {
         }
 
@@ -49,7 +49,15 @@ public class TrackEditorExample : EditorWindow
 
                 if (GUILayout.Button("Add ObjectTrack")) {
                     var track = trackEditor.top.AddTrack(string.Format("Track:{0}", trackEditor.top.childs.Count + 1), new ObjectTrackData());
-                    trackEditor.SetSelectionTrack(track);
+                    track.Selection();
+                }
+
+                if (GUILayout.Button("Save")) {
+                    TrackEditorData.Save(trackEditor, "Assets/TrackEditorData.asset");
+                }
+
+                if (GUILayout.Button("Load")) {
+
                 }
             }
         }

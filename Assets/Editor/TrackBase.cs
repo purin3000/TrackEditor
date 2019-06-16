@@ -65,7 +65,7 @@ namespace track_editor_fw
                     }
 
                     if (0 <= index && index < childs.Count) {
-                        trackEditor.SetSelectionTrack(childs[index]);
+                        childs[index].Selection();
                     }
                 }
             }
@@ -99,11 +99,16 @@ namespace track_editor_fw
             return element;
         }
 
+        public void Selection()
+        {
+            trackEditor.SetSelectionTrack(this);
+        }
+
         public void SetSelectionElement(ElementBase element)
         {
             selectionElement = element;
 
-            // 選択した要素を必ず先頭に置く
+            // 選択した要素を必ず先頭に置く。描画優先度とイベント判定優先度に影響する
             var index = elements.IndexOf(element);
             if (0 < index) {
                 elements.SwapAt(0, 1);
@@ -146,7 +151,7 @@ namespace track_editor_fw
                             trackEditor.Repaint();
 
                         } else {
-                            trackEditor.SetSelectionTrack(this);
+                            Selection();
                         }
 
                     }
@@ -223,12 +228,12 @@ namespace track_editor_fw
 
         public virtual void OnTrackSelection()
         {
-            trackEditor.SetSelectionTrack(this);
+            Selection();
         }
 
         public virtual void OnElementSelection()
         {
-            trackEditor.SetSelectionTrack(this);
+            Selection();
         }
 
         public virtual float CalcElementWidth()

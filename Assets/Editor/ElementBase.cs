@@ -34,6 +34,18 @@ namespace track_editor_fw
             this.length = 1;
         }
 
+        public void Selection()
+        {
+            parent.Selection();
+            parent.SetSelectionElement(this);
+            parent.Repaint();
+        }
+
+        /// <summary>
+        /// ドラッグ関連
+        /// 描画優先度とイベント優先度が逆のため、DrawElementとUpdateElemenetに関数を分離して回す必要がある
+        /// </summary>
+        /// <param name="rect"></param>
         public void UpdateElement(Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);
@@ -41,8 +53,7 @@ namespace track_editor_fw
 
             if (Event.current.type == EventType.MouseDown) {
                 if (rectLabel.Contains(Event.current.mousePosition)) {
-                    parent.SetSelectionElement(this);
-                    parent.Repaint();
+                    Selection();
 
                     isDrag = true;
                     mouseOffset = rectLabel.position - Event.current.mousePosition;
@@ -90,56 +101,8 @@ namespace track_editor_fw
         public void DrawElement(Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);
-            //Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, pixelScale * 1, trackHeight);
 
             ElementDrawer(rectLabel);
-
-            //if (Event.current.type == EventType.MouseDown) {
-            //    if (rectLabel.Contains(Event.current.mousePosition)) {
-            //        parent.SetSelectionElement(this);
-            //        parent.Repaint();
-
-            //        isDrag = true;
-            //        mouseOffset = rectLabel.position - Event.current.mousePosition;
-
-            //        Event.current.Use();
-
-            //    } else if (rectLength.Contains(Event.current.mousePosition)) {
-            //        //DragAndDrop.visualMode = DragAndDropVisualMode.Move;
-            //        //int id = GUIUtility.GetControlID(FocusType.Passive);
-            //        //DragAndDrop.activeControlID = id;
-
-            //        isLengthDrag = true;
-            //        mouseOffset = rectLength.position - Event.current.mousePosition;
-
-            //        Event.current.Use();
-            //    }
-
-            //} else if (Event.current.type == EventType.MouseUp) {
-            //    isDrag = false;
-            //    isLengthDrag = false;
-
-            //    //DragAndDrop.visualMode = DragAndDropVisualMode.None;
-            //    //DragAndDrop.activeControlID = 0;
-
-            //} else if (Event.current.type == EventType.MouseDrag) {
-            //    if (isDrag) {
-            //        var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + mouseOffset.x) / pixelScale);
-
-            //        start = currentFrame;
-            //        parent.Repaint();
-
-            //        Event.current.Use();
-
-            //    } else if (isLengthDrag) {
-            //        var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + mouseOffset.x) / pixelScale);
-
-            //        length = Mathf.Max(1, currentFrame - start);
-            //        parent.Repaint();
-
-            //        Event.current.Use();
-            //    }
-            //}
         }
 
         public virtual void ElementDrawer(Rect rect)

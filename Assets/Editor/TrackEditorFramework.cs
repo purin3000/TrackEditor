@@ -86,6 +86,7 @@ namespace track_editor_fw
             repaintRequest |= true;
         }
 
+        public float elementWidth { get; private set; }
         public void OnGUI(Rect rect)
         {
             repaintRequest = false;
@@ -104,6 +105,8 @@ namespace track_editor_fw
             Rect rectProperty = new Rect(propertyX, rect.y, settings.propertyWidth, propertyHeight);
             Rect rectTrack = new Rect(rect.x, elementY, settings.trackWidth, elementHeight);
             Rect rectElement = new Rect(elementX, elementY, elementWidth, elementHeight);
+
+            this.elementWidth = elementWidth;
 
             using (new GUILayout.AreaScope(rectHeader)) {
                 drawHeader(rectHeader);
@@ -162,6 +165,7 @@ namespace track_editor_fw
 
         void drawFrameLine(Rect rect)
         {
+            // カレントフレーム変更
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag) {
                 var mousePos = Event.current.mousePosition;
 
@@ -177,7 +181,7 @@ namespace track_editor_fw
                 }
             }
 
-
+            // カレントフレームの縦線
             {
                 //var x = PixelToRectWidth(rect, FrameToPixel(currentFrame));
                 var x = rect.x + currentFrame * pixelScale - scrPos.x;
@@ -187,7 +191,7 @@ namespace track_editor_fw
                 }
             }
 
-
+            // 最終フレームの縦線
             {
                 var x = rect.x + frameLength * pixelScale - scrPos.x;
                 if (rect.Contains(new Vector2(x, rect.y))) {
@@ -228,7 +232,7 @@ namespace track_editor_fw
                 baseFrame = 20;
             }
 
-
+            // フレーム数表示
             using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height))) {   // スクロールバー端の描画の都合で範囲調整
                 var start= (int)(scrollPos.x / pixelScale);
                 var end = (int)((scrollPos.x + rect.width - 16) / pixelScale);
@@ -260,15 +264,18 @@ namespace track_editor_fw
                 float scrollWidth = Mathf.Max(top.CalcElementWidth(), (frameLength + 30) * pixelScale);
                 float scrollHeight = top.CalcTrackHeight() + settings.trackHeight;
 
+                // ScrollViewを動かすためのダミー領域
                 GUILayout.Label("", GUILayout.Width(scrollWidth - 24), GUILayout.Height(scrollHeight - 20));
 
                 scrPos = scope.scrollPosition;
             }
 
+            // 縦線
             {
                 var start = (int)(scrollPos.x / pixelScale);
                 var end = (int)((scrollPos.x + rect.width - 16) / pixelScale);
 
+                // 1フレーム単位
                 if (gridScale < 7) {
                     for (int frame = start; frame <= end; ++frame) {
                         var x = frame * pixelScale - scrollPos.x;
@@ -279,6 +286,7 @@ namespace track_editor_fw
                     }
                 }
 
+                // 10フレーム単位
                 {
                     for (int frame = start; frame <= end; frame += 10) {
                         var x = frame * pixelScale - scrollPos.x;
@@ -290,7 +298,7 @@ namespace track_editor_fw
                 }
             }
 
-
+            // 横線
             {
                 var start = (int)(scrollPos.y / settings.trackHeight);
                 var end = (int)((scrollPos.y + rect.height - 16) / settings.trackHeight);
@@ -301,6 +309,42 @@ namespace track_editor_fw
                         Handles.color = new Color(0, 0, 0, 0.3f);
                         Handles.DrawLine(new Vector3(0, y, 0), new Vector3(rect.width - 16, y, 0));
                     }
+                }
+            }
+
+            updateTrackSelect(rect);
+        }
+
+        void updateTrackSelect(Rect rect)
+        {
+            if (Event.current.type == EventType.MouseDown) {
+                var mousePos = Event.current.mousePosition;
+
+                Rect mouseRect = new Rect(0, 0, rect.width, rect.height);
+                if (mouseRect.Contains(mousePos)) {
+                    var relativePos = mousePos.y + scrollPos.y;
+                    int trackIndex = (int)(relativePos / settings.trackHeight);
+
+                    int index = 0;
+                    foreach (var track in top.childs) {
+                        if (track.expand) {
+                            foreach (var child in track.childs) {
+                                if (index == trackIndex) {
+                                    child.Selection();
+                                    return;
+                                }
+                                ++index;
+                            }
+                        } else {
+                            if (index == trackIndex) {
+                                track.Selection();
+                                return;
+                            }
+                            ++index;
+                        }
+                    }
+
+                    //Event.current.Use();
                 }
             }
         }
