@@ -34,7 +34,8 @@ public class TrackEditorExample : EditorWindow
         }
     }
 
-    class TestHeader : HeaderBase
+    [System.Serializable]
+    public class TestHeader : HeaderBase
     {
         public TestHeader(TrackEditor trackEditor)
            : base(trackEditor)
@@ -53,7 +54,7 @@ public class TrackEditorExample : EditorWindow
                 }
 
                 if (GUILayout.Button("Save")) {
-                    TrackEditorData.Save(trackEditor, "Assets/TrackEditorData.asset");
+                    trackEditor.Save<TrackEditorExampleAsset>("Assets/TrackEditorData.asset");
                 }
 
                 if (GUILayout.Button("Load")) {
@@ -83,6 +84,9 @@ public class TrackEditorExample : EditorWindow
             }
         }
 
+        public override void Write<T>(T asset)
+        {
+        }
     }
 
     class PositionTrackData : TrackBase

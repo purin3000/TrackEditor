@@ -4,38 +4,10 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
+
+
 namespace track_editor_fw
 {
-    // Layout
-    // +-------------------------+----------+
-    // | header                  | property |
-    // +--------+----------------+ v scroll |
-    // |        | time           |          |
-    // |        | h scroll       |          |
-    // +--------+----------------+          |
-    // | track  | element        |          |
-    // | v scr  | vh scroll      |          |
-    // |        |                |          |
-    // |        |                |          |
-    // +--------+----------------+----------+
-
-    public class TrackEditorSettings
-    {
-        public float pixelScale = 5.0f;
-
-        public int headerHeight = 40;
-        public int timeHeight = 20;
-
-        public int propertyWidth = 300;
-
-        public int trackWidth = 200;
-        public int trackHeight = 35;
-
-        public float childTrackSlide = 0.5f;
-
-        public int gridScaleMax = 30;
-    }
-
     public class TrackEditor
     {
         public int frameLength = 100;
@@ -348,6 +320,77 @@ namespace track_editor_fw
                 }
             }
         }
+
+        public TrackEditorAsset Save<T>(string assetPath) where T : TrackEditorAsset
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+            if (asset == null) {
+                asset = ScriptableObject.CreateInstance<T>();
+                AssetDatabase.CreateAsset(asset, assetPath);
+            }
+
+            asset.frameLength = frameLength;
+
+
+            List<TrackBase> trackBaseList = listupTrackBase(new List<TrackBase>(), top);
+            List<ElementBase> elementBaseList = listupElementBase(new List<ElementBase>(), top);
+
+            foreach (var trackBase in trackBaseList) {
+                trackBase.Write(asset);
+
+                //foreach (var element in elementBaseList) {
+                //    track.elements.Add(elementBaseList.IndexOf(element));
+                //}
+            }
+
+
+
+            //List<TrackBase> trackBaseList = listupTrackBase(new List<TrackBase>(), data.top);
+            //List<ElementBase> elementBaseList = listupElementBase(new List<ElementBase>(), data.top);
+
+            //asset.tracks.Clear();
+            //foreach (var trackBase in trackBaseList) {
+            //    var track = new Track();
+            //    track.name = trackBase.name;
+            //    track.parent = trackBaseList.IndexOf(trackBase.parent);
+            //    foreach (var element in elementBaseList) {
+            //        track.elements.Add(elementBaseList.IndexOf(element));
+            //    }
+            //    asset.tracks.Add(track);
+            //}
+
+            //asset.elements.Clear();
+            //foreach (var elementBase in elementBaseList) {
+            //    var element = new Element();
+            //    element.start = elementBase.start;
+            //    element.length = elementBase.length;
+            //    element.parent = trackBaseList.IndexOf(elementBase.parent);
+            //    asset.elements.Add(element);
+            //}
+
+            EditorUtility.SetDirty(asset);
+
+            return asset;
+        }
+
+        static List<TrackBase> listupTrackBase(List<TrackBase> list, TrackBase track)
+        {
+            list.Add(track);
+            foreach (var child in track.childs) {
+                listupTrackBase(list, child);
+            }
+            return list;
+        }
+
+        static List<ElementBase> listupElementBase(List<ElementBase> list, TrackBase track)
+        {
+            list.AddRange(track.elements);
+            foreach (var child in track.childs) {
+                listupElementBase(list, child);
+            }
+            return list;
+        }
+
     }
 }
 

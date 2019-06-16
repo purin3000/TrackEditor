@@ -5,17 +5,18 @@ using System.Linq;
 
 namespace track_editor_fw
 {
+    [System.Serializable]
     public class TrackBase
     {
         public string name;
 
+        public List<TrackBase> childs = new List<TrackBase>();
+
+        public List<ElementBase> elements = new List<ElementBase>();
+
         public TrackEditor trackEditor { get; private set; }
 
         public TrackBase parent { get; private set; }
-
-        public List<TrackBase> childs { get; private set; } = new List<TrackBase>();
-
-        public List<ElementBase> elements { get; private set; } = new List<ElementBase>();
 
         public ElementBase selectionElement { get; private set; }
 
@@ -255,6 +256,12 @@ namespace track_editor_fw
             }
             return trackHeight;
         }
+
+        public virtual void Write<T>(T asset) where T: TrackEditorAsset
+        {
+
+        }
+
     }
 
     static class ContainerSwap
