@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace track_editor_fw
 {
+#if UNITY_EDITOR
     public class TrackManager
     {
         public int frameLength = 100;
@@ -612,8 +613,7 @@ namespace track_editor_fw
             element.ElementDrawer(rectLabel);
         }
 
-
-
     }
+#endif
 }
 

@@ -5,6 +5,7 @@ using UnityEditor;
 
 namespace track_editor_fw
 {
+#if UNITY_EDITOR
     public class HeaderBase
     {
         public TrackManager manager { get; private set; }
@@ -23,4 +24,5 @@ namespace track_editor_fw
             }
         }
     }
+#endif
 }
