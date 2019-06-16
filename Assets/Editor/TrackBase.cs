@@ -102,6 +102,12 @@ namespace track_editor_fw
         public void SetSelectionElement(ElementBase element)
         {
             selectionElement = element;
+
+            // 選択した要素を必ず先頭に置く
+            var index = elements.IndexOf(element);
+            if (0 < index) {
+                elements.SwapAt(0, 1);
+            }
         }
 
         public void Repaint()
@@ -167,20 +173,23 @@ namespace track_editor_fw
         }
 
         public void DrawElement(Rect rect) {
+
+            // マウスイベントの取得順序と描画順序は逆
             Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
-            foreach (var element in elements) {
-                element.DrawElement(rectElement);
+            for (int i = 0; i < elements.Count; ++i) {
+                elements[i].UpdateElement(rectElement);
             }
 
-            if (childs.Count == 0) {
-            } else {
-                if (expand) {
-                    float y = rect.y;
-                    foreach (var child in childs) {
-                        Rect rectChild = new Rect(rect.x, y, rect.width, child.CalcTrackHeight());
-                        child.DrawElement(rectChild);
-                        y += rectChild.height;
-                    }
+            for (int i = elements.Count-1; 0 <= i; --i) {
+                elements[i].DrawElement(rectElement);
+            }
+
+            if (expand) {
+                float y = rect.y;
+                foreach (var child in childs) {
+                    Rect rectChild = new Rect(rect.x, y, rect.width, child.CalcTrackHeight());
+                    child.DrawElement(rectChild);
+                    y += rectChild.height;
                 }
             }
         }
@@ -240,6 +249,16 @@ namespace track_editor_fw
                 return childs.Sum(child => child.CalcTrackHeight());
             }
             return trackHeight;
+        }
+    }
+
+    static class ContainerSwap
+    {
+        public static void SwapAt<T>(this List<T> list, int indexA, int indexB)
+        {
+            var tmp = list[indexB];
+            list[indexB] = list[indexA];
+            list[indexA] = tmp;
         }
     }
 }
