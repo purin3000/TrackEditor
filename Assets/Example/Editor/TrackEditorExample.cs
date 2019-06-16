@@ -13,7 +13,7 @@ public class TrackEditorExample : EditorWindow
         GetWindow<TrackEditorExample>("TrackEditorExample");
     }
 
-    TrackEditor _trackEditor = new TrackEditor(new TrackEditorSettings());
+    TrackManager _trackEditor = new TrackManager(new TrackEditorSettings());
 
     private void OnEnable()
     {
@@ -37,7 +37,7 @@ public class TrackEditorExample : EditorWindow
     [System.Serializable]
     public class TestHeader : HeaderBase
     {
-        public TestHeader(TrackEditor trackEditor)
+        public TestHeader(TrackManager trackEditor)
            : base(trackEditor)
         {
         }
@@ -66,7 +66,7 @@ public class TrackEditorExample : EditorWindow
 
     class ObjectTrackData : TrackBase
     {
-        public override void Initialize(TrackEditor trackEditor, string name, TrackBase parent)
+        public override void Initialize(TrackManager trackEditor, string name, TrackBase parent)
         {
             base.Initialize(trackEditor, name, parent);
 

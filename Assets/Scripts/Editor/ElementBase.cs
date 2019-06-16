@@ -14,7 +14,7 @@ namespace track_editor_fw
 
         public float pixelScale { get => parent.trackEditor.pixelScale; }
 
-        public float trackHeight { get => parent.trackEditor.settings.trackHeight; }
+        public float trackHeight { get => parent.trackEditor.trackHeight; }
 
         public Vector2 scrollPos { get => parent.trackEditor.scrollPos; }
 

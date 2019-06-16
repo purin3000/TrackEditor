@@ -14,13 +14,13 @@ namespace track_editor_fw
 
         public List<ElementBase> elements = new List<ElementBase>();
 
-        public TrackEditor trackEditor { get; private set; }
+        public TrackManager trackEditor { get; private set; }
 
         public TrackBase parent { get; private set; }
 
         public ElementBase selectionElement { get; private set; }
 
-        public float trackHeight { get => trackEditor.settings.trackHeight; }
+        public float trackHeight { get => trackEditor.trackHeight; }
 
         public bool expand { get; set; } = true;
 
@@ -31,7 +31,7 @@ namespace track_editor_fw
 
         int _nestLevel = 0;
 
-        public virtual void Initialize(TrackEditor trackEditor, string name, TrackBase parent)
+        public virtual void Initialize(TrackManager trackEditor, string name, TrackBase parent)
         {
             this.name = name;
             this.trackEditor = trackEditor;
@@ -129,7 +129,7 @@ namespace track_editor_fw
 
             if (expand) {
                 // 深さに応じて表示位置をずらす
-                var slideSize = (_nestLevel == 0) ? 0.0f : rect.width * trackEditor.settings.childTrackSlide;
+                var slideSize = (_nestLevel == 0) ? 0.0f : rect.width * trackEditor.childTrackSlide;
 
                 float x = rect.x + slideSize;
                 float y = rect.y;

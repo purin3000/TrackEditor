@@ -4,11 +4,9 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
-
-
 namespace track_editor_fw
 {
-    public class TrackEditor
+    public class TrackManager
     {
         public int frameLength = 100;
 
@@ -18,7 +16,13 @@ namespace track_editor_fw
 
         public float pixelScale { get => 5.0f / gridScale * settings.pixelScale; }
 
-        public TrackEditorSettings settings { get; private set; }
+        public float trackHeight { get => settings.trackHeight; }
+
+        public int gridScaleMax { get => settings.gridScaleMax; }
+
+        public float childTrackSlide { get => settings.childTrackSlide; }
+
+        private TrackEditorSettings settings { get; set; }
 
         public TrackBase top { get; private set; }
 
@@ -35,7 +39,7 @@ namespace track_editor_fw
 
 
 
-        public TrackEditor(TrackEditorSettings settings)
+        public TrackManager(TrackEditorSettings settings)
         {
             this.settings = settings;
             top = new TrackBase();
