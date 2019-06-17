@@ -30,7 +30,7 @@ namespace track_editor_fw
         public int trackWidth = 200;
         public int trackHeight = 35;
 
-        public float childTrackSlide = 0.5f;
+        public float childTrackSlide = 0.6f;
 
         public int gridScaleMax = 30;
     }

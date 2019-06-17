@@ -5,12 +5,14 @@ using UnityEditor;
 
 namespace track_editor_fw
 {
-#if UNITY_EDITOR
-    public class HeaderBase
+    /// <summary>
+    /// ヘッダ領域描画用
+    /// </summary>
+    public class EditorHeader
     {
-        public TrackManager manager { get; private set; }
+        public TrackEditor manager { get; private set; }
 
-        public HeaderBase(TrackManager manager)
+        public EditorHeader(TrackEditor manager)
         {
             this.manager = manager;
         }
@@ -24,5 +26,4 @@ namespace track_editor_fw
             }
         }
     }
-#endif
 }

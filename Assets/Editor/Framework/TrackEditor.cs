@@ -6,8 +6,7 @@ using System.Linq;
 
 namespace track_editor_fw
 {
-#if UNITY_EDITOR
-    public class TrackManager
+    public class TrackEditor
     {
         public int frameLength = 100;
 
@@ -25,11 +24,11 @@ namespace track_editor_fw
 
         private TrackEditorSettings settings { get; set; }
 
-        public TrackBase top { get; private set; }
+        public EditorTrack top { get; set; }
 
-        public HeaderBase header { get; private set; }
+        public EditorHeader header { get; private set; }
 
-        public TrackBase selectionTrack { get; private set; }
+        public EditorTrack selectionTrack { get; private set; }
 
         public Vector2 scrollPos { get => scrPos; }
 
@@ -40,25 +39,25 @@ namespace track_editor_fw
         Vector2 scrPos;
 
 
-        public TrackManager(TrackEditorSettings settings)
+        public TrackEditor(TrackEditorSettings settings, EditorTrack top)
         {
             this.settings = settings;
-            top = new TrackBase();
+            this.top = top;
             top.Initialize(this, "top", null);
         }
 
-        public void SetHeader(HeaderBase header)
+        public void SetHeader(EditorHeader header)
         {
             this.header = header;
         }
 
-        public void SetSelectionTrack(TrackBase track)
+        public void SetSelectionTrack(EditorTrack track)
         {
             selectionTrack = track;
             Repaint();
         }
 
-        public void SetSelectionElement(TrackBase track, ElementBase element)
+        public void SetSelectionElement(EditorTrack track, EditorTrackElement element)
         {
             SetSelectionTrack(track);
 
@@ -73,14 +72,14 @@ namespace track_editor_fw
             Repaint();
         }
 
-        public T AddTrack<T>(TrackBase parent, string name, T child) where T : TrackBase
+        public T AddTrack<T>(EditorTrack parent, string name, T child) where T : EditorTrack
         {
             parent.childs.Add(child);
             child.Initialize(this, name, parent);
             return child;
         }
 
-        public void RemoveTrack(TrackBase parent,TrackBase track)
+        public void RemoveTrack(EditorTrack parent,EditorTrack track)
         {
             parent.removeTracks.Add(track);
 
@@ -100,7 +99,7 @@ namespace track_editor_fw
             }
         }
 
-        public T AddElement<T>(TrackBase track, T element) where T : ElementBase
+        public T AddElement<T>(EditorTrack track, T element) where T : EditorTrackElement
         {
             track.elements.Add(element);
             element.Initialize(track);
@@ -108,7 +107,7 @@ namespace track_editor_fw
             return element;
         }
 
-        public void RemoveElement(TrackBase track, ElementBase element)
+        public void RemoveElement(EditorTrack track, EditorTrackElement element)
         {
             track.removeElements.Add(element);
 
@@ -406,77 +405,7 @@ namespace track_editor_fw
             }
         }
 
-        public TrackEditorAsset Save<T>(string assetPath) where T : TrackEditorAsset
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
-            if (asset == null) {
-                asset = ScriptableObject.CreateInstance<T>();
-                AssetDatabase.CreateAsset(asset, assetPath);
-            }
-
-            asset.frameLength = frameLength;
-
-
-            List<TrackBase> trackBaseList = listupTrackBase(new List<TrackBase>(), top);
-            List<ElementBase> elementBaseList = listupElementBase(new List<ElementBase>(), top);
-
-            foreach (var trackBase in trackBaseList) {
-                trackBase.Write(asset);
-
-                //foreach (var element in elementBaseList) {
-                //    track.elements.Add(elementBaseList.IndexOf(element));
-                //}
-            }
-
-
-
-            //List<TrackBase> trackBaseList = listupTrackBase(new List<TrackBase>(), data.top);
-            //List<ElementBase> elementBaseList = listupElementBase(new List<ElementBase>(), data.top);
-
-            //asset.tracks.Clear();
-            //foreach (var trackBase in trackBaseList) {
-            //    var track = new Track();
-            //    track.name = trackBase.name;
-            //    track.parent = trackBaseList.IndexOf(trackBase.parent);
-            //    foreach (var element in elementBaseList) {
-            //        track.elements.Add(elementBaseList.IndexOf(element));
-            //    }
-            //    asset.tracks.Add(track);
-            //}
-
-            //asset.elements.Clear();
-            //foreach (var elementBase in elementBaseList) {
-            //    var element = new Element();
-            //    element.start = elementBase.start;
-            //    element.length = elementBase.length;
-            //    element.parent = trackBaseList.IndexOf(elementBase.parent);
-            //    asset.elements.Add(element);
-            //}
-
-            EditorUtility.SetDirty(asset);
-
-            return asset;
-        }
-
-        static List<TrackBase> listupTrackBase(List<TrackBase> list, TrackBase track)
-        {
-            list.Add(track);
-            foreach (var child in track.childs) {
-                listupTrackBase(list, child);
-            }
-            return list;
-        }
-
-        static List<ElementBase> listupElementBase(List<ElementBase> list, TrackBase track)
-        {
-            list.AddRange(track.elements);
-            foreach (var child in track.childs) {
-                listupElementBase(list, child);
-            }
-            return list;
-        }
-
-        void drawTrack(TrackBase track, Rect rect)
+        void drawTrack(EditorTrack track, Rect rect)
         {
             if (0 < track.nestLevel) {
                 track.TrackDrawer(rect);
@@ -533,7 +462,7 @@ namespace track_editor_fw
             track.removeElements.Clear();
         }
 
-        void DrawElement(TrackBase track, Rect rect)
+        void DrawElement(EditorTrack track, Rect rect)
         {
 
             // マウスイベントの取得順序と描画順序は逆
@@ -561,7 +490,7 @@ namespace track_editor_fw
         /// 描画優先度とイベント優先度が逆のため、DrawElementとUpdateElemenetに関数を分離して回す必要がある
         /// </summary>
         /// <param name="rect"></param>
-        void updateElement(TrackBase track, ElementBase element, Rect rect)
+        void updateElement(EditorTrack track, EditorTrackElement element, Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
             Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, pixelScale * 1, trackHeight);
@@ -606,7 +535,7 @@ namespace track_editor_fw
             }
         }
 
-        void drawElement(ElementBase element, Rect rect)
+        void drawElement(EditorTrackElement element, Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
 
@@ -614,6 +543,5 @@ namespace track_editor_fw
         }
 
     }
-#endif
 }
 

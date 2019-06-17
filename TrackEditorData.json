@@ -1,0 +1,122 @@
+{
+    "frameLength": 100,
+    "rootTracks": [
+        {
+            "uniqueName": "Track0",
+            "name": "top",
+            "parent": "Track-1",
+            "childs": [
+                "Track1",
+                "Track4",
+                "Track7"
+            ],
+            "elements": []
+        }
+    ],
+    "gameObjectTracks": [
+        {
+            "uniqueName": "Track1",
+            "name": "Track:0",
+            "parent": "Track0",
+            "childs": [
+                "Track2",
+                "Track3"
+            ],
+            "elements": [],
+            "go": {
+                "instanceID": 11312
+            }
+        },
+        {
+            "uniqueName": "Track4",
+            "name": "Track:1",
+            "parent": "Track0",
+            "childs": [
+                "Track5",
+                "Track6"
+            ],
+            "elements": [],
+            "go": {
+                "instanceID": 0
+            }
+        },
+        {
+            "uniqueName": "Track7",
+            "name": "Track:2",
+            "parent": "Track0",
+            "childs": [
+                "Track8",
+                "Track9"
+            ],
+            "elements": [],
+            "go": {
+                "instanceID": 0
+            }
+        }
+    ],
+    "activationTracks": [
+        {
+            "uniqueName": "Track2",
+            "name": "Activation",
+            "parent": "Track1",
+            "childs": [],
+            "elements": [
+                "Element0"
+            ]
+        },
+        {
+            "uniqueName": "Track5",
+            "name": "Activation",
+            "parent": "Track4",
+            "childs": [],
+            "elements": []
+        },
+        {
+            "uniqueName": "Track8",
+            "name": "Activation",
+            "parent": "Track7",
+            "childs": [],
+            "elements": [
+                "Element1"
+            ]
+        }
+    ],
+    "positionTracks": [
+        {
+            "uniqueName": "Track3",
+            "name": "GameObject",
+            "parent": "Track1",
+            "childs": [],
+            "elements": []
+        },
+        {
+            "uniqueName": "Track6",
+            "name": "GameObject",
+            "parent": "Track4",
+            "childs": [],
+            "elements": []
+        },
+        {
+            "uniqueName": "Track9",
+            "name": "GameObject",
+            "parent": "Track7",
+            "childs": [],
+            "elements": []
+        }
+    ],
+    "activationElements": [
+        {
+            "uniqueName": "Element0",
+            "parent": "Track2",
+            "start": 15,
+            "length": 45
+        },
+        {
+            "uniqueName": "Element1",
+            "parent": "Track8",
+            "start": 43,
+            "length": 73
+        }
+    ],
+    "positionElements": []
+}
