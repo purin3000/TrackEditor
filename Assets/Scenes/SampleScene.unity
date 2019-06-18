@@ -175,7 +175,7 @@ MonoBehaviour:
     - Track5
     - Track6
     elements: []
-    go: {fileID: 0}
+    go: {fileID: 963194225}
   - uniqueName: Track7
     name: Track:2
     parent: Track0
@@ -220,14 +220,14 @@ MonoBehaviour:
     childs: []
     elements: []
   activationElements:
-  - uniqueName: Element2
-    parent: Track8
-    start: 27
-    length: 13
   - uniqueName: Element0
     parent: Track5
     start: 46
     length: 45
+  - uniqueName: Element2
+    parent: Track8
+    start: 27
+    length: 13
   positionElements:
   - uniqueName: Element1
     parent: Track6
