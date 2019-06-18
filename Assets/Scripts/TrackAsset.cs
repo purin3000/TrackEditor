@@ -10,17 +10,28 @@ namespace track_editor
     /// 
     /// このオブジェクトをプレハブやScriptableObjectにしてランタイムで使用
     /// </summary>
+    [System.Serializable]
     public class TrackAsset : MonoBehaviour
     {
         public int frameLength = 100;
 
+        [HideInInspector]
         public List<RootTrackSerialize> rootTracks = new List<RootTrackSerialize>();
+        [HideInInspector]
         public List<GameObjectTrackSerialize> gameObjectTracks = new List<GameObjectTrackSerialize>();
+        [HideInInspector]
         public List<ActivationTrackSerialize> activationTracks = new List<ActivationTrackSerialize>();
+        [HideInInspector]
         public List<PositionTrackSerialize> positionTracks = new List<PositionTrackSerialize>();
+        [HideInInspector]
+        public List<AnimationTrackSerialize> animationTracks = new List<AnimationTrackSerialize>();
 
+        [HideInInspector]
         public List<ActivationElementSerialize> activationElements = new List<ActivationElementSerialize>();
+        [HideInInspector]
         public List<PositionElementSerialize> positionElements = new List<PositionElementSerialize>();
+        [HideInInspector]
+        public List<AnimationElementSerialize> animationElements = new List<AnimationElementSerialize>();
 
         public void WriteAsset(int frameLength)
         {
@@ -30,9 +41,11 @@ namespace track_editor
             gameObjectTracks.Clear();
             activationTracks.Clear();
             positionTracks.Clear();
+            animationTracks.Clear();
 
             activationElements.Clear();
             positionElements.Clear();
+            animationElements.Clear();
         }
     }
 
@@ -47,7 +60,7 @@ namespace track_editor
     [System.Serializable]
     public class GameObjectTrackSerialize : TrackSerialize
     {
-        public GameObject go;
+        public GameObject target;
     }
 
     [System.Serializable]
@@ -57,6 +70,11 @@ namespace track_editor
 
     [System.Serializable]
     public class PositionTrackSerialize : TrackSerialize
+    {
+    }
+
+    [System.Serializable]
+    public class AnimationTrackSerialize : TrackSerialize
     {
     }
 
@@ -71,7 +89,14 @@ namespace track_editor
     [System.Serializable]
     public class PositionElementSerialize : ElementSerialize
     {
-        public Vector3 position;
+        public Vector3 localPosition;
+    }
+
+    [System.Serializable]
+    public class AnimationElementSerialize : ElementSerialize
+    {
+        public int blend;
+        public AnimationClip clip;
     }
 
     /// <summary>
@@ -105,6 +130,8 @@ namespace track_editor
         public string parent;
         public int start;
         public int length;
+
+        public int end { get => start + length; }
     }
 
 }

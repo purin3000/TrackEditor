@@ -11,7 +11,47 @@ namespace track_editor
 {
     public static class SerializeUtility
     {
-        public static void SaveGameObject(TrackEditor manager, string assetPath)
+        public static TrackAsset SaveAsset(TrackEditor manager, TrackAsset asset)
+        {
+            var context = new WriteAssetContext(asset, manager);
+            context.WriteAsset();
+            return asset;
+        }
+
+        public static TrackAsset LoadAsset(TrackEditor manager, TrackAsset asset)
+        {
+            var context = new ReadAssetContext(asset);
+            context.ReadAsset();
+
+            // トラックの階層構築
+            context.UpdateHierarchy(manager, asset.rootTracks[0].uniqueName);
+            return asset;
+        }
+
+#if false
+        public static TrackAsset SaveAsset(TrackEditor manager, string assetPath)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<TrackAsset>(assetPath);
+            if (asset == null) {
+                asset = ScriptableObject.CreateInstance<TrackAsset>();
+                AssetDatabase.CreateAsset(asset, assetPath);
+                Undo.RegisterCompleteObjectUndo(asset, "create");
+            }
+
+            var newAsset = SaveAsset(manager, asset);
+            EditorUtility.SetDirty(newAsset);
+            return newAsset;
+        }
+
+        public static TrackAsset LoadAsset(TrackEditor manager, string assetPath)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<TrackAsset>(assetPath);
+            return LoadAsset(manager, asset);
+        }
+#endif
+
+#if true
+        public static TrackAsset SaveGameObject(TrackEditor manager, string assetPath)
         {
             var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
             if (asset == null) {
@@ -19,48 +59,34 @@ namespace track_editor
                 Undo.RegisterCompleteObjectUndo(asset, "create");
             }
 
-            var context = new WriteAssetContext(asset, manager);
-
-            context.WriteAsset();
-
-            EditorUtility.SetDirty(asset);
+            var newAsset = SaveAsset(manager, asset);
+            EditorUtility.SetDirty(newAsset);
+            return newAsset;
         }
 
         public static TrackAsset LoadGameObject(TrackEditor manager, string assetPath)
         {
             var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
-            var context = new ReadAssetContext(asset);
-
-            context.ReadAsset();
-
-            // トラックの階層構築
-            context.UpdateHierarchy(manager, asset.rootTracks[0].uniqueName);
-
-            return asset;
+            return LoadAsset(manager, asset);
         }
+#endif
 
-        public static void SaveJson(TrackEditor manager, string assetPath)
+#if false
+        public static TrackAsset SaveJson(TrackEditor manager, string assetPath)
         {
             var asset = new TrackAsset();
-            var context = new WriteAssetContext(asset, manager);
-
-            context.WriteAsset();
-
-            File.WriteAllText(assetPath, JsonUtility.ToJson(asset, true));
+            var newAsset = SaveAsset(manager, asset);
+            File.WriteAllText(assetPath, JsonUtility.ToJson(newAsset, true));
+            AssetDatabase.ImportAsset(assetPath);
+            return newAsset;
         }
 
         public static TrackAsset LoadJson(TrackEditor manager, string assetPath)
         {
             var asset = JsonUtility.FromJson<TrackAsset>(File.ReadAllText(assetPath));
-            var context = new ReadAssetContext(asset);
-
-            context.ReadAsset();
-
-            // トラックの階層構築
-            context.UpdateHierarchy(manager, asset.rootTracks[0].uniqueName);
-
-            return asset;
+            return LoadAsset(manager, asset);
         }
+#endif
 
         public static void InitializeTrackSerialize(TrackSerialize trackSerialize, EditorTrack track, WriteAssetContext context)
         {
@@ -71,7 +97,7 @@ namespace track_editor
             trackSerialize.elements = track.elements.Select(element => context.MakeElementName(element)).ToArray();
         }
 
-        public static void InitializeElementSerialize(ElementSerialize elementSerialize, EditorTrackElement element, WriteAssetContext context)
+        public static void InitializeElementSerialize(ElementSerialize elementSerialize, EditorElement element, WriteAssetContext context)
         {
             elementSerialize.uniqueName = context.MakeElementName(element);
             elementSerialize.parent = context.MakeTrackName(element.parent);

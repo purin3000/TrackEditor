@@ -26,7 +26,7 @@ namespace track_editor_fw
 
         public EditorTrack top { get; set; }
 
-        public EditorHeader header { get; private set; }
+        public ITrackEditorHeader header { get; private set; }
 
         public EditorTrack selectionTrack { get; private set; }
 
@@ -39,25 +39,31 @@ namespace track_editor_fw
         Vector2 scrPos;
 
 
-        public TrackEditor(TrackEditorSettings settings, EditorTrack top)
+        public TrackEditor(TrackEditorSettings settings, EditorTrack top, ITrackEditorHeader header)
         {
             this.settings = settings;
             this.top = top;
+            this.header = header;
+
             top.Initialize(this, "top", null);
         }
 
-        public void SetHeader(EditorHeader header)
+        public void SetHeader(ITrackEditorHeader header)
         {
             this.header = header;
         }
 
         public void SetSelectionTrack(EditorTrack track)
         {
+            if (selectionTrack != null) {
+                selectionTrack.selectionElement = null;
+            }
+
             selectionTrack = track;
             Repaint();
         }
 
-        public void SetSelectionElement(EditorTrack track, EditorTrackElement element)
+        public void SetSelectionElement(EditorTrack track, EditorElement element)
         {
             SetSelectionTrack(track);
 
@@ -99,7 +105,7 @@ namespace track_editor_fw
             }
         }
 
-        public T AddElement<T>(EditorTrack track, T element) where T : EditorTrackElement
+        public T AddElement<T>(EditorTrack track, T element) where T : EditorElement
         {
             track.elements.Add(element);
             element.Initialize(track);
@@ -107,7 +113,7 @@ namespace track_editor_fw
             return element;
         }
 
-        public void RemoveElement(EditorTrack track, EditorTrackElement element)
+        public void RemoveElement(EditorTrack track, EditorElement element)
         {
             track.removeElements.Add(element);
 
@@ -248,7 +254,7 @@ namespace track_editor_fw
 
         void drawHeader(Rect rect)
         {
-            header?.DrawHeader(rect);
+            header?.DrawHeader(this, rect);
         }
 
         void drawProperty(Rect rect)
@@ -490,10 +496,10 @@ namespace track_editor_fw
         /// 描画優先度とイベント優先度が逆のため、DrawElementとUpdateElemenetに関数を分離して回す必要がある
         /// </summary>
         /// <param name="rect"></param>
-        void updateElement(EditorTrack track, EditorTrackElement element, Rect rect)
+        void updateElement(EditorTrack track, EditorElement element, Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
-            Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, pixelScale * 1, trackHeight);
+            Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, Mathf.Max(pixelScale * 1, 8), trackHeight);
 
             if (Event.current.type == EventType.MouseDown) {
                 if (rectLabel.Contains(Event.current.mousePosition)) {
@@ -504,7 +510,7 @@ namespace track_editor_fw
 
                     Event.current.Use();
 
-                } else if (rectLength.Contains(Event.current.mousePosition)) {
+                } else if (!track.isFixedLength && rectLength.Contains(Event.current.mousePosition)) {
                     element.isLengthDrag = true;
                     element.mouseOffset = rectLength.position - Event.current.mousePosition;
 
@@ -535,9 +541,9 @@ namespace track_editor_fw
             }
         }
 
-        void drawElement(EditorTrackElement element, Rect rect)
+        void drawElement(EditorElement element, Rect rect)
         {
-            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
+            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y + 2, pixelScale * element.length, trackHeight - 4);
 
             element.ElementDrawer(rectLabel);
         }

@@ -5,19 +5,22 @@ using System.Linq;
 
 namespace track_editor_fw
 {
+    /// <summary>
+    /// TrackEditor実装用のトラック情報
+    /// </summary>
     public class EditorTrack
     {
         public string name;
 
         public List<EditorTrack> childs = new List<EditorTrack>();
 
-        public List<EditorTrackElement> elements = new List<EditorTrackElement>();
+        public List<EditorElement> elements = new List<EditorElement>();
 
         public TrackEditor manager { get; private set; }
 
         public EditorTrack parent { get; set; }
 
-        public EditorTrackElement selectionElement { get; set; }
+        public EditorElement selectionElement { get; set; }
 
         public float trackHeight { get => manager.trackHeight; }
 
@@ -29,9 +32,11 @@ namespace track_editor_fw
 
         public bool expand { get; set; } = true;
 
+        public bool isFixedLength { get; set; }
+
         public List<EditorTrack> removeTracks { get; set; } = new List<EditorTrack>();
 
-        public List<EditorTrackElement> removeElements { get; set; } = new List<EditorTrackElement>();
+        public List<EditorElement> removeElements { get; set; } = new List<EditorElement>();
 
         public int nestLevel { get; set; } = 0;
 
@@ -74,7 +79,7 @@ namespace track_editor_fw
         public virtual void PropertyDrawer(Rect rect)
         {
             //GUI.Label(new Rect(Vector2.zero, rect.size), "DrawProperty:" + name, "box");
-            GUILayout.Label("Type:" + name);
+            GUILayout.Label("Track:" + name);
         }
 
         public virtual float CalcElementWidth()

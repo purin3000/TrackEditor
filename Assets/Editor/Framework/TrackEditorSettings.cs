@@ -22,7 +22,7 @@ namespace track_editor_fw
     {
         public float pixelScale = 5.0f;
 
-        public int headerHeight = 40;
+        public int headerHeight = 70;
         public int timeHeight = 20;
 
         public int propertyWidth = 300;

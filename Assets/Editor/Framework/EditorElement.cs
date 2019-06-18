@@ -5,7 +5,10 @@ using UnityEditor;
 
 namespace track_editor_fw
 {
-    public class EditorTrackElement
+    /// <summary>
+    /// TrackEditor実装用のエレメント情報
+    /// </summary>
+    public class EditorElement
     {
         public int start;
         public int length;
@@ -50,7 +53,14 @@ namespace track_editor_fw
         {
             GUILayout.Label("Element");
             start = Mathf.Max(0, EditorGUILayout.IntField("Start", start));
-            length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
+
+            using (new EditorGUI.DisabledScope(parent.isFixedLength)) {
+                length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
+
+                if (parent.isFixedLength) {
+                    GUILayout.Label("Lengthは固定されています");
+                }
+            }
         }
     }
 }

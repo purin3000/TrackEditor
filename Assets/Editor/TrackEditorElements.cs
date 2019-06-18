@@ -7,25 +7,41 @@ using track_editor_fw;
 
 namespace track_editor
 {
-    public class ActivationElement : EditorTrackElement
+    public class TrackElemetBase : EditorElement
+    {
+        protected ElementSerializeClass WriteAssetImpl<ElementSerializeClass>(List<ElementSerializeClass> serializeList, WriteAssetContext context) where ElementSerializeClass : ElementSerialize, new()
+        {
+            var elementSerialize = new ElementSerializeClass();
+
+            SerializeUtility.InitializeElementSerialize(elementSerialize, this, context);
+
+            serializeList.Add(elementSerialize);
+
+            return elementSerialize;
+        }
+
+        protected void RemoveElementImpl(string label)
+        {
+            if (GUILayout.Button(label)) {
+                parent.manager.RemoveElement(parent, this);
+            }
+
+            GUILayout.Space(15);
+        }
+    }
+
+    public class ActivationElement : TrackElemetBase
     {
         public override void PropertyDrawer(Rect rect)
         {
-            base.PropertyDrawer(rect);
+            RemoveElementImpl("Remove Activation Elememnt");
 
-            if (GUILayout.Button("Remove")) {
-                parent.manager.RemoveElement(parent, this);
-            }
+            base.PropertyDrawer(rect);
         }
 
         public void WriteAsset(WriteAssetContext context)
         {
-            var elementSerialize = new ActivationElementSerialize();
-
-            SerializeUtility.InitializeElementSerialize(elementSerialize, this, context);
-
-            context.asset.activationElements.Add(elementSerialize);
-
+            WriteAssetImpl(context.asset.activationElements, context);
         }
 
         public void ReadAsset(ActivationElementSerialize elementSerialize)
@@ -33,36 +49,77 @@ namespace track_editor
         }
     }
 
-    public class PositionElement : EditorTrackElement
+    public class PositionElement : TrackElemetBase
     {
-        public Vector3 position;
+        public GameObject target { get => (parent.parent as GameObjectTrackData)?.target; }
+
+        public Vector3 localPosition;
 
         public override void PropertyDrawer(Rect rect)
         {
+            RemoveElementImpl("Remove Position Elememnt");
+
             base.PropertyDrawer(rect);
 
-            if (GUILayout.Button("Remove")) {
-                parent.manager.RemoveElement(parent, this);
+            localPosition = EditorGUILayout.Vector3Field("Local Position", localPosition);
+
+            GUILayout.Space(10);
+
+            if (GUILayout.Button("オブジェクトから座標取得")) {
+                var go = target;
+                if (go) {
+                    localPosition = go.transform.localPosition;
+                }
             }
 
-            position = EditorGUILayout.Vector3Field("Position", position);
+            if (GUILayout.Button("オブジェクトへ設定")) {
+                var go = target;
+                if (go) {
+                    go.transform.localPosition = localPosition;
+                }
+            }
         }
 
         public void WriteAsset(WriteAssetContext context)
         {
-            var elementSerialize = new PositionElementSerialize();
-
-            SerializeUtility.InitializeElementSerialize(elementSerialize, this, context);
-
-            elementSerialize.position = position;
-
-            context.asset.positionElements.Add(elementSerialize);
-
+            var elementSerialize = WriteAssetImpl(context.asset.positionElements, context);
+            elementSerialize.localPosition = localPosition;
         }
 
         public void ReadAsset(PositionElementSerialize elementSerialize)
         {
-            position = elementSerialize.position;
+            localPosition = elementSerialize.localPosition;
         }
     }
+
+    public class AnimationElement : TrackElemetBase
+    {
+        public int blend;
+        public AnimationClip clip;
+
+        public override void PropertyDrawer(Rect rect)
+        {
+            RemoveElementImpl("Remove Animation Elememnt");
+
+            base.PropertyDrawer(rect);
+
+            blend = EditorGUILayout.IntField("Blend Frame", blend);
+
+            clip = (AnimationClip)EditorGUILayout.ObjectField("Clip", clip, typeof(AnimationClip), false);
+        }
+
+        public void WriteAsset(WriteAssetContext context)
+        {
+            var elementSerialize = WriteAssetImpl(context.asset.animationElements, context);
+            elementSerialize.blend = blend;
+            elementSerialize.clip = clip;
+        }
+
+        public void ReadAsset(AnimationElementSerialize elementSerialize)
+        {
+            blend = elementSerialize.blend;
+            clip = elementSerialize.clip;
+        }
+    }
+
 }
