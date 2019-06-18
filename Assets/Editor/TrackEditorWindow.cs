@@ -5,7 +5,7 @@ using UnityEditor;
 
 using track_editor_fw;
 
-namespace track_editor_example
+namespace track_editor
 {
     public class TrackEditorWindow : EditorWindow
     {

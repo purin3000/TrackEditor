@@ -7,19 +7,15 @@ using System.IO;
 
 using track_editor_fw;
 
-namespace track_editor_example
+namespace track_editor
 {
-    /// <summary>
-    /// シリアライズの仕組みがポリモーフィズムに対応していないため、
-    /// 具体的なクラスを指定する必要があります。
-    /// </summary>
     public static class SerializeUtility
     {
         public static void SaveGameObject(TrackEditor manager, string assetPath)
         {
-            var asset = GameObject.Find(assetPath)?.GetComponent<TrackEditorAsset>();
+            var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
             if (asset == null) {
-                asset = (new GameObject(assetPath)).AddComponent<TrackEditorAsset>();
+                asset = (new GameObject(assetPath)).AddComponent<TrackAsset>();
                 Undo.RegisterCompleteObjectUndo(asset, "create");
             }
 
@@ -30,9 +26,9 @@ namespace track_editor_example
             EditorUtility.SetDirty(asset);
         }
 
-        public static TrackEditorAsset LoadGameObject(TrackEditor manager, string assetPath)
+        public static TrackAsset LoadGameObject(TrackEditor manager, string assetPath)
         {
-            var asset = GameObject.Find(assetPath)?.GetComponent<TrackEditorAsset>();
+            var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
             var context = new ReadAssetContext(asset);
 
             context.ReadAsset();
@@ -45,7 +41,7 @@ namespace track_editor_example
 
         public static void SaveJson(TrackEditor manager, string assetPath)
         {
-            var asset = new TrackEditorAsset();
+            var asset = new TrackAsset();
             var context = new WriteAssetContext(asset, manager);
 
             context.WriteAsset();
@@ -53,9 +49,9 @@ namespace track_editor_example
             File.WriteAllText(assetPath, JsonUtility.ToJson(asset, true));
         }
 
-        public static TrackEditorAsset LoadJson(TrackEditor manager, string assetPath)
+        public static TrackAsset LoadJson(TrackEditor manager, string assetPath)
         {
-            var asset = JsonUtility.FromJson<TrackEditorAsset>(File.ReadAllText(assetPath));
+            var asset = JsonUtility.FromJson<TrackAsset>(File.ReadAllText(assetPath));
             var context = new ReadAssetContext(asset);
 
             context.ReadAsset();

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace track_editor_example
+namespace track_editor
 {
     /// <summary>
     /// アセットとして保存されるオブジェクト
     /// 
-    /// このオブジェクトをプレハブもしくはScriptableObjectにして、ランタイムで使用する想定
+    /// このオブジェクトをプレハブやScriptableObjectにしてランタイムで使用
     /// </summary>
-    public class TrackEditorAsset : MonoBehaviour
+    public class TrackAsset : MonoBehaviour
     {
         public int frameLength = 100;
 

@@ -6,14 +6,14 @@ using System.Linq;
 using track_editor_fw;
 
 
-namespace track_editor_example
+namespace track_editor
 {
     /// <summary>
     /// アセット書き込み時に使用する一時情報
     /// </summary>
     public class WriteAssetContext
     {
-        public TrackEditorAsset asset;
+        public TrackAsset asset;
         public TrackEditor manager;
         public List<EditorTrack> trackBaseList;
         public List<EditorTrackElement> elementBaseList;
@@ -38,7 +38,7 @@ namespace track_editor_example
 
         }
 
-        public WriteAssetContext(TrackEditorAsset asset, TrackEditor manager)
+        public WriteAssetContext(TrackAsset asset, TrackEditor manager)
         {
             var top = manager.top;
 
@@ -135,7 +135,7 @@ namespace track_editor_example
             public TrackSerialize serialize;
         }
 
-        TrackEditorAsset asset;
+        TrackAsset asset;
 
         /// <summary>
         /// TrackBaseとTrackSerializeの対応付
@@ -151,7 +151,7 @@ namespace track_editor_example
         List<EditorTrack> tracks = new List<EditorTrack>();
         List<EditorTrackElement> elements = new List<EditorTrackElement>();
 
-        public ReadAssetContext(TrackEditorAsset asset)
+        public ReadAssetContext(TrackAsset asset)
         {
             this.asset = asset;
         }

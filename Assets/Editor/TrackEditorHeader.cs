@@ -4,7 +4,7 @@ using UnityEngine;
 
 using track_editor_fw;
 
-namespace track_editor_example
+namespace track_editor
 {
     public class TestHeader : EditorHeader
     {
@@ -26,11 +26,11 @@ namespace track_editor_example
                 }
 
                 if (GUILayout.Button("Save")) {
-                    SerializeUtility.SaveGameObject(manager, "TrackEditorData");
+                    SerializeUtility.SaveGameObject(manager, "TrackAsset");
                 }
 
                 if (GUILayout.Button("Load")) {
-                    SerializeUtility.LoadGameObject(manager, "TrackEditorData");
+                    SerializeUtility.LoadGameObject(manager, "TrackAsset");
                 }
             }
         }
