@@ -10,7 +10,7 @@ namespace track_editor_example
     /// 
     /// このオブジェクトをプレハブもしくはScriptableObjectにして、ランタイムで使用する想定
     /// </summary>
-    public class TrackEditorAsset
+    public class TrackEditorAsset : MonoBehaviour
     {
         public int frameLength = 100;
 
@@ -22,9 +22,17 @@ namespace track_editor_example
         public List<ActivationElementSerialize> activationElements = new List<ActivationElementSerialize>();
         public List<PositionElementSerialize> positionElements = new List<PositionElementSerialize>();
 
-        public TrackEditorAsset(int frameLength)
+        public void WriteAsset(int frameLength)
         {
             this.frameLength = frameLength;
+
+            rootTracks.Clear();
+            gameObjectTracks.Clear();
+            activationTracks.Clear();
+            positionTracks.Clear();
+
+            activationElements.Clear();
+            positionElements.Clear();
         }
     }
 

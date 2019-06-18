@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using System.Linq;
 using System.IO;
 
@@ -14,36 +15,40 @@ namespace track_editor_example
     /// </summary>
     public static class SerializeUtility
     {
+        public static void SaveGameObject(TrackEditor manager, string assetPath)
+        {
+            var asset = GameObject.Find(assetPath)?.GetComponent<TrackEditorAsset>();
+            if (asset == null) {
+                asset = (new GameObject(assetPath)).AddComponent<TrackEditorAsset>();
+                Undo.RegisterCompleteObjectUndo(asset, "create");
+            }
+
+            var context = new WriteAssetContext(asset, manager);
+
+            context.WriteAsset();
+
+            EditorUtility.SetDirty(asset);
+        }
+
+        public static TrackEditorAsset LoadGameObject(TrackEditor manager, string assetPath)
+        {
+            var asset = GameObject.Find(assetPath)?.GetComponent<TrackEditorAsset>();
+            var context = new ReadAssetContext(asset);
+
+            context.ReadAsset();
+
+            // トラックの階層構築
+            context.UpdateHierarchy(manager, asset.rootTracks[0].uniqueName);
+
+            return asset;
+        }
+
         public static void SaveJson(TrackEditor manager, string assetPath)
         {
-            var asset = new TrackEditorAsset(manager.frameLength);
-            var context = new WriteAssetContext(asset, manager.top);
+            var asset = new TrackEditorAsset();
+            var context = new WriteAssetContext(asset, manager);
 
-            // トラック書き出し
-            foreach (var track in context.rootTracks) {
-                track.WriteAsset(context);
-            }
-
-            foreach (var track in context.gameObjectTracks) {
-                track.WriteAsset(context);
-            }
-
-            foreach (var track in context.activationTracks) {
-                track.WriteAsset(context);
-            }
-
-            foreach (var track in context.positionTracks) {
-                track.WriteAsset(context);
-            }
-
-            // エレメント書き出し
-            foreach (var element in context.activationElements) {
-                element.WriteAsset(context);
-            }
-
-            foreach (var element in context.positionElements) {
-                element.WriteAsset(context);
-            }
+            context.WriteAsset();
 
             File.WriteAllText(assetPath, JsonUtility.ToJson(asset, true));
         }
@@ -51,39 +56,9 @@ namespace track_editor_example
         public static TrackEditorAsset LoadJson(TrackEditor manager, string assetPath)
         {
             var asset = JsonUtility.FromJson<TrackEditorAsset>(File.ReadAllText(assetPath));
-            var context = new ReadAssetContext();
+            var context = new ReadAssetContext(asset);
 
-            // トラック構築
-            foreach (var trackSerialize in asset.rootTracks) {
-                var track = context.CreateTrack<RootTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
-            }
-
-            foreach (var trackSerialize in asset.gameObjectTracks) {
-                var track = context.CreateTrack<GameObjectTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
-            }
-
-            foreach (var trackSerialize in asset.activationTracks) {
-                var track = context.CreateTrack<ActivationTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
-            }
-
-            foreach (var trackSerialize in asset.positionTracks) {
-                var track = context.CreateTrack<PositionTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
-            }
-
-            // エレメント構築
-            foreach (var elementSerialize in asset.activationElements) {
-                var element = context.CreateElement<ActivationElement>(elementSerialize);
-                element.ReadAsset(elementSerialize);
-            }
-
-            foreach (var elementSerialize in asset.positionElements) {
-                var element = context.CreateElement<PositionElement>(elementSerialize);
-                element.ReadAsset(elementSerialize);
-            }
+            context.ReadAsset();
 
             // トラックの階層構築
             context.UpdateHierarchy(manager, asset.rootTracks[0].uniqueName);

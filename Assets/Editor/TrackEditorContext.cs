@@ -14,11 +14,12 @@ namespace track_editor_example
     public class WriteAssetContext
     {
         public TrackEditorAsset asset;
+        public TrackEditor manager;
         public List<EditorTrack> trackBaseList;
         public List<EditorTrackElement> elementBaseList;
 
         public List<RootTrackData> rootTracks = new List<RootTrackData>();
-        public List<GameObjectTrackData> gameObjectTracks = new List<GameObjectTrackData>();
+        public List<GameObjectTrackData> objectTracks = new List<GameObjectTrackData>();
         public List<ActivationTrackData> activationTracks = new List<ActivationTrackData>();
         public List<PositionTrackData> positionTracks = new List<PositionTrackData>();
 
@@ -37,19 +38,55 @@ namespace track_editor_example
 
         }
 
-        public WriteAssetContext(TrackEditorAsset asset, EditorTrack top)
+        public WriteAssetContext(TrackEditorAsset asset, TrackEditor manager)
         {
+            var top = manager.top;
+
             this.asset = asset;
+            this.manager = manager;
+
             trackBaseList = listupTrackBase(new List<EditorTrack>(), top);
             elementBaseList = listupElementBase(new List<EditorTrackElement>(), top);
 
             rootTracks = GetTracks<RootTrackData>();
-            gameObjectTracks = GetTracks<GameObjectTrackData>();
+            objectTracks = GetTracks<GameObjectTrackData>();
             activationTracks = GetTracks<ActivationTrackData>();
             positionTracks = GetTracks<PositionTrackData>();
 
             activationElements = GetElements<ActivationElement>();
             positionElements = GetElements<PositionElement>();
+        }
+
+        public void WriteAsset()
+        {
+
+            asset.WriteAsset(manager.frameLength);
+
+            // トラック書き出し
+            foreach (var track in rootTracks) {
+                track.WriteAsset(this);
+            }
+
+            foreach (var track in objectTracks) {
+                track.WriteAsset(this);
+            }
+
+            foreach (var track in activationTracks) {
+                track.WriteAsset(this);
+            }
+
+            foreach (var track in positionTracks) {
+                track.WriteAsset(this);
+            }
+
+            // エレメント書き出し
+            foreach (var element in activationElements) {
+                element.WriteAsset(this);
+            }
+
+            foreach (var element in positionElements) {
+                element.WriteAsset(this);
+            }
         }
 
         static List<EditorTrack> listupTrackBase(List<EditorTrack> list, EditorTrack track)
@@ -98,6 +135,8 @@ namespace track_editor_example
             public TrackSerialize serialize;
         }
 
+        TrackEditorAsset asset;
+
         /// <summary>
         /// TrackBaseとTrackSerializeの対応付
         /// 順序も重要で、親から設定する必要があるためListになってます。
@@ -111,6 +150,47 @@ namespace track_editor_example
 
         List<EditorTrack> tracks = new List<EditorTrack>();
         List<EditorTrackElement> elements = new List<EditorTrackElement>();
+
+        public ReadAssetContext(TrackEditorAsset asset)
+        {
+            this.asset = asset;
+        }
+
+        public void ReadAsset()
+        {
+            // トラック構築
+            foreach (var trackSerialize in asset.rootTracks) {
+                var track = CreateTrack<RootTrackData>(trackSerialize);
+                track.ReadAsset(trackSerialize);
+            }
+
+            foreach (var trackSerialize in asset.gameObjectTracks) {
+                var track = CreateTrack<GameObjectTrackData>(trackSerialize);
+                track.ReadAsset(trackSerialize);
+            }
+
+            foreach (var trackSerialize in asset.activationTracks) {
+                var track = CreateTrack<ActivationTrackData>(trackSerialize);
+                track.ReadAsset(trackSerialize);
+            }
+
+            foreach (var trackSerialize in asset.positionTracks) {
+                var track = CreateTrack<PositionTrackData>(trackSerialize);
+                track.ReadAsset(trackSerialize);
+            }
+
+            // エレメント構築
+            foreach (var elementSerialize in asset.activationElements) {
+                var element = CreateElement<ActivationElement>(elementSerialize);
+                element.ReadAsset(elementSerialize);
+            }
+
+            foreach (var elementSerialize in asset.positionElements) {
+                var element = CreateElement<PositionElement>(elementSerialize);
+                element.ReadAsset(elementSerialize);
+            }
+
+        }
 
         public T CreateTrack<T>(TrackSerialize trackSerialize) where T : EditorTrack, new()
         {

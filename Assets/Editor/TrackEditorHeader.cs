@@ -26,11 +26,11 @@ namespace track_editor_example
                 }
 
                 if (GUILayout.Button("Save")) {
-                    SerializeUtility.SaveJson(manager, "TrackEditorData.json");
+                    SerializeUtility.SaveGameObject(manager, "TrackEditorData");
                 }
 
                 if (GUILayout.Button("Load")) {
-                    SerializeUtility.LoadJson(manager, "TrackEditorData.json");
+                    SerializeUtility.LoadGameObject(manager, "TrackEditorData");
                 }
             }
         }
