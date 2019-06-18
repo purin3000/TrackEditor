@@ -9,7 +9,7 @@ namespace track_editor
 {
     public class TrackEditorWindow : EditorWindow, ITrackEditorHeader
     {
-        [MenuItem("Fantasian/Test/TrackEditorWindow")]
+        [MenuItem("Test/TrackEditorWindow")]
         static void Open()
         {
             GetWindow<TrackEditorWindow>("TrackEditorExample");
