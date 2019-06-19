@@ -38,6 +38,12 @@ namespace track_editor
                 manager.AddElement(this, new T());
             }
         }
+
+        protected void TrackDrawerImpl(Rect rect, string label)
+        {
+            Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
+            GUI.Label(rectLabel, label, IsSelection ? "flow node 3 on" : "flow node 2");
+        }
     }
 
     /// <summary>
@@ -76,7 +82,7 @@ namespace track_editor
 
         public override void TrackDrawer(Rect rect)
         {
-            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width + 2, rect.height - 4);
+            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width + 4, rect.height - 4);
             GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
 
             Rect rectObj = new Rect(rectLabel.x, rect.y + (rectLabel.height - EditorGUIUtility.singleLineHeight) * 0.5f, rectLabel.width * 0.6f, EditorGUIUtility.singleLineHeight);
@@ -152,8 +158,7 @@ namespace track_editor
 
         public override void TrackDrawer(Rect rect)
         {
-            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width + 2, rect.height - 4);
-            GUI.Label(rectLabel, "Activation", IsSelection ? "flow node 2 on" : "flow node 2");
+            TrackDrawerImpl(rect, "Activation");
         }
 
         public void WriteAsset(WriteAssetContext context)
@@ -185,8 +190,7 @@ namespace track_editor
 
         public override void TrackDrawer(Rect rect)
         {
-            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width + 2, rect.height - 4);
-            GUI.Label(rectLabel, "Position", IsSelection ? "flow node 2 on" : "flow node 2");
+            TrackDrawerImpl(rect, "Position");
         }
 
         public void WriteAsset(WriteAssetContext context)
@@ -217,8 +221,7 @@ namespace track_editor
 
         public override void TrackDrawer(Rect rect)
         {
-            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width + 2, rect.height - 4);
-            GUI.Label(rectLabel, "Animation", IsSelection ? "flow node 2 on" : "flow node 2");
+            TrackDrawerImpl(rect, "Animation");
         }
 
         public void WriteAsset(WriteAssetContext context)
