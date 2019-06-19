@@ -14,9 +14,9 @@ namespace track_editor
 
         public bool playOnAwake = false;
 
-        public bool IsPlaying { get => 0 <= playStartCurrent; }
+        public bool IsPlaying { get => playContext != null && time * 60 < asset.frameLength; }
 
-        public bool IsPlayEnd { get => (playContext != null) && playStartCurrent == playContext.playStartElements.Count; }
+        public bool IsPlayEnd { get => playContext != null && asset.frameLength <= time * 60; }
 
         ElementPlayerContext playContext = null;
 
@@ -48,37 +48,37 @@ namespace track_editor
             }
         }
 
-        // Update is called once per frame
         void Update()
         {
-            if (playContext != null && IsPlaying) {
-
-                while (playStartCurrent < playContext.playStartElements.Count) {
-                    var element = playContext.playStartElements[playStartCurrent];
-
-                    if (time * 60.0f < element.start) {
-                        break;
-                    }
-
-                    element.OnStart(playContext);
-                    ++playStartCurrent;
-                }
-
-
-                while (playEndCurrent < playContext.playEndElements.Count) {
-                    var element = playContext.playEndElements[playEndCurrent];
-
-                    if (time * 60.0f < element.end) {
-                        break;
-                    }
-
-                    element.OnEnd(playContext);
-                    ++playEndCurrent;
-                }
-
-
-                time += Time.deltaTime * speed;
+            if (!IsPlaying) {
+                return;
             }
+
+            while (playStartCurrent < playContext.playStartElements.Count) {
+                var element = playContext.playStartElements[playStartCurrent];
+
+                if (time * 60.0f < element.start) {
+                    break;
+                }
+
+                element.OnStart(playContext);
+                ++playStartCurrent;
+            }
+
+
+            while (playEndCurrent < playContext.playEndElements.Count) {
+                var element = playContext.playEndElements[playEndCurrent];
+
+                if (time * 60.0f < element.end) {
+                    break;
+                }
+
+                element.OnEnd(playContext);
+                ++playEndCurrent;
+            }
+
+
+            time += Time.deltaTime * speed;
         }
 
 #if UNITY_EDITOR

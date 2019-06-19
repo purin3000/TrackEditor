@@ -223,7 +223,7 @@ namespace track_editor
 
         public void WriteAsset(WriteAssetContext context)
         {
-            WriteAssetImpl(context.asset.positionTracks, context);
+            WriteAssetImpl(context.asset.animationTracks, context);
         }
 
         public void ReadAsset(AnimationTrackSerialize trackSerialize)
