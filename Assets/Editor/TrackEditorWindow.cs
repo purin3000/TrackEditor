@@ -7,7 +7,7 @@ using track_editor_fw;
 
 namespace track_editor
 {
-    public class TrackEditorWindow : EditorWindow, ITrackEditorHeader
+    public class TrackEditorWindow : EditorWindow
     {
         [MenuItem("Test/TrackEditorWindow")]
         static void Open()
@@ -30,7 +30,7 @@ namespace track_editor
 
         private void OnEnable()
         {
-            _manager = new TrackEditor(new TrackEditorSettings(), new RootTrackData(), this);
+            _manager = new TrackEditor(new TrackEditorSettings(), new RootTrackData());
 
             //for (int i = 0; i < 3; ++i) {
             //    _manager.AddTrack(_manager.top, "Track:" + i, new GameObjectTrackData());
@@ -59,6 +59,8 @@ namespace track_editor
             }
         }
 
+        Rect rectGUI;
+
         private void OnGUI()
         {
             if (!string.IsNullOrEmpty(reinitObjectName)) {
@@ -78,7 +80,17 @@ namespace track_editor
                 }
             }
 
-            _manager.OnGUI(new Rect(10, 10, Screen.width - 20, Screen.height - 20 - 24));
+
+            DrawHeader(_manager);
+            //var rec = GUILayoutUtility.GetLastRect();
+            //Debug.LogFormat("{0}  x:{1} y:{2} w:{3} h:{4}", Event.current.type, rec.x, rec.y, rec.height, rec.width);
+
+            if (Event.current.type == EventType.Repaint) {
+                rectGUI = GUILayoutUtility.GetLastRect();
+                //Debug.LogFormat("{0}  x:{1} y:{2} w:{3} h:{4}", Event.current.type, rectGUI.x, rectGUI.y, rectGUI.height, rectGUI.width);
+            }
+
+            _manager.OnGUI(new Rect(rectGUI.x + 10 , rectGUI.y + 10 + rectGUI.height, position.width - 20, position.height - rectGUI.y - rectGUI.height - 20));
 
             if (_manager.repaintRequest) {
                 Repaint();
@@ -97,7 +109,7 @@ namespace track_editor
             }
         }
 
-        public void DrawHeader(TrackEditor manager, Rect rect)
+        public void DrawHeader(TrackEditor manager)
         {
             using (new GUILayout.HorizontalScope()) {
 
@@ -112,7 +124,7 @@ namespace track_editor
 
                     using (new GUILayout.HorizontalScope()) {
                         manager.currentFrame = Mathf.Max(0, EditorGUILayout.IntField("Frame", manager.currentFrame));
-                        manager.frameLength = Mathf.Max(0, EditorGUILayout.IntField("Length", manager.frameLength));
+                        manager.frameLength = Mathf.Max(0, EditorGUILayout.IntField("FrameLength", manager.frameLength));
                     }
 
                     if (GUILayout.Button("Add GameObject Track")) {
@@ -144,9 +156,11 @@ namespace track_editor
 
                     GUILayout.Space(10);
 
-                    manager.gridScale = EditorGUILayout.IntSlider("Scale", (int)manager.gridScale, 1, manager.gridScaleMax);
+                    manager.gridScale = EditorGUILayout.IntSlider("Grid Scale", (int)manager.gridScale, 1, manager.gridScaleMax);
                 }
             }
+
+            GUILayout.Space(10);
         }
     }
 }

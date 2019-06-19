@@ -16,20 +16,20 @@ namespace track_editor
     {
         public class TrackPair
         {
-            public TrackPair(EditorTrack track, TrackSerialize serialize)
+            public TrackPair(EditorTrack track, SerializeTrack serialize)
             {
                 this.track = track;
                 this.serialize = serialize;
             }
 
             public EditorTrack track;
-            public TrackSerialize serialize;
+            public SerializeTrack serialize;
         }
 
-        TrackAsset asset;
+        public TrackAsset asset;
 
         /// <summary>
-        /// TrackBaseとTrackSerializeの対応付
+        /// TrackBaseとserializeTrackの対応付
         /// 順序も重要で、親から設定する必要があるためListになってます。
         /// </summary>
         public List<TrackPair> trackPairs = new List<TrackPair>();
@@ -39,8 +39,8 @@ namespace track_editor
         /// </summary>
         public Dictionary<string, EditorTrack> trackTable = new Dictionary<string, EditorTrack>();
 
-        List<EditorTrack> tracks = new List<EditorTrack>();
-        List<EditorElement> elements = new List<EditorElement>();
+        public List<EditorTrack> tracks = new List<EditorTrack>();
+        public List<EditorElement> elements = new List<EditorElement>();
 
         public ReadAssetContext(TrackAsset asset)
         {
@@ -50,47 +50,70 @@ namespace track_editor
         public void ReadAsset()
         {
             // トラック構築
-            foreach (var trackSerialize in asset.rootTracks) {
-                var track = CreateTrack<RootTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
+            foreach (var serializeTrack in asset.rootTracks) {
+                var track = createEditorTrack<RootTrackData>(serializeTrack);
+                track.ReadAsset(serializeTrack);
             }
 
-            foreach (var trackSerialize in asset.gameObjectTracks) {
-                var track = CreateTrack<GameObjectTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
+            foreach (var serializeTrack in asset.gameObjectTracks) {
+                var track = createEditorTrack<GameObjectTrackData>(serializeTrack);
+                track.ReadAsset(serializeTrack);
             }
 
-            foreach (var trackSerialize in asset.activationTracks) {
-                var track = CreateTrack<ActivationTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
+            foreach (var serializeTrack in asset.activationTracks) {
+                var track = createEditorTrack<ActivationTrackData>(serializeTrack);
+                track.ReadAsset(serializeTrack);
             }
 
-            foreach (var trackSerialize in asset.positionTracks) {
-                var track = CreateTrack<PositionTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
+            foreach (var serializeTrack in asset.positionTracks) {
+                var track = createEditorTrack<PositionTrackData>(serializeTrack);
+                track.ReadAsset(serializeTrack);
             }
 
-            foreach (var trackSerialize in asset.animationTracks) {
-                var track = CreateTrack<AnimationTrackData>(trackSerialize);
-                track.ReadAsset(trackSerialize);
+            foreach (var serializeTrack in asset.animationTracks) {
+                var track = createEditorTrack<AnimationTrackData>(serializeTrack);
+                track.ReadAsset(serializeTrack);
             }
 
             // エレメント構築
-            foreach (var elementSerialize in asset.activationElements) {
-                var element = CreateElement<ActivationElement>(elementSerialize);
-                element.ReadAsset(elementSerialize);
+            foreach (var serializeElement in asset.activationElements) {
+                var element = createEditorElement<ActivationElement>(serializeElement);
+                element.ReadAsset(serializeElement);
             }
 
-            foreach (var elementSerialize in asset.positionElements) {
-                var element = CreateElement<PositionElement>(elementSerialize);
-                element.ReadAsset(elementSerialize);
+            foreach (var serializeElement in asset.positionElements) {
+                var element = createEditorElement<PositionElement>(serializeElement);
+                element.ReadAsset(serializeElement);
             }
 
-            foreach (var elementSerialize in asset.animationElements) {
-                var element = CreateElement<AnimationElement>(elementSerialize);
-                element.ReadAsset(elementSerialize);
+            foreach (var serializeElement in asset.animationElements) {
+                var element = createEditorElement<AnimationElement>(serializeElement);
+                element.ReadAsset(serializeElement);
             }
+        }
 
+        EditorTrackClass createEditorTrack<EditorTrackClass>(SerializeTrack serializeTrack)
+            where EditorTrackClass : EditorTrack, new()
+        {
+            EditorTrackClass track = new EditorTrackClass();
+
+            trackPairs.Add(new TrackPair(track, serializeTrack));
+            trackTable.Add(serializeTrack.uniqueName, track);
+            tracks.Add(track);
+
+            return track;
+        }
+
+        EditorElementClass createEditorElement<EditorElementClass>(SerializeElement serializeElement) where EditorElementClass : EditorElement, new()
+        {
+            EditorElementClass element = new EditorElementClass();
+
+            var track = trackTable[serializeElement.parent];
+            track.elements.Add(element);
+            elements.Add(element);
+
+            element.LoadInitialize(serializeElement.start, serializeElement.length, track);
+            return element;
         }
 
         public void UpdateHierarchy(TrackEditor manager, string rootTrackName)
@@ -113,29 +136,6 @@ namespace track_editor
 
             // ルートを設定
             manager.top = trackTable[rootTrackName];
-        }
-
-        T CreateTrack<T>(TrackSerialize trackSerialize) where T : EditorTrack, new()
-        {
-            T track = new T();
-
-            trackPairs.Add(new TrackPair(track, trackSerialize));
-            trackTable.Add(trackSerialize.uniqueName, track);
-            tracks.Add(track);
-
-            return track;
-        }
-
-        T CreateElement<T>(ElementSerialize elementSerialize) where T : EditorElement, new()
-        {
-            T element = new T();
-
-            var track = trackTable[elementSerialize.parent];
-            track.elements.Add(element);
-            elements.Add(element);
-
-            element.LoadInitialize(elementSerialize.start, elementSerialize.length, track);
-            return element;
         }
     }
 }

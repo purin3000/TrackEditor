@@ -7,12 +7,12 @@ using track_editor_fw;
 
 namespace track_editor
 {
-    public class TrackDataBase : EditorTrack
+    public class TrackData : EditorTrack
     {
-        protected TrackSerializeClass WriteAssetImpl<TrackSerializeClass>(List<TrackSerializeClass> serializeList, WriteAssetContext context) where TrackSerializeClass : TrackSerialize, new ()
+        protected SerializeTrackClass WriteAssetImpl<SerializeTrackClass>(List<SerializeTrackClass> serializeList, WriteAssetContext context) where SerializeTrackClass : SerializeTrack, new ()
         {
             // 対応するシリアライズ用のクラスを作って
-            var trackSerialize = new TrackSerializeClass();
+            var trackSerialize = new SerializeTrackClass();
 
             SerializeUtility.InitializeTrackSerialize(trackSerialize, this, context);
 
@@ -21,7 +21,6 @@ namespace track_editor
 
             return trackSerialize;
         }
-
 
         protected void RemoveTrackImpl(string label)
         {
@@ -50,14 +49,14 @@ namespace track_editor
     /// トラック情報
     /// RootTrackDataはTrackEditor.top専用
     /// </summary>
-    public class RootTrackData : TrackDataBase
+    public class RootTrackData : TrackData
     {
         public void WriteAsset(WriteAssetContext context)
         {
             WriteAssetImpl(context.asset.rootTracks, context);
         }
 
-        public void ReadAsset(RootTrackSerialize trackSerialize)
+        public void ReadAsset(RootSerializeTrack serializeTrack)
         {
         }
     }
@@ -66,7 +65,7 @@ namespace track_editor
     /// サブトラック情報
     /// RootTrackDataにぶら下がります
     /// </summary>
-    public class GameObjectTrackData : TrackDataBase
+    public class GameObjectTrackData : TrackData
     {
         public GameObject target;
 
@@ -82,7 +81,7 @@ namespace track_editor
 
         public override void TrackDrawer(Rect rect)
         {
-            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width + 4, rect.height - 4);
+            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
             GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
 
             Rect rectObj = new Rect(rectLabel.x, rect.y + (rectLabel.height - EditorGUIUtility.singleLineHeight) * 0.5f, rectLabel.width * 0.6f, EditorGUIUtility.singleLineHeight);
@@ -131,21 +130,21 @@ namespace track_editor
 
         public void WriteAsset(WriteAssetContext context)
         {
-            var trackSerialize = WriteAssetImpl(context.asset.gameObjectTracks, context);
+            var serializeTrack = WriteAssetImpl(context.asset.gameObjectTracks, context);
 
-            trackSerialize.target = target;
+            serializeTrack.target = target;
         }
 
-        public void ReadAsset(GameObjectTrackSerialize trackSerialize)
+        public void ReadAsset(GameObjectSerializeTrack serializeTrack)
         {
             // WriteAssetは全てをシリアライズするが、
             // ReadAssetはシステム側で共通部分のシリアライズを行うので、ここでは特別なパラメーターだけを復元すれば良い
 
-            target = trackSerialize.target;
+            target = serializeTrack.target;
         }
     }
 
-    public class ActivationTrackData : TrackDataBase
+    public class ActivationTrackData : TrackData
     {
         public override void PropertyDrawer(Rect rect)
         {
@@ -166,12 +165,12 @@ namespace track_editor
             WriteAssetImpl(context.asset.activationTracks, context);
         }
 
-        public void ReadAsset(ActivationTrackSerialize trackSerialize)
+        public void ReadAsset(ActivationSerializeTrack serializeTrack)
         {
         }
     }
 
-    public class PositionTrackData : TrackDataBase
+    public class PositionTrackData : TrackData
     {
         public PositionTrackData()
         {
@@ -198,12 +197,12 @@ namespace track_editor
             WriteAssetImpl(context.asset.positionTracks, context);
         }
 
-        public void ReadAsset(PositionTrackSerialize trackSerialize)
+        public void ReadAsset(PositionSerializeTrack serializeTrack)
         {
         }
     }
 
-    public class AnimationTrackData : TrackDataBase
+    public class AnimationTrackData : TrackData
     {
         public AnimationTrackData()
         {
@@ -229,7 +228,7 @@ namespace track_editor
             WriteAssetImpl(context.asset.animationTracks, context);
         }
 
-        public void ReadAsset(AnimationTrackSerialize trackSerialize)
+        public void ReadAsset(AnimationSerializeTrack serializeTrack)
         {
         }
     }

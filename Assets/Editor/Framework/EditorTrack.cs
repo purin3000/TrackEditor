@@ -12,15 +12,15 @@ namespace track_editor_fw
     {
         public string name;
 
+        public EditorTrack parent { get; set; }
+
         public List<EditorTrack> childs = new List<EditorTrack>();
 
         public List<EditorElement> elements = new List<EditorElement>();
 
-        public TrackEditor manager { get; private set; }
-
-        public EditorTrack parent { get; set; }
-
         public EditorElement selectionElement { get; set; }
+
+        public TrackEditor manager { get; private set; }
 
         public float trackHeight { get => manager.trackHeight; }
 

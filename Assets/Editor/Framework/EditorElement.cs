@@ -10,10 +10,10 @@ namespace track_editor_fw
     /// </summary>
     public class EditorElement
     {
+        public EditorTrack parent { get; private set; }
+
         public int start;
         public int length;
-
-        public EditorTrack parent { get; private set; }
 
         public bool IsSelection { get => parent.selectionElement == this; }
 

@@ -36,18 +36,18 @@ namespace track_editor
             this.asset = asset;
             this.manager = manager;
 
-            trackBaseList = listupTrackBase(new List<EditorTrack>(), top);
-            elementBaseList = listupElementBase(new List<EditorElement>(), top);
+            trackBaseList = editorTrackListup(new List<EditorTrack>(), top);
+            elementBaseList = editorElementListup(new List<EditorElement>(), top);
 
-            rootTracks = GetTracks<RootTrackData>();
-            gameObjectTracks = GetTracks<GameObjectTrackData>();
-            activationTracks = GetTracks<ActivationTrackData>();
-            positionTracks = GetTracks<PositionTrackData>();
-            animationTracks = GetTracks<AnimationTrackData>();
+            rootTracks = getEditorTracks<RootTrackData>();
+            gameObjectTracks = getEditorTracks<GameObjectTrackData>();
+            activationTracks = getEditorTracks<ActivationTrackData>();
+            positionTracks = getEditorTracks<PositionTrackData>();
+            animationTracks = getEditorTracks<AnimationTrackData>();
 
-            activationElements = GetElements<ActivationElement>();
-            positionElements = GetElements<PositionElement>();
-            animationElements = GetElements<AnimationElement>();
+            activationElements = getEditorElements<ActivationElement>();
+            positionElements = getEditorElements<PositionElement>();
+            animationElements = getEditorElements<AnimationElement>();
         }
 
         public void WriteAsset()
@@ -68,32 +68,32 @@ namespace track_editor
             foreach (var element in animationElements) { element.WriteAsset(this); }
         }
 
-        List<T> GetTracks<T>() where T : EditorTrack
+        List<T> getEditorTracks<T>() where T : EditorTrack
         {
             return trackBaseList.Where(obj => obj is T).Select(obj => (T)obj).ToList();
 
         }
 
-        List<T> GetElements<T>() where T : EditorElement
+        List<T> getEditorElements<T>() where T : EditorElement
         {
             return elementBaseList.Where(obj => obj is T).Select(obj => (T)obj).ToList();
 
         }
 
-        static List<EditorTrack> listupTrackBase(List<EditorTrack> list, EditorTrack track)
+        static List<EditorTrack> editorTrackListup(List<EditorTrack> list, EditorTrack track)
         {
             list.Add(track);
             foreach (var child in track.childs) {
-                listupTrackBase(list, child);
+                editorTrackListup(list, child);
             }
             return list;
         }
 
-        static List<EditorElement> listupElementBase(List<EditorElement> list, EditorTrack track)
+        static List<EditorElement> editorElementListup(List<EditorElement> list, EditorTrack track)
         {
             list.AddRange(track.elements);
             foreach (var child in track.childs) {
-                listupElementBase(list, child);
+                editorElementListup(list, child);
             }
             return list;
         }

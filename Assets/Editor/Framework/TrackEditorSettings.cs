@@ -6,12 +6,10 @@ namespace track_editor_fw
 {
 
     // Layout
-    // +-------------------------+----------+
-    // | header                  | property |
-    // +--------+----------------+ v scroll |
-    // |        | time           |          |
+    // +--------+----------------+----------+
+    // |        | time           | property |
     // |        | h scroll       |          |
-    // +--------+----------------+          |
+    // +--------+----------------+ v scroll |
     // | track  | element        |          |
     // | v scr  | vh scroll      |          |
     // |        |                |          |
@@ -22,7 +20,6 @@ namespace track_editor_fw
     {
         public float pixelScale = 5.0f;
 
-        public int headerHeight = 70;
         public int timeHeight = 20;
 
         public int propertyWidth = 300;

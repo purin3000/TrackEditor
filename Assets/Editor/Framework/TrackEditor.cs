@@ -6,6 +6,11 @@ using System.Linq;
 
 namespace track_editor_fw
 {
+    /// <summary>
+    /// GUI描画のメイン部分
+    /// 
+    /// ここから各種TrackやElementが描画されます
+    /// </summary>
     public class TrackEditor
     {
         public int frameLength = 100;
@@ -26,8 +31,6 @@ namespace track_editor_fw
 
         public EditorTrack top { get; set; }
 
-        public ITrackEditorHeader header { get; private set; }
-
         public EditorTrack selectionTrack { get; private set; }
 
         public Vector2 scrollPos { get => scrPos; }
@@ -39,18 +42,12 @@ namespace track_editor_fw
         Vector2 scrPos;
 
 
-        public TrackEditor(TrackEditorSettings settings, EditorTrack top, ITrackEditorHeader header)
+        public TrackEditor(TrackEditorSettings settings, EditorTrack top)
         {
             this.settings = settings;
             this.top = top;
-            this.header = header;
 
             top.Initialize(this, "top", null);
-        }
-
-        public void SetHeader(ITrackEditorHeader header)
-        {
-            this.header = header;
         }
 
         public void SetSelectionTrack(EditorTrack track)
@@ -142,26 +139,19 @@ namespace track_editor_fw
         {
             repaintRequest = false;
 
-            var headerWidth = rect.width - settings.propertyWidth;
-            var timeY = rect.y + settings.headerHeight;
             var propertyX = rect.x + rect.width - settings.propertyWidth;
             var propertyHeight = rect.height;
             var elementX = rect.x + settings.trackWidth;
-            var elementY = rect.y + settings.headerHeight + settings.timeHeight;
+            var elementY = rect.y + settings.timeHeight;
             var elementWidth = rect.width - settings.trackWidth - settings.propertyWidth;
-            var elementHeight = rect.height - settings.headerHeight - settings.timeHeight;
+            var elementHeight = rect.height - settings.timeHeight;
 
-            Rect rectHeader = new Rect(rect.x, rect.y, headerWidth - 16, settings.headerHeight);
-            Rect rectTime = new Rect(elementX, timeY, elementWidth, settings.timeHeight);
+            Rect rectTime = new Rect(elementX, rect.y, elementWidth, settings.timeHeight);
             Rect rectProperty = new Rect(propertyX, rect.y, settings.propertyWidth, propertyHeight);
             Rect rectTrack = new Rect(rect.x, elementY, settings.trackWidth, elementHeight);
             Rect rectElement = new Rect(elementX, elementY, elementWidth, elementHeight);
 
             this.elementWidth = elementWidth;
-
-            using (new GUILayout.AreaScope(rectHeader)) {
-                drawHeader(rectHeader);
-            }
 
             // time + track + element
             {
@@ -252,11 +242,6 @@ namespace track_editor_fw
             }
         }
 
-        void drawHeader(Rect rect)
-        {
-            header?.DrawHeader(this, rect);
-        }
-
         void drawProperty(Rect rect)
         {
             if (selectionTrack != null) {
@@ -284,27 +269,25 @@ namespace track_editor_fw
 
         void drawTime(Rect rect)
         {
-            //int baseFrame = 10;
+            int baseFrame = 10;
 
-            //if (15 < gridScale) {
-            //    baseFrame = 100;
-            //} else if (10 < gridScale) {
-            //    baseFrame = 50;
-            //} else if (5 < gridScale) {
-            //    baseFrame = 20;
-            //}
+            if (15 < gridScale) {
+                baseFrame = 100;
+            } else if (10 < gridScale) {
+                baseFrame = 50;
+            } else if (5 < gridScale) {
+                baseFrame = 20;
+            }
 
             // フレーム数表示
             using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height))) {   // スクロールバー端の描画の都合で範囲調整
                 var start= (int)(scrollPos.x / pixelScale);
                 var end = (int)((scrollPos.x + rect.width - 16) / pixelScale);
 
-                for (int frame=0; frame<end; frame += 10) {
-                    if (start <= frame && frame < end) {
-
-                        float x = frame * pixelScale;
-
-                        GUI.Label(new Rect(x - scrollPos.x, 0, 40, 40), frame.ToString());
+                for (int frame=0; frame<end; frame += baseFrame) {
+                    var x = frame * pixelScale - scrollPos.x;
+                    if (0 <= x && x < rect.width) {
+                        GUI.Label(new Rect(x, 0, 40, 40), frame.ToString());
                     }
                 }
             }
@@ -319,26 +302,22 @@ namespace track_editor_fw
 
                 // 1フレーム単位
                 if (gridScale < 7) {
-                    for (int frame = 0; frame < end; frame += 1) {
-                        if (start <= frame && frame < end) {
-                            var x = frame * pixelScale; // - scrollPos.x;
+                    for (int frame = 0; frame <= end; frame += 1) {
+                        var x = frame * pixelScale - scrollPos.x;
+                        if (0 <= x && x < rect.width) {
                             Handles.color = new Color(0, 0, 0, 0.1f);
-                            Handles.DrawLine(new Vector3(x - scrollPos.x, 0, 0), new Vector3(x - scrollPos.x, rect.height - 16, 0));
+                            Handles.DrawLine(new Vector3(x, 0, 0), new Vector3(x, rect.height - 16, 0));
                         }
                     }
                 }
 
                 // 10フレーム単位
                 {
-                    for (int frame = 0; frame < end; frame += 10) {
-                        if (start <= frame && frame < end) {
-                            var x = frame * pixelScale; // - scrollPos.x;
-
-                            //if (rect.Contains(new Vector2(x + rect.x, rect.y))) {
-                            {
-                                Handles.color = new Color(0, 0, 0, 0.1f);
-                                Handles.DrawLine(new Vector3(x - scrollPos.x, 0, 0), new Vector3(x - scrollPos.x, rect.height - 16, 0));
-                            }
+                    for (int frame = 0; frame <= end; frame += 10) {
+                        var x = frame * pixelScale - scrollPos.x;
+                        if (0 <= x && x < rect.width) {
+                            Handles.color = new Color(0, 0, 0, 0.1f);
+                            Handles.DrawLine(new Vector3(x, 0, 0), new Vector3(x, rect.height - 16, 0));
                         }
                     }
                 }
@@ -351,7 +330,7 @@ namespace track_editor_fw
 
                 for (int index = start; index <= end; ++index) {
                     var y = index * settings.trackHeight - scrollPos.y;
-                    if (rect.Contains(new Vector2(rect.x, rect.y + y))) {
+                    if (0 <= y && y < rect.height) {
                         Handles.color = new Color(0, 0, 0, 0.3f);
                         Handles.DrawLine(new Vector3(0, y, 0), new Vector3(rect.width - 16, y, 0));
                     }
@@ -370,7 +349,7 @@ namespace track_editor_fw
         void drawElement(Rect rect)
         {
             using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height - 16))) {   // スクロールバー端の描画の都合で範囲調整
-                Rect rectTrack = new Rect(-scrollPos.x, -scrollPos.y, 0, settings.trackHeight);
+                Rect rectTrack = new Rect(0, 0, 0, settings.trackHeight);
                 DrawElement(top, rectTrack);
             }
 
@@ -562,7 +541,6 @@ namespace track_editor_fw
 
             element.ElementDrawer(rectLabel);
         }
-
     }
 }
 

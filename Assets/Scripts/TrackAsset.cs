@@ -16,22 +16,22 @@ namespace track_editor
         public int frameLength = 100;
 
         [HideInInspector]
-        public List<RootTrackSerialize> rootTracks = new List<RootTrackSerialize>();
+        public List<RootSerializeTrack> rootTracks = new List<RootSerializeTrack>();
         [HideInInspector]
-        public List<GameObjectTrackSerialize> gameObjectTracks = new List<GameObjectTrackSerialize>();
+        public List<GameObjectSerializeTrack> gameObjectTracks = new List<GameObjectSerializeTrack>();
         [HideInInspector]
-        public List<ActivationTrackSerialize> activationTracks = new List<ActivationTrackSerialize>();
+        public List<ActivationSerializeTrack> activationTracks = new List<ActivationSerializeTrack>();
         [HideInInspector]
-        public List<PositionTrackSerialize> positionTracks = new List<PositionTrackSerialize>();
+        public List<PositionSerializeTrack> positionTracks = new List<PositionSerializeTrack>();
         [HideInInspector]
-        public List<AnimationTrackSerialize> animationTracks = new List<AnimationTrackSerialize>();
+        public List<AnimationSerializeTrack> animationTracks = new List<AnimationSerializeTrack>();
 
         [HideInInspector]
-        public List<ActivationElementSerialize> activationElements = new List<ActivationElementSerialize>();
+        public List<ActivationSerializeElement> activationElements = new List<ActivationSerializeElement>();
         [HideInInspector]
-        public List<PositionElementSerialize> positionElements = new List<PositionElementSerialize>();
+        public List<PositionSerializeElement> positionElements = new List<PositionSerializeElement>();
         [HideInInspector]
-        public List<AnimationElementSerialize> animationElements = new List<AnimationElementSerialize>();
+        public List<AnimationSerializeElement> animationElements = new List<AnimationSerializeElement>();
 
         public void WriteAsset(int frameLength)
         {
@@ -50,63 +50,13 @@ namespace track_editor
     }
 
     /// <summary>
-    /// トラックのシリアライズデータ
-    /// </summary>
-    [System.Serializable]
-    public class RootTrackSerialize : TrackSerialize
-    {
-    }
-
-    [System.Serializable]
-    public class GameObjectTrackSerialize : TrackSerialize
-    {
-        public GameObject target;
-    }
-
-    [System.Serializable]
-    public class ActivationTrackSerialize : TrackSerialize
-    {
-    }
-
-    [System.Serializable]
-    public class PositionTrackSerialize : TrackSerialize
-    {
-    }
-
-    [System.Serializable]
-    public class AnimationTrackSerialize : TrackSerialize
-    {
-    }
-
-    /// <summary>
-    /// エレメントのシリアライズデータ
-    /// </summary>
-    [System.Serializable]
-    public class ActivationElementSerialize : ElementSerialize
-    {
-    }
-
-    [System.Serializable]
-    public class PositionElementSerialize : ElementSerialize
-    {
-        public Vector3 localPosition;
-    }
-
-    [System.Serializable]
-    public class AnimationElementSerialize : ElementSerialize
-    {
-        public int blend;
-        public AnimationClip clip;
-    }
-
-    /// <summary>
     /// トラックの階層構造
     /// 
     /// シリアライズの制約でトラックを直接参照させることが出来ないため、
     /// トラックは一意な名前で保持し、あとで関連付けます
     /// </summary>
     [System.Serializable]
-    public abstract class TrackSerialize
+    public abstract class SerializeTrack
     {
         public string uniqueName;
 
@@ -123,7 +73,7 @@ namespace track_editor
     /// トラックは一意な名前で保持し、あとで関連付けます
     /// </summary>
     [System.Serializable]
-    public abstract class ElementSerialize
+    public abstract class SerializeElement
     {
         public string uniqueName;
 
@@ -132,7 +82,72 @@ namespace track_editor
         public int length;
 
         public int end { get => start + length; }
+
+        public abstract IElementPlayer CreatePlayer();
     }
 
+    /// <summary>
+    /// トラックのシリアライズデータ
+    /// </summary>
+    [System.Serializable]
+    public class RootSerializeTrack : SerializeTrack
+    {
+    }
+
+    [System.Serializable]
+    public class GameObjectSerializeTrack : SerializeTrack
+    {
+        public GameObject target;
+    }
+
+    [System.Serializable]
+    public class ActivationSerializeTrack : SerializeTrack
+    {
+    }
+
+    [System.Serializable]
+    public class PositionSerializeTrack : SerializeTrack
+    {
+    }
+
+    [System.Serializable]
+    public class AnimationSerializeTrack : SerializeTrack
+    {
+    }
+
+    /// <summary>
+    /// エレメントのシリアライズデータ
+    /// </summary>
+    [System.Serializable]
+    public class ActivationSerializeElement : SerializeElement
+    {
+        public override IElementPlayer CreatePlayer()
+        {
+            return new ActivationElementPlayer(this);
+        }
+    }
+
+    [System.Serializable]
+    public class PositionSerializeElement : SerializeElement
+    {
+        public Vector3 localPosition;
+
+        public override IElementPlayer CreatePlayer()
+        {
+            return new PositionElementPlayer(this);
+        }
+    }
+
+    [System.Serializable]
+    public class AnimationSerializeElement : SerializeElement
+    {
+        public int blend;
+        public AnimationClip clip;
+
+        public override IElementPlayer CreatePlayer()
+        {
+            return new AnimationElementPlayer(this);
+        }
+    }
 }
 

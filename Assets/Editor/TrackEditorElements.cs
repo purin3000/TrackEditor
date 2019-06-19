@@ -7,9 +7,9 @@ using track_editor_fw;
 
 namespace track_editor
 {
-    public class TrackElemetBase : EditorElement
+    public class TrackElemet : EditorElement
     {
-        protected ElementSerializeClass WriteAssetImpl<ElementSerializeClass>(List<ElementSerializeClass> serializeList, WriteAssetContext context) where ElementSerializeClass : ElementSerialize, new()
+        protected ElementSerializeClass WriteAssetImpl<ElementSerializeClass>(List<ElementSerializeClass> serializeList, WriteAssetContext context) where ElementSerializeClass : SerializeElement, new()
         {
             var elementSerialize = new ElementSerializeClass();
 
@@ -30,7 +30,7 @@ namespace track_editor
         }
     }
 
-    public class ActivationElement : TrackElemetBase
+    public class ActivationElement : TrackElemet
     {
         public override void PropertyDrawer(Rect rect)
         {
@@ -44,12 +44,12 @@ namespace track_editor
             WriteAssetImpl(context.asset.activationElements, context);
         }
 
-        public void ReadAsset(ActivationElementSerialize elementSerialize)
+        public void ReadAsset(ActivationSerializeElement serializeElement)
         {
         }
     }
 
-    public class PositionElement : TrackElemetBase
+    public class PositionElement : TrackElemet
     {
         public GameObject target { get => (parent.parent as GameObjectTrackData)?.target; }
 
@@ -86,13 +86,13 @@ namespace track_editor
             elementSerialize.localPosition = localPosition;
         }
 
-        public void ReadAsset(PositionElementSerialize elementSerialize)
+        public void ReadAsset(PositionSerializeElement serializeElement)
         {
-            localPosition = elementSerialize.localPosition;
+            localPosition = serializeElement.localPosition;
         }
     }
 
-    public class AnimationElement : TrackElemetBase
+    public class AnimationElement : TrackElemet
     {
         public int blend;
         public AnimationClip clip;
@@ -115,10 +115,10 @@ namespace track_editor
             elementSerialize.clip = clip;
         }
 
-        public void ReadAsset(AnimationElementSerialize elementSerialize)
+        public void ReadAsset(AnimationSerializeElement serializeElement)
         {
-            blend = elementSerialize.blend;
-            clip = elementSerialize.clip;
+            blend = serializeElement.blend;
+            clip = serializeElement.clip;
         }
     }
 

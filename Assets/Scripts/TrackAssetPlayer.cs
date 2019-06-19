@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,11 +15,18 @@ namespace track_editor
 
         public bool playOnAwake = false;
 
-        public bool IsPlaying { get => playContext != null && time * 60 < asset.frameLength; }
+        public bool IsPlaying { get => 0 <= playStartCurrent && time * 60 < asset.frameLength; }
 
-        public bool IsPlayEnd { get => playContext != null && asset.frameLength <= time * 60; }
+        public bool IsPlayEnd { get => 0 <= playEndCurrent && asset.frameLength <= time * 60; }
 
-        ElementPlayerContext playContext = null;
+
+        public List<IElementPlayer> playStartElements;
+        public List<IElementPlayer> playEndElements;
+
+        Dictionary<string, SerializeTrack> tracks = new Dictionary<string, SerializeTrack>();
+        Dictionary<string, SerializeElement> elements = new Dictionary<string, SerializeElement>();
+        List<IElementPlayer> elementPlayers = new List<IElementPlayer>();
+
 
         int playStartCurrent = -1;
         int playEndCurrent = -1;
@@ -38,7 +46,23 @@ namespace track_editor
             playEndCurrent = 0;
             time = 0.0f;
 
-            playContext = new ElementPlayerContext(asset);
+            tracks.Clear();
+            elements.Clear();
+            elementPlayers.Clear();
+
+            addTrack(asset.rootTracks);
+            addTrack(asset.gameObjectTracks);
+            addTrack(asset.activationTracks);
+            addTrack(asset.positionTracks);
+            addTrack(asset.animationTracks);
+
+            addElement(asset.activationElements);
+            addElement(asset.positionElements);
+            addElement(asset.animationElements);
+
+            playStartElements = elementPlayers.OrderBy(elem => elem.start).ToList();
+            playEndElements = elementPlayers.OrderBy(elem => elem.end).ToList();
+
         }
 
         void Start()
@@ -54,31 +78,57 @@ namespace track_editor
                 return;
             }
 
-            while (playStartCurrent < playContext.playStartElements.Count) {
-                var element = playContext.playStartElements[playStartCurrent];
+            while (playStartCurrent < playStartElements.Count) {
+                var element = playStartElements[playStartCurrent];
 
                 if (time * 60.0f < element.start) {
                     break;
                 }
 
-                element.OnStart(playContext);
+                element.OnStart(this);
                 ++playStartCurrent;
             }
 
 
-            while (playEndCurrent < playContext.playEndElements.Count) {
-                var element = playContext.playEndElements[playEndCurrent];
+            while (playEndCurrent < playEndElements.Count) {
+                var element = playEndElements[playEndCurrent];
 
                 if (time * 60.0f < element.end) {
                     break;
                 }
 
-                element.OnEnd(playContext);
+                element.OnEnd(this);
                 ++playEndCurrent;
             }
 
 
             time += Time.deltaTime * speed;
+        }
+
+
+        void addTrack<SerializeTrackClass>(List<SerializeTrackClass> serializeList) where SerializeTrackClass : SerializeTrack
+        {
+            foreach (var serializeTrack in serializeList) {
+                tracks.Add(serializeTrack.uniqueName, serializeTrack);
+            }
+        }
+
+        void addElement<SerializeElementClass>(List<SerializeElementClass> serializeList) where SerializeElementClass : SerializeElement
+        {
+            foreach (var serializeElement in serializeList) {
+                elements.Add(serializeElement.uniqueName, serializeElement);
+                elementPlayers.Add(serializeElement.CreatePlayer());
+            }
+        }
+
+        public T GetTrack<T>(SerializeElement elementSerialize) where T : SerializeTrack
+        {
+            return tracks[elementSerialize.parent] as T;
+        }
+
+        public T GetParentTrack<T>(SerializeElement elementSerialize) where T : SerializeTrack
+        {
+            return tracks[tracks[elementSerialize.parent].parent] as T;
         }
 
 #if UNITY_EDITOR
