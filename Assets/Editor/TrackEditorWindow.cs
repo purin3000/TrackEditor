@@ -113,7 +113,9 @@ namespace track_editor
         {
             using (new GUILayout.HorizontalScope()) {
 
-                using (new GUILayout.VerticalScope()) {
+                int height = 90;
+
+                using (new GUILayout.VerticalScope("box", GUILayout.Height(height))) {
                     using (var changedScope = new EditorGUI.ChangeCheckScope()) {
                         asset = (TrackAsset)EditorGUILayout.ObjectField("TrackAsset", asset, typeof(TrackAsset), true);
 
@@ -127,14 +129,24 @@ namespace track_editor
                         manager.frameLength = Mathf.Max(0, EditorGUILayout.IntField("FrameLength", manager.frameLength));
                     }
 
-                    if (GUILayout.Button("Add GameObject Track")) {
-                        var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
-                        manager.SetSelectionTrack(track);
 
+                    using (new GUILayout.HorizontalScope()) {
+                        if (manager.selectionTrack != null) {
+                            using (new GUILayout.VerticalScope()) {
+                                manager.selectionTrack.HeaderDrawer();
+                            }
+
+                        } else {
+                            if (GUILayout.Button("Add GameObject Track")) {
+                                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
+                                manager.SetSelectionTrack(track);
+
+                            }
+                        }
                     }
                 }
 
-                using (new GUILayout.VerticalScope()) {
+                using (new GUILayout.VerticalScope("box", GUILayout.Height(height), GUILayout.Width(position.width * 0.5f))) {
 
                     using (new GUILayout.HorizontalScope()) {
                         if (GUILayout.Button("New Data")) {
@@ -159,8 +171,6 @@ namespace track_editor
                     manager.gridScale = EditorGUILayout.IntSlider("Grid Scale", (int)manager.gridScale, 1, manager.gridScaleMax);
                 }
             }
-
-            GUILayout.Space(10);
         }
     }
 }

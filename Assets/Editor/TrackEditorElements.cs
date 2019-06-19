@@ -25,17 +25,18 @@ namespace track_editor
             if (GUILayout.Button(label)) {
                 parent.manager.RemoveElement(parent, this);
             }
-
-            GUILayout.Space(15);
         }
     }
 
     public class ActivationElement : TrackElemet
     {
-        public override void PropertyDrawer(Rect rect)
+        public override void HeaderDrawer()
         {
             RemoveElementImpl("Remove Activation Elememnt");
+        }
 
+        public override void PropertyDrawer(Rect rect)
+        {
             base.PropertyDrawer(rect);
         }
 
@@ -55,10 +56,13 @@ namespace track_editor
 
         public Vector3 localPosition;
 
-        public override void PropertyDrawer(Rect rect)
+        public override void HeaderDrawer()
         {
             RemoveElementImpl("Remove Position Elememnt");
+        }
 
+        public override void PropertyDrawer(Rect rect)
+        {
             base.PropertyDrawer(rect);
 
             localPosition = EditorGUILayout.Vector3Field("Local Position", localPosition);
@@ -97,10 +101,13 @@ namespace track_editor
         public int blend;
         public AnimationClip clip;
 
-        public override void PropertyDrawer(Rect rect)
+        public override void HeaderDrawer()
         {
             RemoveElementImpl("Remove Animation Elememnt");
+        }
 
+        public override void PropertyDrawer(Rect rect)
+        {
             base.PropertyDrawer(rect);
 
             blend = EditorGUILayout.IntField("Blend Frame", blend);

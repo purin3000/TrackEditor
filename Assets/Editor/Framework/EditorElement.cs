@@ -43,6 +43,11 @@ namespace track_editor_fw
             this.length = length;
         }
 
+        public virtual void HeaderDrawer()
+        {
+
+        }
+
         public virtual void ElementDrawer(Rect rect)
         {
             Rect labelRect = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);

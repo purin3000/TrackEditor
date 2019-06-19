@@ -70,6 +70,11 @@ namespace track_editor_fw
             this.name = name;
         }
 
+        public virtual void HeaderDrawer()
+        {
+
+        }
+
         public virtual void TrackDrawer(Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
