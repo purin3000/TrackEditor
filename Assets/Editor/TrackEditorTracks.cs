@@ -87,13 +87,33 @@ namespace track_editor
 
         public override void HeaderDrawer()
         {
-            if (GUILayout.Button("Add GameObject Track")) {
-                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
-                manager.SetSelectionTrack(track);
+            using (new GUILayout.HorizontalScope()) {
+                using (new GUILayout.VerticalScope()) {
+                    if (GUILayout.Button("Add GameObject Track")) {
+                        var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
+                        manager.SetSelectionTrack(track);
 
+                    }
+
+                    RemoveTrackImpl("Remove GameObject Track");
+                }
+
+                using (new GUILayout.VerticalScope()) {
+                    if (GUILayout.Button("上へ移動")) {
+                        var index = parent.childs.IndexOf(this) - 1;
+                        if (0 <= index) {
+                            parent.childs.SwapAt(index, index + 1);
+                        }
+                    }
+                    if (GUILayout.Button("下へ移動")) {
+                        var index = parent.childs.IndexOf(this) + 1;
+                        if (index < parent.childs.Count) {
+                            parent.childs.SwapAt(index, index - 1);
+                        }
+                    }
+                }
             }
 
-            RemoveTrackImpl("Remove GameObject Track");
         }
 
         public override void TrackDrawer(Rect rect)
@@ -110,18 +130,6 @@ namespace track_editor
             base.PropertyDrawer(rect);
 
             using (new GUILayout.HorizontalScope()) {
-                if (GUILayout.Button("上へ移動")) {
-                    var index = parent.childs.IndexOf(this) - 1;
-                    if (0 <= index) {
-                        parent.childs.SwapAt(index, index + 1);
-                    }
-                }
-                if (GUILayout.Button("下へ移動")) {
-                    var index = parent.childs.IndexOf(this) + 1;
-                    if (index < parent.childs.Count) {
-                        parent.childs.SwapAt(index, index - 1);
-                    }
-                }
             }
 
             GUILayout.Space(10);
