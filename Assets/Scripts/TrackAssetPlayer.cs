@@ -15,6 +15,8 @@ namespace track_editor
 
         public bool playOnAwake = false;
 
+        public int currentFrame { get => (int)(time * 60.0f); }
+
         public bool IsPlaying { get => 0 <= playStartCurrent && time * 60 < asset.frameLength; }
 
         public bool IsPlayEnd { get => 0 <= playEndCurrent && asset.frameLength <= time * 60; }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 using track_editor_fw;
 
@@ -15,122 +16,103 @@ namespace track_editor
             GetWindow<TrackEditorWindow>("TrackEditorExample");
         }
 
-        TrackEditor _manager;
+        TrackEditor manager;
 
+        [SerializeField]
         TrackAsset asset;
-
-        [SerializeField]
-        bool reinit1 = false;
-
-        [SerializeField]
-        bool reinit2 = false;
 
         [SerializeField]
         string reinitObjectName;
 
+        Rect rectGUI;
+
         private void OnEnable()
         {
-            _manager = new TrackEditor(new TrackEditorSettings(), new RootTrackData());
+            manager = new TrackEditor(new TrackEditorSettings(), new RootTrackData());
 
             //for (int i = 0; i < 3; ++i) {
             //    _manager.AddTrack(_manager.top, "Track:" + i, new GameObjectTrackData());
             //}
-
-            if (EditorApplication.isPlayingOrWillChangePlaymode) {
-                // Unityは再生すると再生開始時と再生終了時の2回もオブジェクト初期化が入る。
-                // この影響で通常だとEditorWindowの編集状態が失われてしまうが、
-                // うまくフラグを立てて分岐することで、その都度データを読み直してます。
-                // 初期化は2回来るのにOnEnableは1回しか来ないとか、本当に勘弁してほしいのだが。
-                //
-                // ちなみにTrackAssetはシーン内のオブジェクトのため、
-                // 例えSerializeFieldを指定しても内部的にシーンの読み替えが入るらしく、
-                // そのときにシーンのオブジェクトは参照が外れるため、通常の方法だと確実に参照を維持できません。
-                
-                reinit1 = true;
-                reinit2 = true;
-            }
         }
 
         private void OnDisable()
         {
-            // 覚えておいてあとで再初期化に使う
-            if (asset) {
-                reinitObjectName = asset.name;
-            }
         }
 
-        Rect rectGUI;
-
-        private void OnGUI()
+        private void Update()
         {
-            if (!string.IsNullOrEmpty(reinitObjectName)) {
-                if (EditorApplication.isPlaying) {
-                    if (reinit1) {
-                        Debug.Log("再初期化1");
-                        reload();
-                        reinit1 = false;
+            if (EditorApplication.isPlaying) {
+                foreach (var player in GameObject.FindObjectsOfType<TrackAssetPlayer>()) {
+                    if (player.IsPlaying) {
+                        if (this.asset != player.asset) {
+                            this.asset = SerializeUtility.LoadAsset(manager, asset);
+                        }
 
-                    }
-                } else {
-                    if (reinit2) {
-                        Debug.Log("再初期化2");
-                        reload();
-                        reinit2 = false;
+                        manager.currentFrame = player.currentFrame;
+                        Repaint();
                     }
                 }
             }
+        }
+
+        private void OnGUI()
+        {
+            assetAutoLoad();
+
+            drawHeader();
 
 
-            DrawHeader(_manager);
-            //var rec = GUILayoutUtility.GetLastRect();
-            //Debug.LogFormat("{0}  x:{1} y:{2} w:{3} h:{4}", Event.current.type, rec.x, rec.y, rec.height, rec.width);
+            manager.OnGUI(new Rect(rectGUI.x + 10 , rectGUI.y + 10 + rectGUI.height, position.width - 20, position.height - rectGUI.y - rectGUI.height - 20));
 
-            if (Event.current.type == EventType.Repaint) {
-                rectGUI = GUILayoutUtility.GetLastRect();
-                //Debug.LogFormat("{0}  x:{1} y:{2} w:{3} h:{4}", Event.current.type, rectGUI.x, rectGUI.y, rectGUI.height, rectGUI.width);
-            }
-
-            _manager.OnGUI(new Rect(rectGUI.x + 10 , rectGUI.y + 10 + rectGUI.height, position.width - 20, position.height - rectGUI.y - rectGUI.height - 20));
-
-            if (_manager.repaintRequest) {
+            if (manager.repaintRequest) {
                 Repaint();
             }
         }
 
-        void reload()
+        /// <summary>
+        /// オブジェクト消滅を検知して読み直す機構
+        /// 通常だと再生するたびにオブジェクトが失われてしまう
+        /// </summary>
+        void assetAutoLoad()
         {
-            var assetList = GameObject.FindObjectsOfType<TrackAsset>();
-
-            foreach (var asset in assetList) {
-                if (asset.name == reinitObjectName) {
-                    this.asset = SerializeUtility.LoadAsset(_manager, asset);
-                    return;
+            if (!string.IsNullOrEmpty(reinitObjectName) && asset == null) {
+                var sceneAsset = GameObject.FindObjectsOfType<TrackAsset>().Where(obj => obj.name == reinitObjectName).FirstOrDefault();
+                if (sceneAsset) {
+                    loadAsset(sceneAsset);
                 }
             }
         }
 
-        public void DrawHeader(TrackEditor manager)
+        void loadAsset(TrackAsset loadAsset)
         {
-            using (new GUILayout.HorizontalScope()) {
+            asset = SerializeUtility.LoadAsset(manager, loadAsset);
+            reinitObjectName = asset.name;
+        }
 
-                int height = 90;
+        void drawHeader()
+        {
+            using (new GUILayout.HorizontalScope("box", GUILayout.Height(90))) {
+                using (new GUILayout.VerticalScope(GUILayout.Width(position.width * 0.4f))) {
 
-                using (new GUILayout.VerticalScope("box", GUILayout.Height(height))) {
-                    using (var changedScope = new EditorGUI.ChangeCheckScope()) {
-                        asset = (TrackAsset)EditorGUILayout.ObjectField("TrackAsset", asset, typeof(TrackAsset), true);
+                    using (new EditorGUI.DisabledScope(manager.lockMode)) {
 
-                        if (changedScope.changed && asset != null) {
-                            asset = SerializeUtility.LoadAsset(manager, asset);
+                        using (var changedScope = new EditorGUI.ChangeCheckScope()) {
+                            asset = (TrackAsset)EditorGUILayout.ObjectField("TrackAsset", asset, typeof(TrackAsset), true);
+
+                            if (changedScope.changed && asset != null) {
+                                loadAsset(asset);
+                            }
                         }
-                    }
 
-                    using (new GUILayout.HorizontalScope()) {
                         manager.currentFrame = Mathf.Max(0, EditorGUILayout.IntField("Frame", manager.currentFrame));
                         manager.frameLength = Mathf.Max(0, EditorGUILayout.IntField("FrameLength", manager.frameLength));
                     }
 
+                    manager.gridScale = EditorGUILayout.IntSlider("Grid Scale", (int)manager.gridScale, 1, manager.gridScaleMax);
+                }
 
-                    using (new GUILayout.HorizontalScope()) {
+                using (new EditorGUI.DisabledScope(manager.lockMode)) {
+                    using (new GUILayout.VerticalScope()) {
                         if (manager.selectionTrack != null) {
                             using (new GUILayout.VerticalScope()) {
                                 manager.selectionTrack.HeaderDrawer();
@@ -144,17 +126,8 @@ namespace track_editor
                             }
                         }
                     }
-                }
 
-                using (new GUILayout.VerticalScope("box", GUILayout.Height(height), GUILayout.Width(position.width * 0.5f))) {
-
-                    using (new GUILayout.HorizontalScope()) {
-                        if (GUILayout.Button("New Data")) {
-                            var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
-
-                            asset = SerializeUtility.SaveGameObject(manager, path);
-                        }
-
+                    using (new GUILayout.VerticalScope(GUILayout.Width(position.width * 0.3f))) {
                         using (new EditorGUI.DisabledScope(asset == null)) {
                             if (GUILayout.Button("Save")) {
                                 SerializeUtility.SaveAsset(manager, asset);
@@ -164,12 +137,20 @@ namespace track_editor
                                 asset = SerializeUtility.LoadAsset(manager, asset);
                             }
                         }
+
+                        if (GUILayout.Button("New Data")) {
+                            var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
+
+                            loadAsset(SerializeUtility.SaveGameObject(manager, path));
+                        }
                     }
 
-                    GUILayout.Space(10);
-
-                    manager.gridScale = EditorGUILayout.IntSlider("Grid Scale", (int)manager.gridScale, 1, manager.gridScaleMax);
                 }
+            }
+
+            // 最後に描画された要素から描画領域を計算
+            if (Event.current.type == EventType.Repaint) {
+                rectGUI = GUILayoutUtility.GetLastRect();
             }
         }
     }

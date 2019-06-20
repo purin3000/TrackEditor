@@ -583,7 +583,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   asset: {fileID: 12368528}
-  playOnAwake: 1
+  playOnAwake: 0
 --- !u!4 &1086336054
 Transform:
   m_ObjectHideFlags: 0

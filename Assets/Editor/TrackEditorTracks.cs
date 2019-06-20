@@ -87,33 +87,18 @@ namespace track_editor
 
         public override void HeaderDrawer()
         {
-            using (new GUILayout.HorizontalScope()) {
-                using (new GUILayout.VerticalScope()) {
-                    if (GUILayout.Button("Add GameObject Track")) {
-                        var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
-                        manager.SetSelectionTrack(track);
+            if (GUILayout.Button("Add GameObject Track")) {
+                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
+                manager.SetSelectionTrack(track);
 
-                    }
-
-                    RemoveTrackImpl("Remove GameObject Track");
-                }
-
-                using (new GUILayout.VerticalScope()) {
-                    if (GUILayout.Button("上へ移動")) {
-                        var index = parent.childs.IndexOf(this) - 1;
-                        if (0 <= index) {
-                            parent.childs.SwapAt(index, index + 1);
-                        }
-                    }
-                    if (GUILayout.Button("下へ移動")) {
-                        var index = parent.childs.IndexOf(this) + 1;
-                        if (index < parent.childs.Count) {
-                            parent.childs.SwapAt(index, index - 1);
-                        }
-                    }
-                }
             }
 
+            RemoveTrackImpl("Remove GameObject Track");
+
+            using (new GUILayout.HorizontalScope()) {
+                using (new GUILayout.VerticalScope()) {
+                }
+            }
         }
 
         public override void TrackDrawer(Rect rect)
@@ -129,14 +114,26 @@ namespace track_editor
         {
             base.PropertyDrawer(rect);
 
-            using (new GUILayout.HorizontalScope()) {
-            }
-
-            GUILayout.Space(10);
-
             target = (GameObject)EditorGUILayout.ObjectField(target, typeof(GameObject), true);
 
-            GUILayout.Space(10);
+            GUILayout.Space(15);
+
+            using (new GUILayout.VerticalScope()) {
+                if (GUILayout.Button("上へ移動")) {
+                    var index = parent.childs.IndexOf(this) - 1;
+                    if (0 <= index) {
+                        parent.childs.SwapAt(index, index + 1);
+                    }
+                }
+                if (GUILayout.Button("下へ移動")) {
+                    var index = parent.childs.IndexOf(this) + 1;
+                    if (index < parent.childs.Count) {
+                        parent.childs.SwapAt(index, index - 1);
+                    }
+                }
+            }
+
+            GUILayout.Space(15);
 
             if (GUILayout.Button("Add Activation Track")) {
                 manager.AddTrack(this, "Activation", new ActivationTrackData());
@@ -173,14 +170,14 @@ namespace track_editor
         {
             using (new GUILayout.HorizontalScope()) {
                 RemoveTrackImpl("Remove Activation Track");
-
-                AddElementImpl<ActivationElement>("Add Activation Element");
             }
         }
 
         public override void PropertyDrawer(Rect rect)
         {
             base.PropertyDrawer(rect);
+
+            AddElementImpl<ActivationElement>("Add Activation Element");
         }
 
         public override void TrackDrawer(Rect rect)
@@ -209,14 +206,14 @@ namespace track_editor
         {
             using (new GUILayout.HorizontalScope()) {
                 RemoveTrackImpl("Remove Position Track");
-
-                AddElementImpl<PositionElement>("Add Position Element");
             }
         }
 
         public override void PropertyDrawer(Rect rect)
         {
             base.PropertyDrawer(rect);
+
+            AddElementImpl<PositionElement>("Add Position Element");
         }
 
         public override void TrackDrawer(Rect rect)
@@ -245,14 +242,14 @@ namespace track_editor
         {
             using (new GUILayout.HorizontalScope()) {
                 RemoveTrackImpl("Remove Animation Track");
-
-                AddElementImpl<AnimationElement>("Add Animation Element");
             }
         }
 
         public override void PropertyDrawer(Rect rect)
         {
             base.PropertyDrawer(rect);
+
+            AddElementImpl<AnimationElement>("Add Animation Element");
         }
 
         public override void TrackDrawer(Rect rect)

@@ -19,6 +19,8 @@ namespace track_editor_fw
 
         public float gridScale = 4.0f;
 
+        public bool lockMode = false;
+
         public float pixelScale { get => 5.0f / gridScale * settings.pixelScale; }
 
         public float trackHeight { get => settings.trackHeight; }
@@ -38,6 +40,7 @@ namespace track_editor_fw
         public bool repaintRequest { get; private set; }
 
         public float elementWidth { get; private set; }
+
 
         Vector2 scrPos;
 
@@ -137,6 +140,8 @@ namespace track_editor_fw
 
         public void OnGUI(Rect rect)
         {
+            lockMode = EditorApplication.isPlayingOrWillChangePlaymode;
+
             repaintRequest = false;
 
             var propertyX = rect.x + rect.width - settings.propertyWidth;
@@ -153,22 +158,29 @@ namespace track_editor_fw
 
             this.elementWidth = elementWidth;
 
-            // time + track + element
             {
                 Rect rectTimeAndElement = new Rect(rectTime.x, rectTime.y, rectElement.width - 16, rectTime.height + rectTrack.height - 16);
                 Rect rectTrackAndElement = new Rect(rectTrack.x, rectTrack.y, rectTrack.width + rectElement.width - 16, rectTrack.height - 16);
 
                 using (new GUILayout.AreaScope(rectTime)) {
-                    drawTime(rectTime);
+                    using (new EditorGUI.DisabledScope(lockMode)) {
+                        drawTime(rectTime);
+                    }
                 }
 
                 using (new GUILayout.AreaScope(rectTrack)) {
-                    drawTrack(rectTrack);
+                    using (new EditorGUI.DisabledScope(lockMode)) {
+                        drawTrack(rectTrack);
+                    }
                 }
 
                 if (0 < rectElement.width && 0 < rectElement.height) {
                     using (new GUILayout.AreaScope(rectElement)) {
-                        drawElement(rectElement);
+                        updateScrollPos();
+
+                        using (new EditorGUI.DisabledScope(lockMode)) {
+                            drawElement(rectElement);
+                        }
                     }
 
                     drawFrameLine(rectTimeAndElement);
@@ -182,7 +194,11 @@ namespace track_editor_fw
             }
 
             using (new GUILayout.AreaScope(rectProperty)) {
-                drawProperty(rectProperty);
+                using (new EditorGUI.DisabledScope(lockMode)) {
+                    using (new EditorGUI.DisabledScope(lockMode)) {
+                        drawProperty(rectProperty);
+                    }
+                }
             }
         }
 
@@ -353,6 +369,14 @@ namespace track_editor_fw
                 DrawElement(top, rectTrack);
             }
 
+            drawGrid(rect);
+
+            updateTrackSelect(rect);
+        }
+
+
+        void updateScrollPos()
+        {
             using (var scope = new EditorGUILayout.ScrollViewScope(scrPos)) {
                 float scrollWidth = Mathf.Max(top.CalcElementWidth(), (frameLength + 30) * pixelScale);
                 float scrollHeight = top.CalcTrackHeight() + settings.trackHeight;
@@ -362,12 +386,7 @@ namespace track_editor_fw
 
                 scrPos = scope.scrollPosition;
             }
-
-            drawGrid(rect);
-
-            updateTrackSelect(rect);
         }
-
 
         void updateTrackSelect(Rect rect)
         {
@@ -462,11 +481,13 @@ namespace track_editor_fw
 
         void DrawElement(EditorTrack track, Rect rect)
         {
-
-            // マウスイベントの取得順序と描画順序は逆
             Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
-            for (int i = 0; i < track.elements.Count; ++i) {
-                updateElement(track, track.elements[i], rectElement);
+
+            if (!lockMode ) {
+                // マウスイベントの取得順序と描画順序は逆
+                for (int i = 0; i < track.elements.Count; ++i) {
+                    updateElement(track, track.elements[i], rectElement);
+                }
             }
 
             for (int i = track.elements.Count - 1; 0 <= i; --i) {
