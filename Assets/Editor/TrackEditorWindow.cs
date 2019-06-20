@@ -112,6 +112,10 @@ namespace track_editor
                         using (new GUILayout.VerticalScope()) {
 
                             if (GUILayout.Button("再生")) {
+                                if (player) {
+                                    GameObject.Destroy(player.gameObject);
+                                }
+
                                 player = new GameObject("TrackAssetPlayer").AddComponent<TrackAssetPlayer>();
                                 player.Play(asset);
                             }
