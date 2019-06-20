@@ -17,9 +17,9 @@ namespace track_editor
 
         public int currentFrame { get => (int)(time * 60.0f); }
 
-        public bool IsPlaying { get => 0 <= playStartCurrent && time * 60 < asset.frameLength; }
+        public bool IsPlaying { get => isPlaying; }
 
-        public bool IsPlayEnd { get => 0 <= playEndCurrent && asset.frameLength <= time * 60; }
+        public bool IsPlayEnd { get => !isPlaying || asset.frameLength <= currentFrame; }
 
 
         public List<IElementPlayer> playStartElements;
@@ -30,6 +30,7 @@ namespace track_editor
         List<IElementPlayer> elementPlayers = new List<IElementPlayer>();
 
 
+        bool isPlaying;
         int playStartCurrent = -1;
         int playEndCurrent = -1;
 
@@ -37,13 +38,16 @@ namespace track_editor
         float speed = 1.0f;
 
 
-        private void Play(TrackAsset asset)
+        public void Play(TrackAsset asset)
         {
             this.asset = asset;
+
+            Play();
         }
 
-        private void Play()
+        public void Play()
         {
+            isPlaying = true;
             playStartCurrent = 0;
             playEndCurrent = 0;
             time = 0.0f;
@@ -67,6 +71,11 @@ namespace track_editor
 
         }
 
+        public void Stop()
+        {
+            isPlaying = false;
+        }
+
         void Start()
         {
             if (playOnAwake) {
@@ -76,35 +85,38 @@ namespace track_editor
 
         void Update()
         {
-            if (!IsPlaying) {
-                return;
-            }
+            if (isPlaying) {
+                if (0 <= playStartCurrent && time * 60 <= asset.frameLength) {
+                    while (playStartCurrent < playStartElements.Count) {
+                        var element = playStartElements[playStartCurrent];
 
-            while (playStartCurrent < playStartElements.Count) {
-                var element = playStartElements[playStartCurrent];
+                        if (time * 60.0f < element.start) {
+                            break;
+                        }
 
-                if (time * 60.0f < element.start) {
-                    break;
+                        element.OnStart(this);
+                        ++playStartCurrent;
+                    }
+
+
+                    while (playEndCurrent < playEndElements.Count) {
+                        var element = playEndElements[playEndCurrent];
+
+                        if (time * 60.0f < element.end) {
+                            break;
+                        }
+
+                        element.OnEnd(this);
+                        ++playEndCurrent;
+                    }
+
+
+                    time += Time.deltaTime * speed;
+
+                } else {
+                    isPlaying = false;
                 }
-
-                element.OnStart(this);
-                ++playStartCurrent;
             }
-
-
-            while (playEndCurrent < playEndElements.Count) {
-                var element = playEndElements[playEndCurrent];
-
-                if (time * 60.0f < element.end) {
-                    break;
-                }
-
-                element.OnEnd(this);
-                ++playEndCurrent;
-            }
-
-
-            time += Time.deltaTime * speed;
         }
 
 
