@@ -21,6 +21,12 @@ namespace track_editor_fw
 
         public bool lockMode = false;
 
+        /// <summary>
+        /// 値が変化した
+        /// </summary>
+        public bool valueChanged = false;
+
+
         public float pixelScale { get => 5.0f / gridScale * settings.pixelScale; }
 
         public float trackHeight { get => settings.trackHeight; }
@@ -37,12 +43,65 @@ namespace track_editor_fw
 
         public Vector2 scrollPos { get => scrPos; }
 
-        public bool repaintRequest { get; private set; }
-
         public float elementWidth { get; private set; }
 
-
         Vector2 scrPos;
+
+        /// <summary>
+        /// 値が変化したらvalueChangedがtrueになるスコープ
+        /// ついでにlockModeでDisableもかけます
+        /// </summary>
+        public class ValueChangedScope : System.IDisposable
+        {
+            bool disposed = false;
+
+            TrackEditor manager;
+
+            public ValueChangedScope(TrackEditor manager)
+            {
+                this.manager = manager;
+
+                EditorGUI.BeginChangeCheck();
+
+                EditorGUI.BeginDisabledGroup(this.manager.lockMode);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                System.GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposed) {
+                    if (disposing) {
+                        // managed resources
+
+                    }
+
+                    EditorGUI.EndDisabledGroup();
+
+                    bool valueChanged = EditorGUI.EndChangeCheck();
+
+                    if (valueChanged) {
+                        manager.valueChanged = true;
+                    }
+
+                    //unmanaded resources
+                    disposed = true;
+                }
+            }
+            ~ValueChangedScope()
+            {
+                Dispose(false);
+            }
+        }
+
+        public ValueChangedScope CreateValueChangedScope()
+        {
+            return new ValueChangedScope(this);
+        }
 
 
         public TrackEditor(TrackEditorSettings settings, EditorTrack top)
@@ -59,8 +118,9 @@ namespace track_editor_fw
                 selectionTrack.selectionElement = null;
             }
 
+            GUI.FocusControl("");
             selectionTrack = track;
-            Repaint();
+            valueChanged = true;
         }
 
         public void SetSelectionElement(EditorTrack track, EditorElement element)
@@ -72,10 +132,10 @@ namespace track_editor_fw
             // 選択した要素を必ず先頭に置く。描画優先度とイベント判定優先度に影響する
             var index = track.elements.IndexOf(element);
             if (0 < index) {
-                track.elements.SwapAt(0, 1);
+                track.elements.SwapAt(0, index);
             }
 
-            Repaint();
+            valueChanged = true;
         }
 
         public T AddTrack<T>(EditorTrack parent, string name, T child) where T : EditorTrack
@@ -133,17 +193,8 @@ namespace track_editor_fw
             }
         }
 
-        public void Repaint()
-        {
-            repaintRequest |= true;
-        }
-
         public void OnGUI(Rect rect)
         {
-            lockMode = EditorApplication.isPlayingOrWillChangePlaymode;
-
-            repaintRequest = false;
-
             var propertyX = rect.x + rect.width - settings.propertyWidth;
             var propertyHeight = rect.height;
             var elementX = rect.x + settings.trackWidth;
@@ -162,14 +213,12 @@ namespace track_editor_fw
                 Rect rectTimeAndElement = new Rect(rectTime.x, rectTime.y, rectElement.width - 16, rectTime.height + rectTrack.height - 16);
                 Rect rectTrackAndElement = new Rect(rectTrack.x, rectTrack.y, rectTrack.width + rectElement.width - 16, rectTrack.height - 16);
 
-                using (new GUILayout.AreaScope(rectTime)) {
-                    using (new EditorGUI.DisabledScope(lockMode)) {
+                using (CreateValueChangedScope()) {
+                    using (new GUILayout.AreaScope(rectTime)) {
                         drawTime(rectTime);
                     }
-                }
 
-                using (new GUILayout.AreaScope(rectTrack)) {
-                    using (new EditorGUI.DisabledScope(lockMode)) {
+                    using (new GUILayout.AreaScope(rectTrack)) {
                         drawTrack(rectTrack);
                     }
                 }
@@ -178,7 +227,7 @@ namespace track_editor_fw
                     using (new GUILayout.AreaScope(rectElement)) {
                         updateScrollPos();
 
-                        using (new EditorGUI.DisabledScope(lockMode)) {
+                        using (CreateValueChangedScope()) {
                             drawElement(rectElement);
                         }
                     }
@@ -194,10 +243,8 @@ namespace track_editor_fw
             }
 
             using (new GUILayout.AreaScope(rectProperty)) {
-                using (new EditorGUI.DisabledScope(lockMode)) {
-                    using (new EditorGUI.DisabledScope(lockMode)) {
-                        drawProperty(rectProperty);
-                    }
+                using (CreateValueChangedScope()) {
+                    drawProperty(rectProperty);
                 }
             }
         }
@@ -223,7 +270,7 @@ namespace track_editor_fw
         void drawFrameLine(Rect rect)
         {
             // カレントフレーム変更
-            if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag) {
+            if ((Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag) && Event.current.button == 0) {
                 var mousePos = Event.current.mousePosition;
 
                 if (rect.Contains(mousePos)) {
@@ -232,7 +279,7 @@ namespace track_editor_fw
 
                     currentFrame = frame;
                     GUI.FocusControl("");
-                    Repaint();
+                    valueChanged = true;
 
                     Event.current.Use();
                 }
@@ -260,23 +307,23 @@ namespace track_editor_fw
 
         void drawProperty(Rect rect)
         {
-            if (selectionTrack != null) {
-                Rect rectProperty = new Rect(0, 0, rect.width, rect.height);
+            if (selectionTrack == null) return;
 
-                using (new GUILayout.AreaScope(rectProperty)) {
-                    using (new GUILayout.VerticalScope()) {
-                        var track = selectionTrack;
+            Rect rectProperty = new Rect(0, 0, rect.width, rect.height);
 
+            using (new GUILayout.AreaScope(rectProperty)) {
+                using (new GUILayout.VerticalScope()) {
+                    var track = selectionTrack;
+
+                    using (new GUILayout.VerticalScope("box")) {
+                        track.PropertyDrawer(rect);
+
+                    }
+
+                    if (track.selectionElement != null) {
                         using (new GUILayout.VerticalScope("box")) {
-                            track.PropertyDrawer(rect);
+                            track.selectionElement.PropertyDrawer(rect);
 
-                        }
-
-                        if (track.selectionElement != null) {
-                            using (new GUILayout.VerticalScope("box")) {
-                                track.selectionElement.PropertyDrawer(rect);
-
-                            }
                         }
                     }
                 }
@@ -366,7 +413,7 @@ namespace track_editor_fw
         {
             using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height - 16))) {   // スクロールバー端の描画の都合で範囲調整
                 Rect rectTrack = new Rect(0, 0, 0, settings.trackHeight);
-                DrawElement(top, rectTrack);
+                drawElement(top, rectTrack);
             }
 
             drawGrid(rect);
@@ -390,7 +437,7 @@ namespace track_editor_fw
 
         void updateTrackSelect(Rect rect)
         {
-            if (Event.current.type == EventType.MouseDown) {
+            if (Event.current.type == EventType.MouseDown && Event.current.button == 0) {
                 var mousePos = Event.current.mousePosition;
 
                 Rect mouseRect = new Rect(0, 0, rect.width, rect.height);
@@ -450,7 +497,7 @@ namespace track_editor_fw
                     } else {
                         if (track.IsSelection) {
                             track.expand = !track.expand;
-                            Repaint();
+                            valueChanged = true;
 
                         } else {
                             SetSelectionTrack(track);
@@ -479,29 +526,63 @@ namespace track_editor_fw
             track.removeElements.Clear();
         }
 
-        void DrawElement(EditorTrack track, Rect rect)
+        void drawElement(EditorTrack track, Rect rect)
         {
             Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
 
             if (!lockMode ) {
-                // マウスイベントの取得順序と描画順序は逆
-                for (int i = 0; i < track.elements.Count; ++i) {
+                // 内部で要素の入れ替えを行うのでforeachではダメ！
+                for (int i = 0; i < track.elements.Count; ++i) { 
                     updateElement(track, track.elements[i], rectElement);
                 }
             }
 
-            for (int i = track.elements.Count - 1; 0 <= i; --i) {
-                drawElement(track.elements[i], rectElement);
+            //for (int i = track.elements.Count - 1; 0 <= i; --i) {
+            //    drawElement(track.elements[i], rectElement);
+            //}
+            if (0 < track.elements.Count) {
+                for (int i = 1; i< track.elements.Count; ++i) {
+                    drawElement(track.elements[i], rectElement);
+                }
+                drawElement(track.elements[0], rectElement);
             }
 
             if (track.expand) {
                 float y = rect.y;
                 foreach (var child in track.childs) {
                     Rect rectChild = new Rect(rect.x, y, rect.width, child.CalcTrackHeight());
-                    DrawElement(child, rectChild);
+                    drawElement(child, rectChild);
                     y += rectChild.height;
                 }
             }
+
+            if (Event.current.type == EventType.MouseDown && Event.current.button == 1) {
+                List<EditorElement> elemList = new List<EditorElement>();
+                foreach (var element in track.elements) {
+                    var rectLabel = calcElementRect(element, rectElement);
+                    if (rectLabel.Contains(Event.current.mousePosition)) {
+                        elemList.Add(element);
+                    }
+                }
+
+                if (0 < elemList.Count ) {
+                    GenericMenu menu = new GenericMenu();
+
+                    foreach (var elem in elemList) {
+                        int index = track.elements.IndexOf(elem);
+                        menu.AddItem(new GUIContent(string.Format("Element:{0}", elem.name)), false, () => { SetSelectionElement(track, elem); });
+                    }
+
+                    menu.ShowAsContext();
+                    Event.current.Use();
+                }
+            }
+        }
+
+        Rect calcElementRect(EditorElement element, Rect rect)
+        {
+            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
+            return rectLabel;
         }
 
         /// <summary>
@@ -511,10 +592,10 @@ namespace track_editor_fw
         /// <param name="rect"></param>
         void updateElement(EditorTrack track, EditorElement element, Rect rect)
         {
-            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
+            Rect rectLabel = calcElementRect(element, rect);
             Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, Mathf.Max(pixelScale * 1, 8), trackHeight);
 
-            if (Event.current.type == EventType.MouseDown) {
+            if (Event.current.type == EventType.MouseDown && Event.current.button == 0) {
                 if (rectLabel.Contains(Event.current.mousePosition)) {
                     SetSelectionElement(track, element);
 
@@ -532,16 +613,16 @@ namespace track_editor_fw
                     Event.current.Use();
                 }
 
-            } else if (Event.current.type == EventType.MouseUp) {
+            } else if (Event.current.type == EventType.MouseUp && Event.current.button == 0) {
                 element.isDrag = false;
                 element.isLengthDrag = false;
 
-            } else if (Event.current.type == EventType.MouseDrag) {
+            } else if (Event.current.type == EventType.MouseDrag && Event.current.button == 0) {
                 if (element.isDrag) {
                     var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + element.mouseOffset.x) / pixelScale);
 
                     element.start = currentFrame;
-                    Repaint();
+                    valueChanged = true;
 
                     Event.current.Use();
 
@@ -549,7 +630,7 @@ namespace track_editor_fw
                     var currentFrame = (int)((Event.current.mousePosition.x - rect.x + scrollPos.x + element.mouseOffset.x) / pixelScale);
 
                     element.length = Mathf.Max(1, currentFrame - element.start);
-                    Repaint();
+                    valueChanged = true;
 
                     Event.current.Use();
                 }

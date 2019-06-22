@@ -100,6 +100,7 @@ namespace track_editor
         public static void InitializeElementSerialize(SerializeElement elementSerialize, EditorElement element, WriteAssetContext context)
         {
             elementSerialize.uniqueName = context.MakeElementName(element);
+            elementSerialize.name = element.name;
             elementSerialize.parent = context.MakeTrackName(element.parent);
             elementSerialize.start = element.start;
             elementSerialize.length = element.length;

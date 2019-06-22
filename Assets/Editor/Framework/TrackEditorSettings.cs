@@ -25,7 +25,7 @@ namespace track_editor_fw
         public int propertyWidth = 300;
 
         public int trackWidth = 200;
-        public int trackHeight = 35;
+        public int trackHeight = 32;
 
         public float childTrackSlide = 0.6f;
 

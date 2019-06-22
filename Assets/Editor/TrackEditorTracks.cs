@@ -25,22 +25,28 @@ namespace track_editor
         protected void RemoveTrackImpl(string label)
         {
             if (selectionElement == null) {
-                using (new GUILayout.VerticalScope()) {
-                    if (GUILayout.Button(label)) {
-                        manager.RemoveTrack(parent, this);
-                    }
+                if (GUILayout.Button(label)) {
+                    manager.RemoveTrack(parent, this);
                 }
+                //using (new GUILayout.VerticalScope()) {
+                //}
             }
+
+        }
+
+        protected void RemoveElementImpl()
+        {
+            selectionElement?.HeaderDrawer();
         }
 
         protected void AddElementImpl<T>(string label) where T : EditorElement,new()
         {
             using (new GUILayout.VerticalScope()) {
                 if (GUILayout.Button(label)) {
-                    manager.AddElement(this, new T());
+                    var element = new T();
+                    element.name = string.Format("{0}:{1}", name, elements.Count);
+                    manager.AddElement(this, element);
                 }
-
-                selectionElement?.HeaderDrawer();
             }
         }
 
@@ -87,18 +93,9 @@ namespace track_editor
 
         public override void HeaderDrawer()
         {
-            if (GUILayout.Button("Add GameObject Track")) {
-                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
-                manager.SetSelectionTrack(track);
-
-            }
+            base.HeaderDrawer();
 
             RemoveTrackImpl("Remove GameObject Track");
-
-            using (new GUILayout.HorizontalScope()) {
-                using (new GUILayout.VerticalScope()) {
-                }
-            }
         }
 
         public override void TrackDrawer(Rect rect)
@@ -168,9 +165,11 @@ namespace track_editor
     {
         public override void HeaderDrawer()
         {
-            using (new GUILayout.HorizontalScope()) {
-                RemoveTrackImpl("Remove Activation Track");
-            }
+            base.HeaderDrawer();
+
+            RemoveTrackImpl("Remove Activation Track");
+
+            RemoveElementImpl();
         }
 
         public override void PropertyDrawer(Rect rect)
@@ -204,9 +203,11 @@ namespace track_editor
 
         public override void HeaderDrawer()
         {
-            using (new GUILayout.HorizontalScope()) {
-                RemoveTrackImpl("Remove Position Track");
-            }
+            base.HeaderDrawer();
+
+            RemoveTrackImpl("Remove Position Track");
+
+            RemoveElementImpl();
         }
 
         public override void PropertyDrawer(Rect rect)
@@ -240,9 +241,11 @@ namespace track_editor
 
         public override void HeaderDrawer()
         {
-            using (new GUILayout.HorizontalScope()) {
-                RemoveTrackImpl("Remove Animation Track");
-            }
+            base.HeaderDrawer();
+
+            RemoveTrackImpl("Remove Animation Track");
+
+            RemoveElementImpl();
         }
 
         public override void PropertyDrawer(Rect rect)

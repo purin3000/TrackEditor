@@ -100,6 +100,7 @@ namespace track_editor
     {
         public int blend;
         public AnimationClip clip;
+        public float speed = 1.0f;
 
         public override void HeaderDrawer()
         {
@@ -108,24 +109,56 @@ namespace track_editor
 
         public override void PropertyDrawer(Rect rect)
         {
-            base.PropertyDrawer(rect);
+            //base.PropertyDrawer(rect);
+
+            GUILayout.Label(string.Format("Element:{0}", name));
+
+            clip = (AnimationClip)EditorGUILayout.ObjectField("Clip", clip, typeof(AnimationClip), false);
+
+            start = Mathf.Max(0, EditorGUILayout.IntField("Start", start));
+
+            using (new EditorGUI.DisabledScope(parent.isFixedLength)) {
+                length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
+            }
 
             blend = EditorGUILayout.IntField("Blend Frame", blend);
 
-            clip = (AnimationClip)EditorGUILayout.ObjectField("Clip", clip, typeof(AnimationClip), false);
+            speed = EditorGUILayout.Slider("Speed", speed, 0.0f, 5.0f);
+
+
+            //clip = (AnimationClip)EditorGUILayout.ObjectField("Clip", clip, typeof(AnimationClip), false);
+
+            if (clip) {
+                if (speed != 0) {
+                    length = Mathf.Max(1, (int)(clip.length / speed * 60));
+                } else {
+                    length = Mathf.Max(1, parent.manager.frameLength - start);
+                }
+            }
         }
+        public override void ElementDrawer(Rect rect)
+        {
+            base.ElementDrawer(rect);
+
+            if (clip) {
+                GUI.Label(rect, clip.name);
+            }
+        }
+
 
         public void WriteAsset(WriteAssetContext context)
         {
             var elementSerialize = WriteAssetImpl(context.asset.animationElements, context);
             elementSerialize.blend = blend;
             elementSerialize.clip = clip;
+            elementSerialize.speed = speed;
         }
 
         public void ReadAsset(AnimationSerializeElement serializeElement)
         {
             blend = serializeElement.blend;
             clip = serializeElement.clip;
+            speed = serializeElement.speed;
         }
     }
 

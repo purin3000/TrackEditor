@@ -83,7 +83,24 @@ namespace track_editor
 
             Debug.LogFormat("Animation start:{0}", start);
 
-            //gameObjectTrack.target.transform.localPosition = elementSerialize.localPosition;
+
+            var anim = gameObjectTrack.target.GetComponent<Animator>();
+            var info = anim.GetCurrentAnimatorStateInfo(0);
+
+            
+            //ModelResource model = null;
+
+            //var walker = gameObjectTrack.target.GetComponent<FieldWalker>();
+            //if (walker) {
+            //    model = walker.characterModel;
+            //} else {
+            //    model = gameObjectTrack.target.GetComponent<ModelResource>();
+            //}
+
+            //if (model) {
+            //    model.animator.speed = elementSerialize.speed;
+            //    model.PlayAnimationClip(elementSerialize.clip, elementSerialize.blend / 60.0f, 0.0f);
+            //}
         }
 
         public override void OnEnd(TrackAssetPlayer context)

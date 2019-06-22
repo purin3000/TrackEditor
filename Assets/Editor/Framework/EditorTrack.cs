@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using System.Linq;
 
 namespace track_editor_fw
@@ -72,7 +73,7 @@ namespace track_editor_fw
 
         public virtual void HeaderDrawer()
         {
-
+            GUILayout.Label(string.Format("Track:{0}", name));
         }
 
         public virtual void TrackDrawer(Rect rect)
@@ -83,8 +84,8 @@ namespace track_editor_fw
 
         public virtual void PropertyDrawer(Rect rect)
         {
-            //GUI.Label(new Rect(Vector2.zero, rect.size), "DrawProperty:" + name, "box");
-            GUILayout.Label("Track:" + name);
+            //GUILayout.Label("Track:" + name);
+            name = EditorGUILayout.TextField("Name", name);
         }
 
         public virtual float CalcElementWidth()

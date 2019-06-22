@@ -112,7 +112,7 @@ namespace track_editor
             track.elements.Add(element);
             elements.Add(element);
 
-            element.LoadInitialize(serializeElement.start, serializeElement.length, track);
+            element.LoadInitialize(serializeElement.name, serializeElement.start, serializeElement.length, track);
             return element;
         }
 

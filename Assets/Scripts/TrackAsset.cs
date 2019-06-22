@@ -77,6 +77,7 @@ namespace track_editor
     {
         public string uniqueName;
 
+        public string name;
         public string parent;
         public int start;
         public int length;
@@ -142,6 +143,7 @@ namespace track_editor
     public class AnimationSerializeElement : SerializeElement
     {
         public int blend;
+        public float speed = 1.0f;
         public AnimationClip clip;
 
         public override IElementPlayer CreatePlayer()

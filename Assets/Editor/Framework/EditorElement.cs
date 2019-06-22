@@ -14,6 +14,7 @@ namespace track_editor_fw
 
         public int start;
         public int length;
+        public string name;
 
         public bool IsSelection { get => parent.selectionElement == this; }
 
@@ -36,9 +37,10 @@ namespace track_editor_fw
             this.length = 1;
         }
 
-        public void LoadInitialize(int start, int length, EditorTrack parent)
+        public void LoadInitialize(string name, int start, int length, EditorTrack parent)
         {
             this.parent = parent;
+            this.name = name;
             this.start = start;
             this.length = length;
         }
@@ -56,7 +58,8 @@ namespace track_editor_fw
 
         public virtual void PropertyDrawer(Rect rect)
         {
-            GUILayout.Label("Element");
+            name = EditorGUILayout.TextField("Name", name);
+
             start = Mathf.Max(0, EditorGUILayout.IntField("Start", start));
 
             using (new EditorGUI.DisabledScope(parent.isFixedLength)) {
