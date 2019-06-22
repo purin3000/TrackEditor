@@ -82,12 +82,6 @@ namespace track_editor_fw
             GUI.Label(rectLabel, "DrawTrack:" + name, IsSelection ? "flow node 0 on" : "flow node 0");
         }
 
-        public virtual void PropertyDrawer(Rect rect)
-        {
-            //GUILayout.Label("Track:" + name);
-            name = EditorGUILayout.TextField("Name", name);
-        }
-
         public virtual float CalcElementWidth()
         {
             if (0 < childs.Count) {
@@ -106,6 +100,34 @@ namespace track_editor_fw
                 return childs.Sum(child => child.CalcTrackHeight());
             }
             return trackHeight;
+        }
+
+        protected void DrawNameImpl()
+        {
+            name = EditorGUILayout.TextField("Name", name);
+        }
+
+        protected void DrawIndexMoveImpl()
+        {
+            using (new GUILayout.VerticalScope()) {
+                if (GUILayout.Button("上へ移動")) {
+                    var index = parent.childs.IndexOf(this) - 1;
+                    if (0 <= index) {
+                        parent.childs.SwapAt(index, index + 1);
+                    }
+                }
+                if (GUILayout.Button("下へ移動")) {
+                    var index = parent.childs.IndexOf(this) + 1;
+                    if (index < parent.childs.Count) {
+                        parent.childs.SwapAt(index, index - 1);
+                    }
+                }
+            }
+        }
+
+        public virtual void PropertyDrawer(Rect rect)
+        {
+            DrawNameImpl();
         }
     }
 

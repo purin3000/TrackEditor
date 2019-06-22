@@ -56,12 +56,25 @@ namespace track_editor_fw
             GUI.Label(rect, "", IsSelection ? "flow node 5 on" : "flow node 5");
         }
 
-        public virtual void PropertyDrawer(Rect rect)
+        protected void RemoveElementImpl(string label)
+        {
+            if (GUILayout.Button(label)) {
+                parent.manager.RemoveElement(parent, this);
+            }
+        }
+
+        protected void DrawNameImpl()
         {
             name = EditorGUILayout.TextField("Name", name);
+        }
 
+        protected void DrawStartImpl()
+        {
             start = Mathf.Max(0, EditorGUILayout.IntField("Start", start));
+        }
 
+        protected void DrawLengthImpl()
+        {
             using (new EditorGUI.DisabledScope(parent.isFixedLength)) {
                 length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
 
@@ -69,6 +82,32 @@ namespace track_editor_fw
                     GUILayout.Label("Lengthは固定されています");
                 }
             }
+        }
+
+        protected void DrawIndexMoveImpl()
+        {
+            using (new GUILayout.VerticalScope()) {
+                if (GUILayout.Button("上へ移動")) {
+                    var index = parent.elements.IndexOf(this) - 1;
+                    if (0 <= index) {
+                        parent.elements.SwapAt(index, index + 1);
+                    }
+                }
+                if (GUILayout.Button("下へ移動")) {
+                    var index = parent.elements.IndexOf(this) + 1;
+                    if (index < parent.elements.Count) {
+                        parent.elements.SwapAt(index, index - 1);
+                    }
+                }
+            }
+        }
+
+        public virtual void PropertyDrawer(Rect rect)
+        {
+            //DrawIndexMoveImpl();
+            DrawNameImpl();
+            DrawStartImpl();
+            DrawLengthImpl();
         }
     }
 }

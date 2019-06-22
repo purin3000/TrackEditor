@@ -115,20 +115,7 @@ namespace track_editor
 
             GUILayout.Space(15);
 
-            using (new GUILayout.VerticalScope()) {
-                if (GUILayout.Button("上へ移動")) {
-                    var index = parent.childs.IndexOf(this) - 1;
-                    if (0 <= index) {
-                        parent.childs.SwapAt(index, index + 1);
-                    }
-                }
-                if (GUILayout.Button("下へ移動")) {
-                    var index = parent.childs.IndexOf(this) + 1;
-                    if (index < parent.childs.Count) {
-                        parent.childs.SwapAt(index, index - 1);
-                    }
-                }
-            }
+            DrawIndexMoveImpl();
 
             GUILayout.Space(15);
 
@@ -176,6 +163,12 @@ namespace track_editor
         {
             base.PropertyDrawer(rect);
 
+            GUILayout.Space(15);
+
+            DrawIndexMoveImpl();
+
+            GUILayout.Space(15);
+
             AddElementImpl<ActivationElement>("Add Activation Element");
         }
 
@@ -214,6 +207,12 @@ namespace track_editor
         {
             base.PropertyDrawer(rect);
 
+            GUILayout.Space(15);
+
+            DrawIndexMoveImpl();
+
+            GUILayout.Space(15);
+
             AddElementImpl<PositionElement>("Add Position Element");
         }
 
@@ -251,6 +250,12 @@ namespace track_editor
         public override void PropertyDrawer(Rect rect)
         {
             base.PropertyDrawer(rect);
+
+            GUILayout.Space(15);
+
+            DrawIndexMoveImpl();
+
+            GUILayout.Space(15);
 
             AddElementImpl<AnimationElement>("Add Animation Element");
         }

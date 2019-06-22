@@ -19,13 +19,6 @@ namespace track_editor
 
             return elementSerialize;
         }
-
-        protected void RemoveElementImpl(string label)
-        {
-            if (GUILayout.Button(label)) {
-                parent.manager.RemoveElement(parent, this);
-            }
-        }
     }
 
     public class ActivationElement : TrackElemet
@@ -111,22 +104,16 @@ namespace track_editor
         {
             //base.PropertyDrawer(rect);
 
-            GUILayout.Label(string.Format("Element:{0}", name));
+            DrawNameImpl();
 
             clip = (AnimationClip)EditorGUILayout.ObjectField("Clip", clip, typeof(AnimationClip), false);
 
-            start = Mathf.Max(0, EditorGUILayout.IntField("Start", start));
-
-            using (new EditorGUI.DisabledScope(parent.isFixedLength)) {
-                length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
-            }
+            DrawStartImpl();
+            DrawLengthImpl();
 
             blend = EditorGUILayout.IntField("Blend Frame", blend);
 
             speed = EditorGUILayout.Slider("Speed", speed, 0.0f, 5.0f);
-
-
-            //clip = (AnimationClip)EditorGUILayout.ObjectField("Clip", clip, typeof(AnimationClip), false);
 
             if (clip) {
                 if (speed != 0) {
@@ -136,6 +123,7 @@ namespace track_editor
                 }
             }
         }
+
         public override void ElementDrawer(Rect rect)
         {
             base.ElementDrawer(rect);
