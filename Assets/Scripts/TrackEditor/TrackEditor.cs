@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.Linq;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace track_editor
 {
@@ -41,12 +44,13 @@ namespace track_editor
 
         public TrackData selectionTrack { get; private set; }
 
-        public Vector2 scrollPos { get => scrPos; }
-
         public float elementWidth { get; private set; }
 
-        Vector2 scrPos;
+        public Vector2 scrollPos { get => scrPos; }
 
+        Vector2 scrPos = Vector2.zero;
+
+#if UNITY_EDITOR
         /// <summary>
         /// 値が変化したらvalueChangedがtrueになるスコープ
         /// ついでにlockModeでDisableもかけます
@@ -102,97 +106,19 @@ namespace track_editor
         {
             return new ValueChangedScope(this);
         }
-
+#endif
 
         public TrackEditor(TrackEditorSettings settings, TrackData top)
         {
             this.settings = settings;
             this.top = top;
 
+#if UNITY_EDITOR
             top.Initialize(this, "top", null);
+#endif
         }
 
-        public void SetSelectionTrack(TrackData track)
-        {
-            if (selectionTrack != null) {
-                selectionTrack.selectionElement = null;
-            }
-
-            GUI.FocusControl("");
-            selectionTrack = track;
-            valueChanged = true;
-        }
-
-        public void SetSelectionElement(TrackData track, TrackElement element)
-        {
-            SetSelectionTrack(track);
-
-            track.selectionElement = element;
-
-            // 選択した要素を必ず先頭に置く。描画優先度とイベント判定優先度に影響する
-            var index = track.elements.IndexOf(element);
-            if (0 < index) {
-                track.elements.SwapAt(0, index);
-            }
-
-            valueChanged = true;
-        }
-
-        public T AddTrack<T>(TrackData parent, string name, T child) where T : TrackData
-        {
-            parent.childs.Add(child);
-            child.Initialize(this, name, parent);
-            return child;
-        }
-
-        public void RemoveTrack(TrackData parent,TrackData track)
-        {
-            parent.removeTracks.Add(track);
-
-            if (selectionTrack == track) {
-                SetSelectionTrack(null);
-
-                if (2 <= parent.childs.Count) {
-                    int index = parent.childs.IndexOf(track) + 1;
-                    if (parent.childs.Count <= index) {
-                        index -= 2;
-                    }
-
-                    if (0 <= index && index < parent.childs.Count) {
-                        SetSelectionTrack(parent.childs[index]);
-                    }
-                }
-            }
-        }
-
-        public T AddElement<T>(TrackData track, T element) where T : TrackElement
-        {
-            track.elements.Add(element);
-            element.Initialize(track);
-            SetSelectionElement(track, element);
-            return element;
-        }
-
-        public void RemoveElement(TrackData track, TrackElement element)
-        {
-            track.removeElements.Add(element);
-
-            if (track.selectionElement == element) {
-                track.selectionElement = null;
-
-                if (2 <= track.elements.Count) {
-                    int index = track.elements.IndexOf(element) + 1;
-                    if (track.childs.Count <= index) {
-                        index -= 2;
-                    }
-
-                    if (0 <= index && index < track.elements.Count) {
-                        track.selectionElement = track.elements[index];
-                    }
-                }
-            }
-        }
-
+ 
         public virtual void WriteAsset(SerializeElement serializeElement)
         {
         }
@@ -201,6 +127,7 @@ namespace track_editor
         {
         }
 
+#if UNITY_EDITOR
         public void OnGUI(Rect rect)
         {
             var propertyX = rect.x + rect.width - settings.propertyWidth;
@@ -253,6 +180,88 @@ namespace track_editor
             using (new GUILayout.AreaScope(rectProperty)) {
                 using (CreateValueChangedScope()) {
                     drawProperty(rectProperty);
+                }
+            }
+        }
+
+
+        public void SetSelectionTrack(TrackData track)
+        {
+            if (selectionTrack != null) {
+                selectionTrack.selectionElement = null;
+            }
+
+            GUI.FocusControl("");
+            selectionTrack = track;
+            valueChanged = true;
+        }
+
+        public void SetSelectionElement(TrackData track, TrackElement element)
+        {
+            SetSelectionTrack(track);
+
+            track.selectionElement = element;
+
+            // 選択した要素を必ず先頭に置く。描画優先度とイベント判定優先度に影響する
+            var index = track.elements.IndexOf(element);
+            if (0 < index) {
+                track.elements.SwapAt(0, index);
+            }
+
+            valueChanged = true;
+        }
+
+        public T AddTrack<T>(TrackData parent, string name, T child) where T : TrackData
+        {
+            parent.childs.Add(child);
+            child.Initialize(this, name, parent);
+            return child;
+        }
+
+        public void RemoveTrack(TrackData parent, TrackData track)
+        {
+            parent.removeTracks.Add(track);
+
+            if (selectionTrack == track) {
+                SetSelectionTrack(null);
+
+                if (2 <= parent.childs.Count) {
+                    int index = parent.childs.IndexOf(track) + 1;
+                    if (parent.childs.Count <= index) {
+                        index -= 2;
+                    }
+
+                    if (0 <= index && index < parent.childs.Count) {
+                        SetSelectionTrack(parent.childs[index]);
+                    }
+                }
+            }
+        }
+
+        public T AddElement<T>(TrackData track, T element) where T : TrackElement
+        {
+            track.elements.Add(element);
+            element.Initialize(track);
+            SetSelectionElement(track, element);
+            return element;
+        }
+
+        public void RemoveElement(TrackData track, TrackElement element)
+        {
+            track.removeElements.Add(element);
+
+            if (track.selectionElement == element) {
+                track.selectionElement = null;
+
+                if (2 <= track.elements.Count) {
+                    int index = track.elements.IndexOf(element) + 1;
+                    if (track.childs.Count <= index) {
+                        index -= 2;
+                    }
+
+                    if (0 <= index && index < track.elements.Count) {
+                        track.selectionElement = track.elements[index];
+                    }
                 }
             }
         }
@@ -651,6 +660,7 @@ namespace track_editor
 
             element.ElementDrawer(rectLabel);
         }
+#endif
     }
 }
 

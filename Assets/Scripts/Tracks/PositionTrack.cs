@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace track_editor
 {
@@ -29,6 +32,7 @@ namespace track_editor
             isFixedLength = true;
         }
 
+#if UNITY_EDITOR
         public override void HeaderDrawer()
         {
             base.HeaderDrawer();
@@ -55,7 +59,7 @@ namespace track_editor
         {
             TrackDrawerImpl(rect, "Position");
         }
-
+#endif
     }
 
     public class PositionElement : TrackElement
@@ -64,6 +68,7 @@ namespace track_editor
 
         public Vector3 localPosition;
 
+#if UNITY_EDITOR
         public override void HeaderDrawer()
         {
             RemoveElementImpl("Remove Position Elememnt");
@@ -91,6 +96,7 @@ namespace track_editor
                 }
             }
         }
+#endif
 
         public override void WriteAsset(SerializeElement serializeElement)
         {

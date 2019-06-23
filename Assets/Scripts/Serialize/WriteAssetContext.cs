@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-using track_editor;
-
-
 namespace track_editor
 {
     /// <summary>
-    /// アセット書き込み時に使用する一時情報
+    /// TrackAssetへの書き込み
     /// </summary>
     public class WriteAssetContext
     {

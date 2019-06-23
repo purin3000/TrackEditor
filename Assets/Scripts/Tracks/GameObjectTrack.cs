@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace track_editor
 {
@@ -20,6 +23,7 @@ namespace track_editor
     {
         public GameObject target;
 
+#if UNITY_EDITOR
         public override void Initialize(TrackEditor manager, string name, TrackData parent)
         {
             base.Initialize(manager, name, parent);
@@ -70,6 +74,7 @@ namespace track_editor
                 manager.AddTrack(this, "Animation", new AnimationTrackData());
             }
         }
+#endif
 
         public override void WriteAsset(SerializeTrack serializeTrack)
         {

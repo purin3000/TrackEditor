@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.Linq;
 
 namespace track_editor
@@ -71,6 +70,15 @@ namespace track_editor
             this.name = name;
         }
 
+        public virtual void WriteAsset(SerializeTrack serializeTrack)
+        {
+        }
+
+        public virtual void ReadAsset(SerializeTrack serializeTrack)
+        {
+        }
+
+#if UNITY_EDITOR
         public virtual void HeaderDrawer()
         {
             GUILayout.Label(string.Format("Track:{0}", name));
@@ -102,9 +110,15 @@ namespace track_editor
             return trackHeight;
         }
 
+        public virtual void PropertyDrawer(Rect rect)
+        {
+            DrawNameImpl();
+        }
+
+
         protected void DrawNameImpl()
         {
-            name = EditorGUILayout.TextField("Name", name);
+            name = GUILayout.TextField("Name", name);
         }
 
         protected void DrawIndexMoveImpl()
@@ -125,22 +139,6 @@ namespace track_editor
             }
         }
 
-        public virtual void PropertyDrawer(Rect rect)
-        {
-            DrawNameImpl();
-        }
-
-
-        public virtual void WriteAsset(SerializeTrack serializeTrack)
-        {
-        }
-
-        public virtual void ReadAsset(SerializeTrack serializeTrack)
-        {
-        }
-
-
-
         protected void RemoveTrackImpl(string label)
         {
             if (selectionElement == null) {
@@ -150,7 +148,6 @@ namespace track_editor
                 //using (new GUILayout.VerticalScope()) {
                 //}
             }
-
         }
 
         protected void RemoveElementImpl()
@@ -174,7 +171,7 @@ namespace track_editor
             Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
             GUI.Label(rectLabel, label, IsSelection ? "flow node 3 on" : "flow node 2");
         }
-
+#endif
     }
 
     static class ContainerSwap

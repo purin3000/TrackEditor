@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-using track_editor;
-
-
 namespace track_editor
 {
 
     /// <summary>
-    /// アセット読み込み時に使用する一時情報
+    /// TrackAssetからの読み込み
     /// </summary>
     public class ReadAssetContext
     {

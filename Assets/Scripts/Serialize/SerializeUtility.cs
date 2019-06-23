@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.Linq;
 using System.IO;
 
-using track_editor;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace track_editor
 {
@@ -25,6 +26,28 @@ namespace track_editor
             return asset;
         }
 
+#if UNITY_EDITOR
+        public static TrackAsset SaveGameObject(TrackEditor manager, string assetPath)
+        {
+            var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
+            if (asset == null) {
+                asset = (new GameObject(assetPath)).AddComponent<TrackAsset>();
+                Undo.RegisterCompleteObjectUndo(asset, "create");
+            }
+
+            var newAsset = SaveAsset(manager, asset);
+            EditorUtility.SetDirty(newAsset);
+            return newAsset;
+        }
+#endif
+
+        public static TrackAsset LoadGameObject(TrackEditor manager, string assetPath)
+        {
+            var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
+            return LoadAsset(manager, asset);
+        }
+
+        
 #if false
         public static TrackAsset SaveAsset(TrackEditor manager, string assetPath)
         {
@@ -45,30 +68,7 @@ namespace track_editor
             var asset = AssetDatabase.LoadAssetAtPath<TrackAsset>(assetPath);
             return LoadAsset(manager, asset);
         }
-#endif
 
-#if true
-        public static TrackAsset SaveGameObject(TrackEditor manager, string assetPath)
-        {
-            var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
-            if (asset == null) {
-                asset = (new GameObject(assetPath)).AddComponent<TrackAsset>();
-                Undo.RegisterCompleteObjectUndo(asset, "create");
-            }
-
-            var newAsset = SaveAsset(manager, asset);
-            EditorUtility.SetDirty(newAsset);
-            return newAsset;
-        }
-
-        public static TrackAsset LoadGameObject(TrackEditor manager, string assetPath)
-        {
-            var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
-            return LoadAsset(manager, asset);
-        }
-#endif
-
-#if false
         public static TrackAsset SaveJson(TrackEditor manager, string assetPath)
         {
             var asset = new TrackAsset();

@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace track_editor
 {
@@ -45,6 +48,16 @@ namespace track_editor
             this.length = length;
         }
 
+        public virtual void WriteAsset(SerializeElement serializeElement)
+        {
+        }
+
+        public virtual void ReadAsset(SerializeElement serializeElement)
+        {
+        }
+
+
+#if UNITY_EDITOR
         public virtual void HeaderDrawer()
         {
 
@@ -65,7 +78,7 @@ namespace track_editor
 
         protected void DrawNameImpl()
         {
-            name = EditorGUILayout.TextField("Name", name);
+            name = GUILayout.TextField("Name", name);
         }
 
         protected void DrawStartImpl()
@@ -109,14 +122,6 @@ namespace track_editor
             DrawStartImpl();
             DrawLengthImpl();
         }
-
-        public virtual void WriteAsset(SerializeElement serializeElement)
-        {
-        }
-
-        public virtual void ReadAsset(SerializeElement serializeElement)
-        {
-        }
-
+#endif
     }
 }
