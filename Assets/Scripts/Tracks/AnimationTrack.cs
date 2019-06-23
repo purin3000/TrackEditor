@@ -26,6 +26,7 @@ namespace track_editor
         }
     }
 
+#if UNITY_EDITOR
     public class AnimationTrackData : TrackData
     {
         public AnimationTrackData()
@@ -33,7 +34,6 @@ namespace track_editor
             isFixedLength = true;
         }
 
-#if UNITY_EDITOR
         public override void HeaderDrawer()
         {
             base.HeaderDrawer();
@@ -60,7 +60,6 @@ namespace track_editor
         {
             TrackDrawerImpl(rect, "Animation");
         }
-#endif
     }
 
     public class AnimationElement : TrackElement
@@ -69,7 +68,6 @@ namespace track_editor
         public AnimationClip clip;
         public float speed = 1.0f;
 
-#if UNITY_EDITOR
         public override void HeaderDrawer()
         {
             RemoveElementImpl("Remove Animation Elememnt");
@@ -107,7 +105,6 @@ namespace track_editor
                 GUI.Label(rect, clip.name);
             }
         }
-#endif
 
         public override void WriteAsset(SerializeElement serializeElement)
         {
@@ -125,6 +122,7 @@ namespace track_editor
             speed = serialize.speed;
         }
     }
+#endif
 
     public class AnimationElementPlayer : IElementPlayer
     {

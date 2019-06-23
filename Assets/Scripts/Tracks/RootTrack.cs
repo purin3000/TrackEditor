@@ -12,11 +12,13 @@ namespace track_editor
     {
     }
 
+#if UNITY_EDITOR
     /// <summary>
     /// トラック情報
     /// </summary>
     public class RootTrackData : TrackData
     {
     }
+#endif
 }
 

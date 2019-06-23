@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿#if UNITY_EDITOR
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 
 namespace track_editor
 {
@@ -50,7 +50,6 @@ namespace track_editor
 
         Vector2 scrPos = Vector2.zero;
 
-#if UNITY_EDITOR
         /// <summary>
         /// 値が変化したらvalueChangedがtrueになるスコープ
         /// ついでにlockModeでDisableもかけます
@@ -106,16 +105,13 @@ namespace track_editor
         {
             return new ValueChangedScope(this);
         }
-#endif
 
         public TrackEditor(TrackEditorSettings settings, TrackData top)
         {
             this.settings = settings;
             this.top = top;
 
-#if UNITY_EDITOR
             top.Initialize(this, "top", null);
-#endif
         }
 
  
@@ -127,7 +123,6 @@ namespace track_editor
         {
         }
 
-#if UNITY_EDITOR
         public void OnGUI(Rect rect)
         {
             var propertyX = rect.x + rect.width - settings.propertyWidth;
@@ -660,7 +655,8 @@ namespace track_editor
 
             element.ElementDrawer(rectLabel);
         }
-#endif
     }
 }
+
+#endif
 

@@ -15,6 +15,7 @@ namespace track_editor
     }
 
 
+#if UNITY_EDITOR
     /// <summary>
     /// サブトラック情報
     /// RootTrackDataにぶら下がります
@@ -23,7 +24,6 @@ namespace track_editor
     {
         public GameObject target;
 
-#if UNITY_EDITOR
         public override void Initialize(TrackEditor manager, string name, TrackData parent)
         {
             base.Initialize(manager, name, parent);
@@ -74,7 +74,6 @@ namespace track_editor
                 manager.AddTrack(this, "Animation", new AnimationTrackData());
             }
         }
-#endif
 
         public override void WriteAsset(SerializeTrack serializeTrack)
         {
@@ -88,7 +87,6 @@ namespace track_editor
             target = serialize.target;
         }
     }
-
-
+#endif
 }
 

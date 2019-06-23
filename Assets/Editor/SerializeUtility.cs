@@ -11,14 +11,14 @@ namespace track_editor
     {
         public static TrackAsset SaveAsset(TrackEditor manager, TrackAsset asset)
         {
-            var context = new WriteAssetContext(asset, manager);
+            var context = new TrackEditorWriter(asset, manager);
             context.WriteAsset();
             return asset;
         }
 
         public static TrackAsset LoadAsset(TrackEditor manager, TrackAsset asset)
         {
-            var context = new ReadAssetContext(asset, manager);
+            var context = new TrackEditorReader(asset, manager);
             context.ReadAsset();
             return asset;
         }
@@ -80,7 +80,7 @@ namespace track_editor
         }
 #endif
 
-        public static void InitializeTrackSerialize(SerializeTrack trackSerialize, TrackData track, WriteAssetContext context)
+        public static void InitializeTrackSerialize(SerializeTrack trackSerialize, TrackData track, TrackEditorWriter context)
         {
             trackSerialize.uniqueName = context.MakeTrackName(track);
             trackSerialize.name = track.name;
@@ -89,7 +89,7 @@ namespace track_editor
             trackSerialize.elements = track.elements.Select(element => context.MakeElementName(element)).ToArray();
         }
 
-        public static void InitializeElementSerialize(SerializeElement elementSerialize, TrackElement element, WriteAssetContext context)
+        public static void InitializeElementSerialize(SerializeElement elementSerialize, TrackElement element, TrackEditorWriter context)
         {
             elementSerialize.uniqueName = context.MakeElementName(element);
             elementSerialize.name = element.name;

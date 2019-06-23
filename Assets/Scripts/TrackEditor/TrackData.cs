@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#if UNITY_EDITOR
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -78,7 +80,6 @@ namespace track_editor
         {
         }
 
-#if UNITY_EDITOR
         public virtual void HeaderDrawer()
         {
             GUILayout.Label(string.Format("Track:{0}", name));
@@ -171,7 +172,6 @@ namespace track_editor
             Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
             GUI.Label(rectLabel, label, IsSelection ? "flow node 3 on" : "flow node 2");
         }
-#endif
     }
 
     static class ContainerSwap
@@ -184,3 +184,5 @@ namespace track_editor
         }
     }
 }
+
+#endif

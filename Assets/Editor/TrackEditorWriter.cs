@@ -8,7 +8,7 @@ namespace track_editor
     /// <summary>
     /// TrackAssetへの書き込み
     /// </summary>
-    public class WriteAssetContext
+    public class TrackEditorWriter
     {
         public TrackAsset asset;
         public TrackEditor manager;
@@ -26,7 +26,7 @@ namespace track_editor
         public List<PositionElement> positionElements = new List<PositionElement>();
         public List<AnimationElement> animationElements = new List<AnimationElement>();
 
-        public WriteAssetContext(TrackAsset asset, TrackEditor manager)
+        public TrackEditorWriter(TrackAsset asset, TrackEditor manager)
         {
             var top = manager.top;
 

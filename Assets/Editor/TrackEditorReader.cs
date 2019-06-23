@@ -9,7 +9,7 @@ namespace track_editor
     /// <summary>
     /// TrackAssetからの読み込み
     /// </summary>
-    public class ReadAssetContext
+    public class TrackEditorReader
     {
         public class TrackPair
         {
@@ -40,7 +40,7 @@ namespace track_editor
         public List<TrackData> tracks = new List<TrackData>();
         public List<TrackElement> elements = new List<TrackElement>();
 
-        public ReadAssetContext(TrackAsset asset, TrackEditor manager)
+        public TrackEditorReader(TrackAsset asset, TrackEditor manager)
         {
             this.asset = asset;
             this.manager = manager;

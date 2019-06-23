@@ -21,9 +21,9 @@ namespace track_editor
         }
     }
 
+#if UNITY_EDITOR
     public class ActivationTrackData : TrackData
     {
-#if UNITY_EDITOR
         public override void HeaderDrawer()
         {
             base.HeaderDrawer();
@@ -50,12 +50,10 @@ namespace track_editor
         {
             TrackDrawerImpl(rect, "Activation");
         }
-#endif
     }
 
     public class ActivationElement : TrackElement
     {
-#if UNITY_EDITOR
         public override void HeaderDrawer()
         {
             RemoveElementImpl("Remove Activation Elememnt");
@@ -65,8 +63,8 @@ namespace track_editor
         {
             base.PropertyDrawer(rect);
         }
-#endif
     }
+#endif
 
     public class ActivationElementPlayer : IElementPlayer
     {
@@ -95,6 +93,5 @@ namespace track_editor
             Debug.LogFormat("Activation end:{0} {1}", end, gameObjectTrack.target);
         }
     }
-
 }
 
