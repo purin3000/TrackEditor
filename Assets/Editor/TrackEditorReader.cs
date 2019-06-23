@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace track_editor
 {
-
     /// <summary>
     /// TrackAssetからの読み込み
     /// </summary>

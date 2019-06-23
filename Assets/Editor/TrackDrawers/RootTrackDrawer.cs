@@ -5,11 +5,9 @@ using UnityEngine;
 namespace track_editor
 {
     /// <summary>
-    /// トラックのシリアライズデータ
+    /// トラック情報
     /// </summary>
-    [System.Serializable]
-    public class RootSerializeTrack : SerializeTrack
+    public class RootTrackData : TrackData
     {
     }
 }
-

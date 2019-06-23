@@ -1,9 +1,6 @@
-﻿#if UNITY_EDITOR
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using UnityEditor;
 
 namespace track_editor
@@ -123,5 +120,3 @@ namespace track_editor
         }
     }
 }
-
-#endif

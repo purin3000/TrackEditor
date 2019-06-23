@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace track_editor
 {
     public class TrackAssetPlayer : MonoBehaviour
@@ -144,24 +140,6 @@ namespace track_editor
         {
             return tracks[tracks[elementSerialize.parent].parent] as T;
         }
-
-#if UNITY_EDITOR
-        [CustomEditor(typeof(TrackAssetPlayer))]
-        class TrackAssetPlayerEditor : Editor
-        {
-            public override void OnInspectorGUI()
-            {
-                base.OnInspectorGUI();
-
-                if (EditorApplication.isPlaying) {
-                    if (GUILayout.Button("再生")) {
-                        var ta = target as TrackAssetPlayer;
-                        ta.Play();
-                    }
-                }
-            }
-        }
-#endif
     }
 }
 

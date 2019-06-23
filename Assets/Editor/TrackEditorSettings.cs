@@ -1,6 +1,4 @@
-﻿#if UNITY_EDITOR
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +31,3 @@ namespace track_editor
         public int gridScaleMax = 30;
     }
 }
-
-
-#endif
