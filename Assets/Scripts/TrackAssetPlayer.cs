@@ -11,6 +11,8 @@ namespace track_editor
 
         public bool playOnAwake = false;
 
+        public float speed = 1.0f;
+
         public int currentFrame { get => (int)(time * 60.0f); }
 
         public bool IsPlaying { get => isPlaying; }
@@ -31,8 +33,6 @@ namespace track_editor
         int playEndCurrent = -1;
 
         float time = 0.0f;
-        float speed = 1.0f;
-
 
         public void Play(TrackAsset asset)
         {
@@ -114,7 +114,6 @@ namespace track_editor
                 }
             }
         }
-
 
         void addTrack<SerializeTrackClass>(List<SerializeTrackClass> serializeList) where SerializeTrackClass : SerializeTrack
         {

@@ -239,7 +239,7 @@ MonoBehaviour:
     parent: Track-1
     childs:
     - Track1
-    - Track5
+    - Track4
     elements: []
   gameObjectTracks:
   - uniqueName: Track1
@@ -248,16 +248,13 @@ MonoBehaviour:
     childs:
     - Track2
     - Track3
-    - Track4
     elements: []
     target: {fileID: 1353747379}
-  - uniqueName: Track5
+  - uniqueName: Track4
     name: Track:2
     parent: Track0
     childs:
-    - Track6
-    - Track7
-    - Track8
+    - Track5
     elements: []
     target: {fileID: 982688764}
   activationTracks:
@@ -268,115 +265,73 @@ MonoBehaviour:
     elements:
     - Element0
     - Element1
-    - Element2
-  - uniqueName: Track6
-    name: Activation
-    parent: Track5
-    childs: []
-    elements:
-    - Element7
-    - Element8
   positionTracks:
   - uniqueName: Track3
     name: Position
     parent: Track1
     childs: []
     elements:
+    - Element2
     - Element3
     - Element4
-    - Element5
-  - uniqueName: Track7
+  - uniqueName: Track5
     name: Position
-    parent: Track5
+    parent: Track4
     childs: []
     elements:
-    - Element9
-    - Element10
-    - Element11
-  animationTracks:
-  - uniqueName: Track4
-    name: Animation
-    parent: Track1
-    childs: []
-    elements:
+    - Element5
     - Element6
-  - uniqueName: Track8
-    name: Animation
-    parent: Track5
-    childs: []
-    elements: []
+    - Element7
+  animationTracks: []
   activationElements:
   - uniqueName: Element0
-    name: 
+    name: Activation:1
     parent: Track2
     start: 50
-    length: 30
+    length: 40
   - uniqueName: Element1
-    name: 
-    parent: Track2
-    start: 90
-    length: 20
-  - uniqueName: Element2
-    name: 
+    name: Activation:0
     parent: Track2
     start: 0
-    length: 30
-  - uniqueName: Element7
-    name: Activation:1
-    parent: Track6
-    start: 0
-    length: 50
-  - uniqueName: Element8
-    name: Activation:2
-    parent: Track6
-    start: 58
-    length: 20
+    length: 40
   positionElements:
+  - uniqueName: Element2
+    name: Position:2
+    parent: Track3
+    start: 60
+    length: 1
+    localPosition: {x: 1, y: 2, z: 0}
   - uniqueName: Element3
-    name: 
+    name: Position:0
     parent: Track3
     start: 0
-    length: 1
-    localPosition: {x: 1, y: 0, z: 0}
-  - uniqueName: Element4
-    name: 
-    parent: Track3
-    start: 20
     length: 1
     localPosition: {x: 1, y: 1, z: 0}
-  - uniqueName: Element5
-    name: 
+  - uniqueName: Element4
+    name: Position:1
     parent: Track3
-    start: 40
+    start: 30
     length: 1
-    localPosition: {x: 1, y: 1, z: 1}
-  - uniqueName: Element9
-    name: 
-    parent: Track7
-    start: 0
+    localPosition: {x: 2, y: 1, z: 0}
+  - uniqueName: Element5
+    name: Position:1
+    parent: Track5
+    start: 40
     length: 1
     localPosition: {x: 0, y: 0, z: 0}
-  - uniqueName: Element10
-    name: 
-    parent: Track7
-    start: 20
-    length: 1
-    localPosition: {x: 0, y: 2, z: 0}
-  - uniqueName: Element11
-    name: 
-    parent: Track7
-    start: 40
+  - uniqueName: Element6
+    name: Position:0
+    parent: Track5
+    start: 0
     length: 1
     localPosition: {x: -1, y: 2, z: 0}
-  animationElements:
-  - uniqueName: Element6
-    name: Animation:0
-    parent: Track4
-    start: 32
+  - uniqueName: Element7
+    name: Position:2
+    parent: Track5
+    start: 80
     length: 1
-    blend: 0
-    speed: 1
-    clip: {fileID: 0}
+    localPosition: {x: 1, y: 1, z: 0}
+  animationElements: []
 --- !u!4 &12368529
 Transform:
   m_ObjectHideFlags: 0

@@ -27,6 +27,9 @@ namespace track_editor
         [SerializeField]
         int gridScale = 4;
 
+        [SerializeField]
+        float playSpeed = 1.0f;
+
         Rect rectGUI;
 
         TrackAssetPlayer player;
@@ -149,6 +152,8 @@ namespace track_editor
                             gridScale = EditorGUILayout.IntSlider("Grid Scale", gridScale, 1, manager.gridScaleMax);
                             manager.gridScale = gridScale;
 
+                            playSpeed = EditorGUILayout.Slider("Play Speed", playSpeed, 0.0f, 5.0f);
+
                             if (GUILayout.Button("再生")) {
                                 if (player) {
                                     GameObject.Destroy(player.gameObject);
@@ -158,6 +163,7 @@ namespace track_editor
                                 
                                 player = inst.gameObject.AddComponent<TrackAssetPlayer>();
                                 player.Play(inst);
+                                player.speed = playSpeed;
                             }
 
                             if (player != null && player.IsPlaying) {

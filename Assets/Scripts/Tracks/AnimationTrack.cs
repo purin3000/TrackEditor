@@ -52,7 +52,7 @@ namespace track_editor
             //}
 
             //if (model) {
-            //    model.animator.speed = elementSerialize.speed;
+            //    model.animator.speed = elementSerialize.speed * context.speed;
             //    model.PlayAnimationClip(elementSerialize.clip, elementSerialize.blend / 60.0f, 0.0f);
             //}
         }

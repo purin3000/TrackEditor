@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System.IO;
 using UnityEditor;
 
 namespace track_editor
@@ -11,8 +10,11 @@ namespace track_editor
     {
         public static TrackAsset SaveAsset(TrackEditor manager, TrackAsset asset)
         {
+            Undo.RegisterCompleteObjectUndo(asset, "backup");
+
             var context = new TrackEditorWriter(asset, manager);
             context.WriteAsset();
+            EditorUtility.SetDirty(asset);
             return asset;
         }
 
@@ -28,8 +30,9 @@ namespace track_editor
             var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
             if (asset == null) {
                 asset = (new GameObject(assetPath)).AddComponent<TrackAsset>();
-                Undo.RegisterCompleteObjectUndo(asset, "create");
             }
+
+            Undo.RegisterCompleteObjectUndo(asset, "backup");
 
             var newAsset = SaveAsset(manager, asset);
             EditorUtility.SetDirty(newAsset);
