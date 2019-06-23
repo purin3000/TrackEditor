@@ -49,15 +49,6 @@ namespace track_editor
         {
             TrackDrawerImpl(rect, "Activation");
         }
-
-        public void WriteAsset(WriteAssetContext context)
-        {
-            WriteAssetImpl(context.asset.activationTracks, context);
-        }
-
-        public void ReadAsset(ActivationSerializeTrack serializeTrack)
-        {
-        }
     }
 
     public class ActivationElement : TrackElement
@@ -70,15 +61,6 @@ namespace track_editor
         public override void PropertyDrawer(Rect rect)
         {
             base.PropertyDrawer(rect);
-        }
-
-        public void WriteAsset(WriteAssetContext context)
-        {
-            WriteAssetImpl(context.asset.activationElements, context);
-        }
-
-        public void ReadAsset(ActivationSerializeElement serializeElement)
-        {
         }
     }
 

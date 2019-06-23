@@ -56,15 +56,6 @@ namespace track_editor
         {
             TrackDrawerImpl(rect, "Animation");
         }
-
-        public void WriteAsset(WriteAssetContext context)
-        {
-            WriteAssetImpl(context.asset.animationTracks, context);
-        }
-
-        public void ReadAsset(AnimationSerializeTrack serializeTrack)
-        {
-        }
     }
 
     public class AnimationElement : TrackElement
@@ -111,20 +102,20 @@ namespace track_editor
             }
         }
 
-
-        public void WriteAsset(WriteAssetContext context)
+        public override void WriteAsset(SerializeElement serializeElement)
         {
-            var elementSerialize = WriteAssetImpl(context.asset.animationElements, context);
-            elementSerialize.blend = blend;
-            elementSerialize.clip = clip;
-            elementSerialize.speed = speed;
+            var serialize = serializeElement as AnimationSerializeElement;
+            serialize.blend = blend;
+            serialize.clip = clip;
+            serialize.speed = speed;
         }
 
-        public void ReadAsset(AnimationSerializeElement serializeElement)
+        public override void ReadAsset(SerializeElement serializeElement)
         {
-            blend = serializeElement.blend;
-            clip = serializeElement.clip;
-            speed = serializeElement.speed;
+            var serialize = serializeElement as AnimationSerializeElement;
+            blend = serialize.blend;
+            clip = serialize.clip;
+            speed = serialize.speed;
         }
     }
 
@@ -144,8 +135,8 @@ namespace track_editor
             Debug.LogFormat("Animation start:{0}", start);
 
 
-            var anim = gameObjectTrack.target.GetComponent<Animator>();
-            var info = anim.GetCurrentAnimatorStateInfo(0);
+            //var anim = gameObjectTrack.target.GetComponent<Animator>();
+            //var info = anim.GetCurrentAnimatorStateInfo(0);
 
 
             //ModelResource model = null;

@@ -56,14 +56,6 @@ namespace track_editor
             TrackDrawerImpl(rect, "Position");
         }
 
-        public void WriteAsset(WriteAssetContext context)
-        {
-            WriteAssetImpl(context.asset.positionTracks, context);
-        }
-
-        public void ReadAsset(PositionSerializeTrack serializeTrack)
-        {
-        }
     }
 
     public class PositionElement : TrackElement
@@ -100,15 +92,16 @@ namespace track_editor
             }
         }
 
-        public void WriteAsset(WriteAssetContext context)
+        public override void WriteAsset(SerializeElement serializeElement)
         {
-            var elementSerialize = WriteAssetImpl(context.asset.positionElements, context);
-            elementSerialize.localPosition = localPosition;
+            var serialize = serializeElement as PositionSerializeElement;
+            serialize.localPosition = localPosition;
         }
 
-        public void ReadAsset(PositionSerializeElement serializeElement)
+        public override void ReadAsset(SerializeElement serializeElement)
         {
-            localPosition = serializeElement.localPosition;
+            var serialize = serializeElement as PositionSerializeElement;
+            localPosition = serialize.localPosition;
         }
     }
 

@@ -71,19 +71,16 @@ namespace track_editor
             }
         }
 
-        public void WriteAsset(WriteAssetContext context)
+        public override void WriteAsset(SerializeTrack serializeTrack)
         {
-            var serializeTrack = WriteAssetImpl(context.asset.gameObjectTracks, context);
-
-            serializeTrack.target = target;
+            var serialize = serializeTrack as GameObjectSerializeTrack;
+            serialize.target = target;
         }
 
-        public void ReadAsset(GameObjectSerializeTrack serializeTrack)
+        public override void ReadAsset(SerializeTrack serializeTrack)
         {
-            // WriteAssetは全てをシリアライズするが、
-            // ReadAssetはシステム側で共通部分のシリアライズを行うので、ここでは特別なパラメーターだけを復元すれば良い
-
-            target = serializeTrack.target;
+            var serialize = serializeTrack as GameObjectSerializeTrack;
+            target = serialize.target;
         }
     }
 

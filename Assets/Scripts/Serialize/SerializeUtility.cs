@@ -20,11 +20,8 @@ namespace track_editor
 
         public static TrackAsset LoadAsset(TrackEditor manager, TrackAsset asset)
         {
-            var context = new ReadAssetContext(asset);
+            var context = new ReadAssetContext(asset, manager);
             context.ReadAsset();
-
-            // トラックの階層構築
-            context.UpdateHierarchy(manager, asset.rootTracks[0].uniqueName);
             return asset;
         }
 

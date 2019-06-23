@@ -56,16 +56,49 @@ namespace track_editor
             asset.WriteAsset(manager.frameLength);
 
             // トラック書き出し
-            foreach (var track in rootTracks) { track.WriteAsset(this); }
-            foreach (var track in gameObjectTracks) { track.WriteAsset(this); }
-            foreach (var track in activationTracks) { track.WriteAsset(this); }
-            foreach (var track in positionTracks) { track.WriteAsset(this); }
-            foreach (var track in animationTracks) { track.WriteAsset(this); }
+            WriteTracks(rootTracks, asset.rootTracks);
+            WriteTracks(gameObjectTracks, asset.gameObjectTracks);
+            WriteTracks(activationTracks, asset.activationTracks);
+            WriteTracks(positionTracks, asset.positionTracks);
+            WriteTracks(animationTracks, asset.animationTracks);
 
             // エレメント書き出し
-            foreach (var element in activationElements) { element.WriteAsset(this); }
-            foreach (var element in positionElements) { element.WriteAsset(this); }
-            foreach (var element in animationElements) { element.WriteAsset(this); }
+            WriteElements(activationElements, asset.activationElements);
+            WriteElements(positionElements, asset.positionElements);
+            WriteElements(animationElements, asset.animationElements);
+        }
+
+
+        void WriteTracks<TrackDataClass, SerializeTrackClass>(List<TrackDataClass> tracks, List<SerializeTrackClass> serializeTracks)
+            where TrackDataClass : TrackData
+            where SerializeTrackClass : SerializeTrack, new()
+        {
+            foreach (var track in tracks) {
+                // 対応するシリアライズ用のクラスを作って
+                var serializeTrack = new SerializeTrackClass();
+
+                SerializeUtility.InitializeTrackSerialize(serializeTrack, track, this);
+
+                // リストへ追加
+                serializeTracks.Add(serializeTrack);
+
+                track.WriteAsset(serializeTrack);
+            }
+        }
+
+        void WriteElements<TrackElementClass, SerializeElementClass>(List<TrackElementClass> elements, List<SerializeElementClass> serializeElements)
+            where TrackElementClass : TrackElement
+            where SerializeElementClass : SerializeElement, new()
+        {
+            foreach (var element in elements) {
+                var serializeElement = new SerializeElementClass();
+
+                SerializeUtility.InitializeElementSerialize(serializeElement, element, this);
+
+                serializeElements.Add(serializeElement);
+
+                element.WriteAsset(serializeElement);
+            }
         }
 
         List<T> getEditorTracks<T>() where T : TrackData

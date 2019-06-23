@@ -130,18 +130,16 @@ namespace track_editor
             DrawNameImpl();
         }
 
-        protected SerializeTrackClass WriteAssetImpl<SerializeTrackClass>(List<SerializeTrackClass> serializeList, WriteAssetContext context) where SerializeTrackClass : SerializeTrack, new()
+
+        public virtual void WriteAsset(SerializeTrack serializeTrack)
         {
-            // 対応するシリアライズ用のクラスを作って
-            var serializeTrack = new SerializeTrackClass();
-
-            SerializeUtility.InitializeTrackSerialize(serializeTrack, this, context);
-
-            // リストへ追加
-            serializeList.Add(serializeTrack);
-
-            return serializeTrack;
         }
+
+        public virtual void ReadAsset(SerializeTrack serializeTrack)
+        {
+        }
+
+
 
         protected void RemoveTrackImpl(string label)
         {

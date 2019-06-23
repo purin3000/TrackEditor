@@ -110,15 +110,12 @@ namespace track_editor
             DrawLengthImpl();
         }
 
-        protected ElementSerializeClass WriteAssetImpl<ElementSerializeClass>(List<ElementSerializeClass> serializeList, WriteAssetContext context) where ElementSerializeClass : SerializeElement, new()
+        public virtual void WriteAsset(SerializeElement serializeElement)
         {
-            var elementSerialize = new ElementSerializeClass();
+        }
 
-            SerializeUtility.InitializeElementSerialize(elementSerialize, this, context);
-
-            serializeList.Add(elementSerialize);
-
-            return elementSerialize;
+        public virtual void ReadAsset(SerializeElement serializeElement)
+        {
         }
 
     }

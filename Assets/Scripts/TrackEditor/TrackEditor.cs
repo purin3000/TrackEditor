@@ -193,6 +193,14 @@ namespace track_editor
             }
         }
 
+        public virtual void WriteAsset(SerializeElement serializeElement)
+        {
+        }
+
+        public virtual void ReadAsset(SerializeElement serializeElement)
+        {
+        }
+
         public void OnGUI(Rect rect)
         {
             var propertyX = rect.x + rect.width - settings.propertyWidth;
