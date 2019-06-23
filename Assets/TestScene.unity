@@ -274,8 +274,8 @@ MonoBehaviour:
     parent: Track5
     childs: []
     elements:
-    - Element6
     - Element7
+    - Element8
   positionTracks:
   - uniqueName: Track3
     name: Position
@@ -290,15 +290,16 @@ MonoBehaviour:
     parent: Track5
     childs: []
     elements:
-    - Element8
     - Element9
     - Element10
+    - Element11
   animationTracks:
   - uniqueName: Track4
     name: Animation
     parent: Track1
     childs: []
-    elements: []
+    elements:
+    - Element6
   - uniqueName: Track8
     name: Animation
     parent: Track5
@@ -308,28 +309,28 @@ MonoBehaviour:
   - uniqueName: Element0
     name: 
     parent: Track2
-    start: 0
+    start: 50
     length: 30
   - uniqueName: Element1
     name: 
     parent: Track2
-    start: 50
-    length: 30
+    start: 90
+    length: 20
   - uniqueName: Element2
     name: 
     parent: Track2
-    start: 90
-    length: 20
-  - uniqueName: Element6
-    name: Activation:2
-    parent: Track6
-    start: 58
-    length: 20
+    start: 0
+    length: 30
   - uniqueName: Element7
     name: Activation:1
     parent: Track6
     start: 0
     length: 50
+  - uniqueName: Element8
+    name: Activation:2
+    parent: Track6
+    start: 58
+    length: 20
   positionElements:
   - uniqueName: Element3
     name: 
@@ -349,25 +350,33 @@ MonoBehaviour:
     start: 40
     length: 1
     localPosition: {x: 1, y: 1, z: 1}
-  - uniqueName: Element8
+  - uniqueName: Element9
     name: 
     parent: Track7
     start: 0
     length: 1
     localPosition: {x: 0, y: 0, z: 0}
-  - uniqueName: Element9
+  - uniqueName: Element10
     name: 
     parent: Track7
     start: 20
     length: 1
     localPosition: {x: 0, y: 2, z: 0}
-  - uniqueName: Element10
+  - uniqueName: Element11
     name: 
     parent: Track7
     start: 40
     length: 1
     localPosition: {x: -1, y: 2, z: 0}
-  animationElements: []
+  animationElements:
+  - uniqueName: Element6
+    name: Animation:0
+    parent: Track4
+    start: 32
+    length: 1
+    blend: 0
+    speed: 1
+    clip: {fileID: 0}
 --- !u!4 &12368529
 Transform:
   m_ObjectHideFlags: 0
@@ -381,6 +390,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &500320163
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 500320165}
+  - component: {fileID: 500320164}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &500320164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500320163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25f9e2f6e957c374bbc1bd065fa8abb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  asset: {fileID: 12368528}
+  playOnAwake: 1
+--- !u!4 &500320165
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500320163}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &982688764
 GameObject:

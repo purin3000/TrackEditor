@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.IO;
-
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 
 namespace track_editor
 {
@@ -26,7 +23,6 @@ namespace track_editor
             return asset;
         }
 
-#if UNITY_EDITOR
         public static TrackAsset SaveGameObject(TrackEditor manager, string assetPath)
         {
             var asset = GameObject.Find(assetPath)?.GetComponent<TrackAsset>();
@@ -39,7 +35,6 @@ namespace track_editor
             EditorUtility.SetDirty(newAsset);
             return newAsset;
         }
-#endif
 
         public static TrackAsset LoadGameObject(TrackEditor manager, string assetPath)
         {
