@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEditor;
 
 namespace track_editor
 {
@@ -44,30 +45,27 @@ namespace track_editor
         {
             this.manager = manager;
             this.parent = parent;
-
-            nestLevel = 0;
-            var current = parent;
-            while (current != null) {
-                ++nestLevel;
-                current = current.parent;
-            }
-
             this.name = name;
+
+            UpdateNestLevel();
         }
 
-        public void LoadInitialize(TrackEditor manager, string name, TrackData parent)
+        public void LoadInitialize(TrackEditor manager, string name, TrackData parent, List<TrackData> childs)
         {
             this.manager = manager;
+            this.name = name;
             this.parent = parent;
+            this.childs = childs;
+        }
 
+        public void UpdateNestLevel()
+        {
             nestLevel = 0;
             var current = parent;
             while (current != null) {
                 ++nestLevel;
                 current = current.parent;
             }
-
-            this.name = name;
         }
 
         public virtual void WriteAsset(SerializeTrack serializeTrack)
@@ -117,7 +115,7 @@ namespace track_editor
 
         protected void DrawNameImpl()
         {
-            name = GUILayout.TextField("Name", name);
+            name = EditorGUILayout.TextField("Name", name);
         }
 
         protected void DrawIndexMoveImpl()

@@ -74,7 +74,7 @@ namespace track_editor
 
         protected void DrawNameImpl()
         {
-            name = GUILayout.TextField("Name", name);
+            name = EditorGUILayout.TextField("Name", name);
         }
 
         protected void DrawStartImpl()

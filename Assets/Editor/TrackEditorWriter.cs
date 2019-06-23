@@ -10,21 +10,21 @@ namespace track_editor
     /// </summary>
     public class TrackEditorWriter
     {
-        public TrackAsset asset;
-        public TrackEditor manager;
+        TrackAsset asset;
+        TrackEditor manager;
 
-        public List<TrackData> trackBaseList;
-        public List<TrackElement> elementBaseList;
+        List<TrackData> trackBaseList;
+        List<TrackElement> elementBaseList;
 
-        public List<RootTrackData> rootTracks = new List<RootTrackData>();
-        public List<GameObjectTrackData> gameObjectTracks = new List<GameObjectTrackData>();
-        public List<ActivationTrackData> activationTracks = new List<ActivationTrackData>();
-        public List<PositionTrackData> positionTracks = new List<PositionTrackData>();
-        public List<AnimationTrackData> animationTracks = new List<AnimationTrackData>();
+        List<RootTrackData> rootTracks = new List<RootTrackData>();
+        List<GameObjectTrackData> gameObjectTracks = new List<GameObjectTrackData>();
+        List<ActivationTrackData> activationTracks = new List<ActivationTrackData>();
+        List<PositionTrackData> positionTracks = new List<PositionTrackData>();
+        List<AnimationTrackData> animationTracks = new List<AnimationTrackData>();
 
-        public List<ActivationElement> activationElements = new List<ActivationElement>();
-        public List<PositionElement> positionElements = new List<PositionElement>();
-        public List<AnimationElement> animationElements = new List<AnimationElement>();
+        List<ActivationElement> activationElements = new List<ActivationElement>();
+        List<PositionElement> positionElements = new List<PositionElement>();
+        List<AnimationElement> animationElements = new List<AnimationElement>();
 
         public TrackEditorWriter(TrackAsset asset, TrackEditor manager)
         {
@@ -49,7 +49,6 @@ namespace track_editor
 
         public void WriteAsset()
         {
-
             asset.WriteAsset(manager.frameLength);
 
             // トラック書き出し

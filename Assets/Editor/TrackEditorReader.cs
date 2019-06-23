@@ -10,34 +10,23 @@ namespace track_editor
     /// </summary>
     public class TrackEditorReader
     {
-        public class TrackPair
-        {
-            public TrackPair(TrackData track, SerializeTrack serialize)
-            {
-                this.track = track;
-                this.serialize = serialize;
-            }
+        TrackAsset asset;
+        TrackEditor manager;
 
-            public TrackData track;
-            public SerializeTrack serialize;
-        }
+        List<RootTrackData> rootTracks = new List<RootTrackData>();
+        List<GameObjectTrackData> gameObjectTracks = new List<GameObjectTrackData>();
+        List<ActivationTrackData> activationTracks = new List<ActivationTrackData>();
+        List<PositionTrackData> positionTracks = new List<PositionTrackData>();
+        List<AnimationTrackData> animationTracks = new List<AnimationTrackData>();
 
-        public TrackAsset asset;
-        public TrackEditor manager;
+        List<ActivationElement> activationElements = new List<ActivationElement>();
+        List<PositionElement> positionElements = new List<PositionElement>();
+        List<AnimationElement> animationElements = new List<AnimationElement>();
 
-        /// <summary>
-        /// TrackBaseとserializeTrackの対応付
-        /// 順序も重要で、親から設定する必要があるためListになってます。
-        /// </summary>
-        public List<TrackPair> trackPairs = new List<TrackPair>();
+        List<TrackPair> allTracks = new List<TrackPair>();
+        List<ElementPair> allElements = new List<ElementPair>();
 
-        /// <summary>
-        /// TrackBase検索用
-        /// </summary>
-        public Dictionary<string, TrackData> trackTable = new Dictionary<string, TrackData>();
-
-        public List<TrackData> tracks = new List<TrackData>();
-        public List<TrackElement> elements = new List<TrackElement>();
+        Dictionary<string, TrackData> trackTable = new Dictionary<string, TrackData>();
 
         public TrackEditorReader(TrackAsset asset, TrackEditor manager)
         {
@@ -47,47 +36,44 @@ namespace track_editor
 
         public void ReadAsset()
         {
-            ReadTracks<RootSerializeTrack, RootTrackData>(asset.rootTracks);
-            ReadTracks<GameObjectSerializeTrack, GameObjectTrackData>(asset.gameObjectTracks);
-            ReadTracks<ActivationSerializeTrack, ActivationTrackData>(asset.activationTracks);
-            ReadTracks<PositionSerializeTrack, PositionTrackData>(asset.positionTracks);
-            ReadTracks<AnimationSerializeTrack, AnimationTrackData>(asset.animationTracks);
+            ReadTracks(asset.rootTracks, rootTracks);
+            ReadTracks(asset.gameObjectTracks, gameObjectTracks);
+            ReadTracks(asset.activationTracks, activationTracks);
+            ReadTracks(asset.positionTracks, positionTracks);
+            ReadTracks(asset.animationTracks, animationTracks);
 
-            ReadElements<ActivationSerializeElement, ActivationElement>(asset.activationElements);
-            ReadElements<PositionSerializeElement, PositionElement>(asset.positionElements);
-            ReadElements<AnimationSerializeElement, AnimationElement>(asset.animationElements);
+            ReadElements(asset.activationElements, activationElements);
+            ReadElements(asset.positionElements, positionElements);
+            ReadElements(asset.animationElements, animationElements);
 
             // トラックの階層構築
             updateHierarchy(manager, asset.rootTracks[0].uniqueName);
         }
 
-        void ReadTracks<SerializeTrackClass, TrackDataClass>(List<SerializeTrackClass> serializeTracks)
+        void ReadTracks<SerializeTrackClass, TrackDataClass>(List<SerializeTrackClass> serializeTracks, List<TrackDataClass> tracks)
             where SerializeTrackClass : SerializeTrack
             where TrackDataClass : TrackData, new()
         {
             foreach (var serializeTrack in serializeTracks) {
                 TrackDataClass track = new TrackDataClass();
 
-                trackPairs.Add(new TrackPair(track, serializeTrack));
-                trackTable.Add(serializeTrack.uniqueName, track);
                 tracks.Add(track);
+                allTracks.Add(new TrackPair(track, serializeTrack));
+                trackTable.Add(serializeTrack.uniqueName, track);
 
                 track.ReadAsset(serializeTrack);
             }
         }
 
-        void ReadElements<SerializeElementClass, ElementClass>(List<SerializeElementClass> serializeElements)
+        void ReadElements<SerializeElementClass, ElementClass>(List<SerializeElementClass> serializeElements, List<ElementClass> elements)
             where SerializeElementClass : SerializeElement
             where ElementClass : TrackElement, new()
         {
             foreach (var serializeElement in serializeElements) {
                 ElementClass element = new ElementClass();
 
-                var track = trackTable[serializeElement.parent];
-                track.elements.Add(element);
                 elements.Add(element);
-
-                element.LoadInitialize(serializeElement.name, serializeElement.start, serializeElement.length, track);
+                allElements.Add(new ElementPair(element, serializeElement));
 
                 element.ReadAsset(serializeElement);
             }
@@ -96,24 +82,62 @@ namespace track_editor
         void updateHierarchy(TrackEditor manager, string rootTrackName)
         {
             // 親子階層を設定
-            foreach (var trackPair in trackPairs) {
+            foreach (var trackPair in allTracks) {
+                var serializeTrack = trackPair.serializeTrack;
+                TrackData parent;
+
+                if (trackTable.TryGetValue(serializeTrack.parent, out parent)) {
+                    //parent =
+                }
+
                 List<TrackData> childs = new List<TrackData>();
-                foreach (var child in trackPair.serialize.childs) {
+                foreach (var child in serializeTrack.childs) {
                     //Debug.Log(child);
                     childs.Add(trackTable[child]);
                 }
-                trackPair.track.childs = childs;
 
-                TrackData parent;
-                if (!trackTable.TryGetValue(trackPair.serialize.parent, out parent)) {
-                    parent = null;
-                }
-                trackPair.track.LoadInitialize(manager, trackPair.serialize.name, parent);
+                trackPair.track.LoadInitialize(manager, serializeTrack.name, parent, childs);
+            }
+
+            foreach (var trackPair in allTracks) {
+                trackPair.track.UpdateNestLevel();
+            }
+
+            foreach (var elementPair in allElements) {
+                var serializeElement = elementPair.serializeElement;
+                var track = trackTable[serializeElement.parent];
+
+                elementPair.element.LoadInitialize(serializeElement.name, serializeElement.start, serializeElement.length, track);
+                track.elements.Add(elementPair.element);
             }
 
             // ルートを設定
-            manager.top = trackTable[rootTrackName];
+            manager.top = rootTracks[0];
         }
+        struct TrackPair
+        {
+            public TrackPair(TrackData track, SerializeTrack serializeTrack)
+            {
+                this.track = track;
+                this.serializeTrack = serializeTrack;
+            }
+
+            public TrackData track;
+            public SerializeTrack serializeTrack;
+        }
+
+        struct ElementPair
+        {
+            public ElementPair(TrackElement element, SerializeElement serializeElement)
+            {
+                this.element = element;
+                this.serializeElement = serializeElement;
+            }
+
+            public TrackElement element;
+            public SerializeElement serializeElement;
+        }
+
     }
 }
 
