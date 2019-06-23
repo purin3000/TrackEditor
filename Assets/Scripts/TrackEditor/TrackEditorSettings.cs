@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace track_editor_fw
+namespace track_editor
 {
 
     // Layout

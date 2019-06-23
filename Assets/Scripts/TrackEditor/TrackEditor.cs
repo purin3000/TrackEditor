@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
-namespace track_editor_fw
+namespace track_editor
 {
     /// <summary>
     /// GUI描画のメイン部分

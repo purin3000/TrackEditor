@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
-namespace track_editor_fw
+namespace track_editor
 {
     /// <summary>
     /// TrackEditor実装用のトラック情報

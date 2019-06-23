@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace track_editor_fw
+namespace track_editor
 {
     /// <summary>
     /// TrackEditor実装用のエレメント情報
