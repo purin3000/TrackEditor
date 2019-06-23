@@ -16,8 +16,8 @@ namespace track_editor
         public TrackAsset asset;
         public TrackEditor manager;
 
-        public List<EditorTrack> trackBaseList;
-        public List<EditorElement> elementBaseList;
+        public List<TrackData> trackBaseList;
+        public List<TrackElement> elementBaseList;
 
         public List<RootTrackData> rootTracks = new List<RootTrackData>();
         public List<GameObjectTrackData> gameObjectTracks = new List<GameObjectTrackData>();
@@ -36,8 +36,8 @@ namespace track_editor
             this.asset = asset;
             this.manager = manager;
 
-            trackBaseList = editorTrackListup(new List<EditorTrack>(), top);
-            elementBaseList = editorElementListup(new List<EditorElement>(), top);
+            trackBaseList = editorTrackListup(new List<TrackData>(), top);
+            elementBaseList = editorElementListup(new List<TrackElement>(), top);
 
             rootTracks = getEditorTracks<RootTrackData>();
             gameObjectTracks = getEditorTracks<GameObjectTrackData>();
@@ -68,19 +68,19 @@ namespace track_editor
             foreach (var element in animationElements) { element.WriteAsset(this); }
         }
 
-        List<T> getEditorTracks<T>() where T : EditorTrack
+        List<T> getEditorTracks<T>() where T : TrackData
         {
             return trackBaseList.Where(obj => obj is T).Select(obj => (T)obj).ToList();
 
         }
 
-        List<T> getEditorElements<T>() where T : EditorElement
+        List<T> getEditorElements<T>() where T : TrackElement
         {
             return elementBaseList.Where(obj => obj is T).Select(obj => (T)obj).ToList();
 
         }
 
-        static List<EditorTrack> editorTrackListup(List<EditorTrack> list, EditorTrack track)
+        static List<TrackData> editorTrackListup(List<TrackData> list, TrackData track)
         {
             list.Add(track);
             foreach (var child in track.childs) {
@@ -89,7 +89,7 @@ namespace track_editor
             return list;
         }
 
-        static List<EditorElement> editorElementListup(List<EditorElement> list, EditorTrack track)
+        static List<TrackElement> editorElementListup(List<TrackElement> list, TrackData track)
         {
             list.AddRange(track.elements);
             foreach (var child in track.childs) {
@@ -98,12 +98,12 @@ namespace track_editor
             return list;
         }
 
-        public string MakeTrackName(EditorTrack track)
+        public string MakeTrackName(TrackData track)
         {
             return string.Format("Track{0}", trackBaseList.IndexOf(track));
         }
 
-        public string MakeElementName(EditorElement elementBase)
+        public string MakeElementName(TrackElement elementBase)
         {
             return string.Format("Element{0}", elementBaseList.IndexOf(elementBase));
         }

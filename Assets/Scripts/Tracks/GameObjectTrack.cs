@@ -20,7 +20,7 @@ namespace track_editor
     {
         public GameObject target;
 
-        public override void Initialize(TrackEditor manager, string name, EditorTrack parent)
+        public override void Initialize(TrackEditor manager, string name, TrackData parent)
         {
             base.Initialize(manager, name, parent);
 

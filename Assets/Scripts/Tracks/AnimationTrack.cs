@@ -67,7 +67,7 @@ namespace track_editor
         }
     }
 
-    public class AnimationElement : TrackElemet
+    public class AnimationElement : TrackElement
     {
         public int blend;
         public AnimationClip clip;

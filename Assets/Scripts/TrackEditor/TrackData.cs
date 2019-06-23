@@ -9,17 +9,17 @@ namespace track_editor
     /// <summary>
     /// TrackEditor実装用のトラック情報
     /// </summary>
-    public class EditorTrack
+    public class TrackData
     {
         public string name;
 
-        public EditorTrack parent { get; set; }
+        public TrackData parent { get; set; }
 
-        public List<EditorTrack> childs = new List<EditorTrack>();
+        public List<TrackData> childs = new List<TrackData>();
 
-        public List<EditorElement> elements = new List<EditorElement>();
+        public List<TrackElement> elements = new List<TrackElement>();
 
-        public EditorElement selectionElement { get; set; }
+        public TrackElement selectionElement { get; set; }
 
         public TrackEditor manager { get; private set; }
 
@@ -35,13 +35,13 @@ namespace track_editor
 
         public bool isFixedLength { get; set; }
 
-        public List<EditorTrack> removeTracks { get; set; } = new List<EditorTrack>();
+        public List<TrackData> removeTracks { get; set; } = new List<TrackData>();
 
-        public List<EditorElement> removeElements { get; set; } = new List<EditorElement>();
+        public List<TrackElement> removeElements { get; set; } = new List<TrackElement>();
 
         public int nestLevel { get; set; } = 0;
 
-        public virtual void Initialize(TrackEditor manager, string name, EditorTrack parent)
+        public virtual void Initialize(TrackEditor manager, string name, TrackData parent)
         {
             this.manager = manager;
             this.parent = parent;
@@ -56,7 +56,7 @@ namespace track_editor
             this.name = name;
         }
 
-        public void LoadInitialize(TrackEditor manager, string name, EditorTrack parent)
+        public void LoadInitialize(TrackEditor manager, string name, TrackData parent)
         {
             this.manager = manager;
             this.parent = parent;
@@ -129,6 +129,54 @@ namespace track_editor
         {
             DrawNameImpl();
         }
+
+        protected SerializeTrackClass WriteAssetImpl<SerializeTrackClass>(List<SerializeTrackClass> serializeList, WriteAssetContext context) where SerializeTrackClass : SerializeTrack, new()
+        {
+            // 対応するシリアライズ用のクラスを作って
+            var serializeTrack = new SerializeTrackClass();
+
+            SerializeUtility.InitializeTrackSerialize(serializeTrack, this, context);
+
+            // リストへ追加
+            serializeList.Add(serializeTrack);
+
+            return serializeTrack;
+        }
+
+        protected void RemoveTrackImpl(string label)
+        {
+            if (selectionElement == null) {
+                if (GUILayout.Button(label)) {
+                    manager.RemoveTrack(parent, this);
+                }
+                //using (new GUILayout.VerticalScope()) {
+                //}
+            }
+
+        }
+
+        protected void RemoveElementImpl()
+        {
+            selectionElement?.HeaderDrawer();
+        }
+
+        protected void AddElementImpl<T>(string label) where T : TrackElement, new()
+        {
+            using (new GUILayout.VerticalScope()) {
+                if (GUILayout.Button(label)) {
+                    var element = new T();
+                    element.name = string.Format("{0}:{1}", name, elements.Count);
+                    manager.AddElement(this, element);
+                }
+            }
+        }
+
+        protected void TrackDrawerImpl(Rect rect, string label)
+        {
+            Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
+            GUI.Label(rectLabel, label, IsSelection ? "flow node 3 on" : "flow node 2");
+        }
+
     }
 
     static class ContainerSwap

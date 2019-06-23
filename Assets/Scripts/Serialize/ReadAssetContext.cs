@@ -16,13 +16,13 @@ namespace track_editor
     {
         public class TrackPair
         {
-            public TrackPair(EditorTrack track, SerializeTrack serialize)
+            public TrackPair(TrackData track, SerializeTrack serialize)
             {
                 this.track = track;
                 this.serialize = serialize;
             }
 
-            public EditorTrack track;
+            public TrackData track;
             public SerializeTrack serialize;
         }
 
@@ -37,10 +37,10 @@ namespace track_editor
         /// <summary>
         /// TrackBase検索用
         /// </summary>
-        public Dictionary<string, EditorTrack> trackTable = new Dictionary<string, EditorTrack>();
+        public Dictionary<string, TrackData> trackTable = new Dictionary<string, TrackData>();
 
-        public List<EditorTrack> tracks = new List<EditorTrack>();
-        public List<EditorElement> elements = new List<EditorElement>();
+        public List<TrackData> tracks = new List<TrackData>();
+        public List<TrackElement> elements = new List<TrackElement>();
 
         public ReadAssetContext(TrackAsset asset)
         {
@@ -93,7 +93,7 @@ namespace track_editor
         }
 
         EditorTrackClass createEditorTrack<EditorTrackClass>(SerializeTrack serializeTrack)
-            where EditorTrackClass : EditorTrack, new()
+            where EditorTrackClass : TrackData, new()
         {
             EditorTrackClass track = new EditorTrackClass();
 
@@ -104,7 +104,7 @@ namespace track_editor
             return track;
         }
 
-        EditorElementClass createEditorElement<EditorElementClass>(SerializeElement serializeElement) where EditorElementClass : EditorElement, new()
+        EditorElementClass createEditorElement<EditorElementClass>(SerializeElement serializeElement) where EditorElementClass : TrackElement, new()
         {
             EditorElementClass element = new EditorElementClass();
 
@@ -120,14 +120,14 @@ namespace track_editor
         {
             // 親子階層を設定
             foreach (var trackPair in trackPairs) {
-                List<EditorTrack> childs = new List<EditorTrack>();
+                List<TrackData> childs = new List<TrackData>();
                 foreach (var child in trackPair.serialize.childs) {
                     //Debug.Log(child);
                     childs.Add(trackTable[child]);
                 }
                 trackPair.track.childs = childs;
 
-                EditorTrack parent;
+                TrackData parent;
                 if (!trackTable.TryGetValue(trackPair.serialize.parent, out parent)) {
                     parent = null;
                 }

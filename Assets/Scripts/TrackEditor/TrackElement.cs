@@ -8,9 +8,9 @@ namespace track_editor
     /// <summary>
     /// TrackEditor実装用のエレメント情報
     /// </summary>
-    public class EditorElement
+    public class TrackElement
     {
-        public EditorTrack parent { get; private set; }
+        public TrackData parent { get; private set; }
 
         public int start;
         public int length;
@@ -30,14 +30,14 @@ namespace track_editor
 
         public bool isLengthDrag { get; set; }
 
-        public virtual void Initialize(EditorTrack parent)
+        public virtual void Initialize(TrackData parent)
         {
             this.parent = parent;
             this.start = parent.manager.currentFrame;
             this.length = 1;
         }
 
-        public void LoadInitialize(string name, int start, int length, EditorTrack parent)
+        public void LoadInitialize(string name, int start, int length, TrackData parent)
         {
             this.parent = parent;
             this.name = name;
@@ -109,5 +109,17 @@ namespace track_editor
             DrawStartImpl();
             DrawLengthImpl();
         }
+
+        protected ElementSerializeClass WriteAssetImpl<ElementSerializeClass>(List<ElementSerializeClass> serializeList, WriteAssetContext context) where ElementSerializeClass : SerializeElement, new()
+        {
+            var elementSerialize = new ElementSerializeClass();
+
+            SerializeUtility.InitializeElementSerialize(elementSerialize, this, context);
+
+            serializeList.Add(elementSerialize);
+
+            return elementSerialize;
+        }
+
     }
 }

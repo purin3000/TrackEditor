@@ -60,7 +60,7 @@ namespace track_editor
         }
     }
 
-    public class ActivationElement : TrackElemet
+    public class ActivationElement : TrackElement
     {
         public override void HeaderDrawer()
         {

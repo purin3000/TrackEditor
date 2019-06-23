@@ -37,9 +37,9 @@ namespace track_editor
 
         private TrackEditorSettings settings { get; set; }
 
-        public EditorTrack top { get; set; }
+        public TrackData top { get; set; }
 
-        public EditorTrack selectionTrack { get; private set; }
+        public TrackData selectionTrack { get; private set; }
 
         public Vector2 scrollPos { get => scrPos; }
 
@@ -104,7 +104,7 @@ namespace track_editor
         }
 
 
-        public TrackEditor(TrackEditorSettings settings, EditorTrack top)
+        public TrackEditor(TrackEditorSettings settings, TrackData top)
         {
             this.settings = settings;
             this.top = top;
@@ -112,7 +112,7 @@ namespace track_editor
             top.Initialize(this, "top", null);
         }
 
-        public void SetSelectionTrack(EditorTrack track)
+        public void SetSelectionTrack(TrackData track)
         {
             if (selectionTrack != null) {
                 selectionTrack.selectionElement = null;
@@ -123,7 +123,7 @@ namespace track_editor
             valueChanged = true;
         }
 
-        public void SetSelectionElement(EditorTrack track, EditorElement element)
+        public void SetSelectionElement(TrackData track, TrackElement element)
         {
             SetSelectionTrack(track);
 
@@ -138,14 +138,14 @@ namespace track_editor
             valueChanged = true;
         }
 
-        public T AddTrack<T>(EditorTrack parent, string name, T child) where T : EditorTrack
+        public T AddTrack<T>(TrackData parent, string name, T child) where T : TrackData
         {
             parent.childs.Add(child);
             child.Initialize(this, name, parent);
             return child;
         }
 
-        public void RemoveTrack(EditorTrack parent,EditorTrack track)
+        public void RemoveTrack(TrackData parent,TrackData track)
         {
             parent.removeTracks.Add(track);
 
@@ -165,7 +165,7 @@ namespace track_editor
             }
         }
 
-        public T AddElement<T>(EditorTrack track, T element) where T : EditorElement
+        public T AddElement<T>(TrackData track, T element) where T : TrackElement
         {
             track.elements.Add(element);
             element.Initialize(track);
@@ -173,7 +173,7 @@ namespace track_editor
             return element;
         }
 
-        public void RemoveElement(EditorTrack track, EditorElement element)
+        public void RemoveElement(TrackData track, TrackElement element)
         {
             track.removeElements.Add(element);
 
@@ -469,7 +469,7 @@ namespace track_editor
             }
         }
 
-        void drawTrack(EditorTrack track, Rect rect)
+        void drawTrack(TrackData track, Rect rect)
         {
             if (0 < track.nestLevel) {
                 track.TrackDrawer(rect);
@@ -526,7 +526,7 @@ namespace track_editor
             track.removeElements.Clear();
         }
 
-        void drawElement(EditorTrack track, Rect rect)
+        void drawElement(TrackData track, Rect rect)
         {
             Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
 
@@ -557,7 +557,7 @@ namespace track_editor
             }
 
             if (Event.current.type == EventType.MouseDown && Event.current.button == 1) {
-                List<EditorElement> elemList = new List<EditorElement>();
+                List<TrackElement> elemList = new List<TrackElement>();
                 foreach (var element in track.elements) {
                     var rectLabel = calcElementRect(element, rectElement);
                     if (rectLabel.Contains(Event.current.mousePosition)) {
@@ -579,7 +579,7 @@ namespace track_editor
             }
         }
 
-        Rect calcElementRect(EditorElement element, Rect rect)
+        Rect calcElementRect(TrackElement element, Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
             return rectLabel;
@@ -590,7 +590,7 @@ namespace track_editor
         /// 描画優先度とイベント優先度が逆のため、DrawElementとUpdateElemenetに関数を分離して回す必要がある
         /// </summary>
         /// <param name="rect"></param>
-        void updateElement(EditorTrack track, EditorElement element, Rect rect)
+        void updateElement(TrackData track, TrackElement element, Rect rect)
         {
             Rect rectLabel = calcElementRect(element, rect);
             Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, Mathf.Max(pixelScale * 1, 8), trackHeight);
@@ -637,7 +637,7 @@ namespace track_editor
             }
         }
 
-        void drawElement(EditorElement element, Rect rect)
+        void drawElement(TrackElement element, Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y + 2, pixelScale * element.length, trackHeight - 4);
 

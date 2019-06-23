@@ -66,7 +66,7 @@ namespace track_editor
         }
     }
 
-    public class PositionElement : TrackElemet
+    public class PositionElement : TrackElement
     {
         public GameObject target { get => (parent.parent as GameObjectTrackData)?.target; }
 
