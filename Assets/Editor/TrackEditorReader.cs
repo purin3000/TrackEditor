@@ -10,47 +10,27 @@ namespace track_editor
     /// </summary>
     public class TrackEditorReader
     {
-        TrackAsset asset;
-        TrackEditor manager;
-
-        List<RootTrackData> rootTracks = new List<RootTrackData>();
-        List<GameObjectTrackData> gameObjectTracks = new List<GameObjectTrackData>();
-        List<ActivationTrackData> activationTracks = new List<ActivationTrackData>();
-        List<PositionTrackData> positionTracks = new List<PositionTrackData>();
-        List<AnimationTrackData> animationTracks = new List<AnimationTrackData>();
-
-        List<ActivationElement> activationElements = new List<ActivationElement>();
-        List<PositionElement> positionElements = new List<PositionElement>();
-        List<AnimationElement> animationElements = new List<AnimationElement>();
-
         List<TrackPair> allTracks = new List<TrackPair>();
         List<ElementPair> allElements = new List<ElementPair>();
-
         Dictionary<string, TrackData> trackTable = new Dictionary<string, TrackData>();
 
-        public TrackEditorReader(TrackAsset asset, TrackEditor manager)
+        public static void ReadAsset(TrackAsset asset, TrackEditor manager)
         {
-            this.asset = asset;
-            this.manager = manager;
+            var data = new TrackEditorAsset(asset, manager);
+
+            var context = new TrackEditorReader();
+
+            data.ReadAsset(context);
         }
 
-        public void ReadAsset()
-        {
-            ReadTracks(asset.rootTracks, rootTracks);
-            ReadTracks(asset.gameObjectTracks, gameObjectTracks);
-            ReadTracks(asset.activationTracks, activationTracks);
-            ReadTracks(asset.positionTracks, positionTracks);
-            ReadTracks(asset.animationTracks, animationTracks);
-
-            ReadElements(asset.activationElements, activationElements);
-            ReadElements(asset.positionElements, positionElements);
-            ReadElements(asset.animationElements, animationElements);
-
-            // トラックの階層構築
-            updateHierarchy(manager, asset.rootTracks[0].uniqueName);
-        }
-
-        void ReadTracks<SerializeTrackClass, TrackDataClass>(List<SerializeTrackClass> serializeTracks, List<TrackDataClass> tracks)
+        /// <summary>
+        /// SerializeTrackからTrackElementへ読み込み
+        /// </summary>
+        /// <typeparam name="SerializeTrackClass"></typeparam>
+        /// <typeparam name="TrackDataClass"></typeparam>
+        /// <param name="serializeTracks"></param>
+        /// <param name="tracks"></param>
+        public void readTracks<SerializeTrackClass, TrackDataClass>(List<SerializeTrackClass> serializeTracks, List<TrackDataClass> tracks)
             where SerializeTrackClass : SerializeTrack
             where TrackDataClass : TrackData, new()
         {
@@ -65,7 +45,7 @@ namespace track_editor
             }
         }
 
-        void ReadElements<SerializeElementClass, ElementClass>(List<SerializeElementClass> serializeElements, List<ElementClass> elements)
+        public void readElements<SerializeElementClass, ElementClass>(List<SerializeElementClass> serializeElements, List<ElementClass> elements)
             where SerializeElementClass : SerializeElement
             where ElementClass : TrackElement, new()
         {
@@ -79,7 +59,11 @@ namespace track_editor
             }
         }
 
-        void updateHierarchy(TrackEditor manager, string rootTrackName)
+        /// <summary>
+        /// 階層構築
+        /// </summary>
+        /// <param name="manager"></param>
+        public void updateHierarchy(TrackEditor manager)
         {
             // 親子階層を設定
             foreach (var trackPair in allTracks) {
@@ -110,10 +94,8 @@ namespace track_editor
                 elementPair.element.LoadInitialize(serializeElement.name, serializeElement.start, serializeElement.length, track);
                 track.elements.Add(elementPair.element);
             }
-
-            // ルートを設定
-            manager.top = rootTracks[0];
         }
+
         struct TrackPair
         {
             public TrackPair(TrackData track, SerializeTrack serializeTrack)

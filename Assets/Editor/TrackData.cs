@@ -33,8 +33,6 @@ namespace track_editor
 
         public bool expand { get; set; } = true;
 
-        public bool isFixedLength { get; set; }
-
         public List<TrackData> removeTracks { get; set; } = new List<TrackData>();
 
         public List<TrackElement> removeElements { get; set; } = new List<TrackElement>();

@@ -12,16 +12,15 @@ namespace track_editor
         {
             Undo.RegisterCompleteObjectUndo(asset, "backup");
 
-            var context = new TrackEditorWriter(asset, manager);
-            context.WriteAsset();
+            TrackEditorWriter.WriteAsset(asset, manager);
+
             EditorUtility.SetDirty(asset);
             return asset;
         }
 
         public static TrackAsset LoadAsset(TrackEditor manager, TrackAsset asset)
         {
-            var context = new TrackEditorReader(asset, manager);
-            context.ReadAsset();
+            TrackEditorReader.ReadAsset(asset, manager);
             return asset;
         }
 

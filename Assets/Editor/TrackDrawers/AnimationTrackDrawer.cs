@@ -7,11 +7,6 @@ namespace track_editor
 {
     public class AnimationTrackData : TrackData
     {
-        public AnimationTrackData()
-        {
-            isFixedLength = true;
-        }
-
         public override void HeaderDrawer()
         {
             base.HeaderDrawer();
@@ -45,6 +40,11 @@ namespace track_editor
         public int blend;
         public AnimationClip clip;
         public float speed = 1.0f;
+
+        public AnimationElement()
+        {
+            isFixedLength = true;
+        }
 
         public override void HeaderDrawer()
         {

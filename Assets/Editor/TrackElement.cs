@@ -30,6 +30,8 @@ namespace track_editor
 
         public bool isLengthDrag { get; set; }
 
+        public bool isFixedLength { get; protected set; }
+
         public virtual void Initialize(TrackData parent)
         {
             this.parent = parent;
@@ -84,10 +86,10 @@ namespace track_editor
 
         protected void DrawLengthImpl()
         {
-            using (new EditorGUI.DisabledScope(parent.isFixedLength)) {
+            using (new EditorGUI.DisabledScope(isFixedLength)) {
                 length = Mathf.Max(0, EditorGUILayout.IntField("Length", length));
 
-                if (parent.isFixedLength) {
+                if (isFixedLength) {
                     GUILayout.Label("Lengthは固定されています");
                 }
             }

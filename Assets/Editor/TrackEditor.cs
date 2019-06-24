@@ -15,6 +15,8 @@ namespace track_editor
     {
         public int frameLength = 100;
 
+        public float playSpeed = 1.0f;
+
         public int currentFrame = 0;
 
         public float gridScale = 4.0f;
@@ -103,10 +105,10 @@ namespace track_editor
             return new ValueChangedScope(this);
         }
 
-        public TrackEditor(TrackEditorSettings settings, TrackData top)
+        public TrackEditor(TrackEditorSettings settings)
         {
             this.settings = settings;
-            this.top = top;
+            this.top = new RootTrackData();
 
             top.Initialize(this, "top", null);
         }
@@ -613,7 +615,7 @@ namespace track_editor
 
                     Event.current.Use();
 
-                } else if (!track.isFixedLength && rectLength.Contains(Event.current.mousePosition)) {
+                } else if (!element.isFixedLength && rectLength.Contains(Event.current.mousePosition)) {
                     SetSelectionElement(track, element);
 
                     element.isLengthDrag = true;

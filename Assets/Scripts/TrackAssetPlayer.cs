@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace track_editor
 {
-    public class TrackAssetPlayer : MonoBehaviour
+    public partial class TrackAssetPlayer : MonoBehaviour
     {
         public TrackAsset asset;
 
         public bool playOnAwake = false;
 
-        public float speed = 1.0f;
+        public float playSpeed = 1.0f;
 
         public int currentFrame { get => (int)(time * 60.0f); }
 
@@ -52,15 +52,7 @@ namespace track_editor
             elements.Clear();
             elementPlayers.Clear();
 
-            addTrack(asset.rootTracks);
-            addTrack(asset.gameObjectTracks);
-            addTrack(asset.activationTracks);
-            addTrack(asset.positionTracks);
-            addTrack(asset.animationTracks);
-
-            addElement(asset.activationElements);
-            addElement(asset.positionElements);
-            addElement(asset.animationElements);
+            addTrackAndElement();
 
             playStartElements = elementPlayers.OrderBy(elem => elem.start).ToList();
             playEndElements = elementPlayers.OrderBy(elem => elem.end).ToList();
@@ -107,7 +99,7 @@ namespace track_editor
                     }
 
 
-                    time += Time.deltaTime * speed;
+                    time += Time.deltaTime * playSpeed * asset.playSpeed;
 
                 } else {
                     isPlaying = false;

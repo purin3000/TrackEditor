@@ -7,11 +7,6 @@ namespace track_editor
 {
     public class PositionTrackData : TrackData
     {
-        public PositionTrackData()
-        {
-            isFixedLength = true;
-        }
-
         public override void HeaderDrawer()
         {
             base.HeaderDrawer();
@@ -45,6 +40,11 @@ namespace track_editor
         public GameObject target { get => (parent.parent as GameObjectTrackData)?.target; }
 
         public Vector3 localPosition;
+
+        public PositionElement()
+        {
+            isFixedLength = true;
+        }
 
         public override void HeaderDrawer()
         {

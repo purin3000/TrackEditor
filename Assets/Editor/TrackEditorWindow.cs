@@ -16,9 +16,7 @@ namespace track_editor
             GetWindow<TrackEditorWindow>("TrackEditorExample");
         }
 
-
         TrackEditor manager;
-
         TrackAsset asset;
 
         [SerializeField]
@@ -36,7 +34,7 @@ namespace track_editor
 
         private void OnEnable()
         {
-            manager = new TrackEditor(new TrackEditorSettings(), new RootTrackData());
+            manager = new TrackEditor(new TrackEditorSettings());
 
             //for (int i = 0; i < 3; ++i) {
             //    _manager.AddTrack(_manager.top, "Track:" + i, new GameObjectTrackData());
@@ -98,7 +96,9 @@ namespace track_editor
 
         void saveAsset()
         {
-            SerializeUtility.SaveAsset(manager, asset);
+            if (asset) {
+                SerializeUtility.SaveAsset(manager, asset);
+            }
         }
 
         void drawHeader()
@@ -113,8 +113,13 @@ namespace track_editor
                             using (var changedScope = new EditorGUI.ChangeCheckScope()) {
                                 asset = (TrackAsset)EditorGUILayout.ObjectField("TrackAsset", asset, typeof(TrackAsset), true);
 
-                                if (changedScope.changed && asset != null) {
-                                    loadAsset(asset);
+                                if (changedScope.changed) {
+                                    if (asset != null) {
+                                        loadAsset(asset);
+                                    } else {
+                                        assetName = null;
+                                        manager = new TrackEditor(new TrackEditorSettings());
+                                    }
                                 }
                             }
                         }
@@ -122,8 +127,9 @@ namespace track_editor
                         using (manager.CreateValueChangedScope()) {
 
                             if (GUILayout.Button("New Data", GUILayout.Width(80))) {
-                                var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
+                                manager = new TrackEditor(new TrackEditorSettings());
 
+                                var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
                                 loadAsset(SerializeUtility.SaveGameObject(manager, path));
                             }
                         }
@@ -132,6 +138,7 @@ namespace track_editor
                     using (manager.CreateValueChangedScope()) {
                         manager.currentFrame = Mathf.Max(0, EditorGUILayout.IntField("Frame", manager.currentFrame));
                         manager.frameLength = Mathf.Max(0, EditorGUILayout.IntField("FrameLength", manager.frameLength));
+                        manager.playSpeed = EditorGUILayout.Slider("Play Speed", manager.playSpeed, 0.0f, 5.0f);
                     }
 
                     using (manager.CreateValueChangedScope()) {
@@ -163,7 +170,7 @@ namespace track_editor
                                 
                                 player = inst.gameObject.AddComponent<TrackAssetPlayer>();
                                 player.Play(inst);
-                                player.speed = playSpeed;
+                                player.playSpeed = playSpeed;
                             }
 
                             if (player != null && player.IsPlaying) {

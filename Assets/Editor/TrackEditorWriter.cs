@@ -10,65 +10,33 @@ namespace track_editor
     /// </summary>
     public class TrackEditorWriter
     {
-        TrackAsset asset;
-        TrackEditor manager;
+        public List<TrackData> trackBaseList;
+        public List<TrackElement> elementBaseList;
 
-        List<TrackData> trackBaseList;
-        List<TrackElement> elementBaseList;
-
-        List<RootTrackData> rootTracks = new List<RootTrackData>();
-        List<GameObjectTrackData> gameObjectTracks = new List<GameObjectTrackData>();
-        List<ActivationTrackData> activationTracks = new List<ActivationTrackData>();
-        List<PositionTrackData> positionTracks = new List<PositionTrackData>();
-        List<AnimationTrackData> animationTracks = new List<AnimationTrackData>();
-
-        List<ActivationElement> activationElements = new List<ActivationElement>();
-        List<PositionElement> positionElements = new List<PositionElement>();
-        List<AnimationElement> animationElements = new List<AnimationElement>();
-
-        public TrackEditorWriter(TrackAsset asset, TrackEditor manager)
+        public static void WriteAsset(TrackAsset asset, TrackEditor manager)
         {
-            var top = manager.top;
+            var data = new TrackEditorAsset(asset, manager);
 
-            this.asset = asset;
-            this.manager = manager;
+            var context = new TrackEditorWriter();
 
-            trackBaseList = editorTrackListup(new List<TrackData>(), top);
-            elementBaseList = editorElementListup(new List<TrackElement>(), top);
-
-            rootTracks = getEditorTracks<RootTrackData>();
-            gameObjectTracks = getEditorTracks<GameObjectTrackData>();
-            activationTracks = getEditorTracks<ActivationTrackData>();
-            positionTracks = getEditorTracks<PositionTrackData>();
-            animationTracks = getEditorTracks<AnimationTrackData>();
-
-            activationElements = getEditorElements<ActivationElement>();
-            positionElements = getEditorElements<PositionElement>();
-            animationElements = getEditorElements<AnimationElement>();
+            data.WriteAsset(context);
         }
 
-        public void WriteAsset()
-        {
-            asset.WriteAsset(manager.frameLength);
-
-            // トラック書き出し
-            WriteTracks(rootTracks, asset.rootTracks);
-            WriteTracks(gameObjectTracks, asset.gameObjectTracks);
-            WriteTracks(activationTracks, asset.activationTracks);
-            WriteTracks(positionTracks, asset.positionTracks);
-            WriteTracks(animationTracks, asset.animationTracks);
-
-            // エレメント書き出し
-            WriteElements(activationElements, asset.activationElements);
-            WriteElements(positionElements, asset.positionElements);
-            WriteElements(animationElements, asset.animationElements);
-        }
-
-
-        void WriteTracks<TrackDataClass, SerializeTrackClass>(List<TrackDataClass> tracks, List<SerializeTrackClass> serializeTracks)
+        /// <summary>
+        /// TrackDataからSerializeTrackへ書き込み
+        /// </summary>
+        /// <typeparam name="TrackDataClass"></typeparam>
+        /// <typeparam name="SerializeTrackClass"></typeparam>
+        /// <param name="tracks"></param>
+        /// <param name="serializeTracks"></param>
+        public void writeTracks<TrackDataClass, SerializeTrackClass>(List<TrackDataClass> tracks, List<SerializeTrackClass> serializeTracks)
             where TrackDataClass : TrackData
             where SerializeTrackClass : SerializeTrack, new()
         {
+            getEditorTracks(tracks);
+
+            serializeTracks.Clear();
+
             foreach (var track in tracks) {
                 // 対応するシリアライズ用のクラスを作って
                 var serializeTrack = new SerializeTrackClass();
@@ -82,10 +50,14 @@ namespace track_editor
             }
         }
 
-        void WriteElements<TrackElementClass, SerializeElementClass>(List<TrackElementClass> elements, List<SerializeElementClass> serializeElements)
+        public void writeElements<TrackElementClass, SerializeElementClass>(List<TrackElementClass> elements, List<SerializeElementClass> serializeElements)
             where TrackElementClass : TrackElement
             where SerializeElementClass : SerializeElement, new()
         {
+            getEditorElements(elements);
+
+            serializeElements.Clear();
+
             foreach (var element in elements) {
                 var serializeElement = new SerializeElementClass();
 
@@ -97,32 +69,33 @@ namespace track_editor
             }
         }
 
-        List<T> getEditorTracks<T>() where T : TrackData
+        void getEditorTracks<TrackDataClass>(List<TrackDataClass> list) where TrackDataClass : TrackData
         {
-            return trackBaseList.Where(obj => obj is T).Select(obj => (T)obj).ToList();
+            list.Clear();
+            list.AddRange(trackBaseList.Where(obj => obj is TrackDataClass).Select(obj => (TrackDataClass)obj));
 
         }
 
-        List<T> getEditorElements<T>() where T : TrackElement
+        void getEditorElements<TrackElementClass>(List<TrackElementClass> list) where TrackElementClass : TrackElement
         {
-            return elementBaseList.Where(obj => obj is T).Select(obj => (T)obj).ToList();
-
+            list.Clear();
+            list.AddRange(elementBaseList.Where(obj => obj is TrackElementClass).Select(obj => (TrackElementClass)obj));
         }
 
-        static List<TrackData> editorTrackListup(List<TrackData> list, TrackData track)
+        public List<TrackData> trackListup(List<TrackData> list, TrackData track)
         {
             list.Add(track);
             foreach (var child in track.childs) {
-                editorTrackListup(list, child);
+                trackListup(list, child);
             }
             return list;
         }
 
-        static List<TrackElement> editorElementListup(List<TrackElement> list, TrackData track)
+        public List<TrackElement> elementListup(List<TrackElement> list, TrackData track)
         {
             list.AddRange(track.elements);
             foreach (var child in track.childs) {
-                editorElementListup(list, child);
+                elementListup(list, child);
             }
             return list;
         }

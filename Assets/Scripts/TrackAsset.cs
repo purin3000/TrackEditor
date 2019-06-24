@@ -11,42 +11,10 @@ namespace track_editor
     /// このオブジェクトをプレハブやScriptableObjectにしてランタイムで使用
     /// </summary>
     [System.Serializable]
-    public class TrackAsset : MonoBehaviour
+    public partial class TrackAsset : MonoBehaviour
     {
         public int frameLength = 100;
-
-        [HideInInspector]
-        public List<RootSerializeTrack> rootTracks = new List<RootSerializeTrack>();
-        [HideInInspector]
-        public List<GameObjectSerializeTrack> gameObjectTracks = new List<GameObjectSerializeTrack>();
-        [HideInInspector]
-        public List<ActivationSerializeTrack> activationTracks = new List<ActivationSerializeTrack>();
-        [HideInInspector]
-        public List<PositionSerializeTrack> positionTracks = new List<PositionSerializeTrack>();
-        [HideInInspector]
-        public List<AnimationSerializeTrack> animationTracks = new List<AnimationSerializeTrack>();
-
-        [HideInInspector]
-        public List<ActivationSerializeElement> activationElements = new List<ActivationSerializeElement>();
-        [HideInInspector]
-        public List<PositionSerializeElement> positionElements = new List<PositionSerializeElement>();
-        [HideInInspector]
-        public List<AnimationSerializeElement> animationElements = new List<AnimationSerializeElement>();
-
-        public void WriteAsset(int frameLength)
-        {
-            this.frameLength = frameLength;
-
-            rootTracks.Clear();
-            gameObjectTracks.Clear();
-            activationTracks.Clear();
-            positionTracks.Clear();
-            animationTracks.Clear();
-
-            activationElements.Clear();
-            positionElements.Clear();
-            animationElements.Clear();
-        }
+        public float playSpeed = 1.0f;
     }
 
     /// <summary>
