@@ -45,11 +45,7 @@ namespace track_editor
 
             target = (GameObject)EditorGUILayout.ObjectField(target, typeof(GameObject), true);
 
-            GUILayout.Space(15);
-
             DrawIndexMoveImpl();
-
-            GUILayout.Space(15);
 
             if (GUILayout.Button("Add Activation Track")) {
                 manager.AddTrack(this, "Activation", new ActivationTrackData());

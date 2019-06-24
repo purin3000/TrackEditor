@@ -11,28 +11,22 @@ namespace track_editor
         {
             base.HeaderDrawer();
 
-            RemoveTrackImpl("Remove Position Track");
-
-            RemoveElementImpl();
-        }
-
-        public override void PropertyDrawer(Rect rect)
-        {
-            base.PropertyDrawer(rect);
-
-            GUILayout.Space(15);
-
-            DrawIndexMoveImpl();
-
-            GUILayout.Space(15);
-
-            AddElementImpl<PositionElement>("Add Position Element");
+            HeaderDrawerImpl("Remove Position Track");
         }
 
         public override void TrackDrawer(Rect rect)
         {
             TrackDrawerImpl(rect, "Position");
         }
+
+        public override void PropertyDrawer(Rect rect)
+        {
+            base.PropertyDrawer(rect);
+
+            PropertyDrawerImpl(rect, "Add Position Element");
+        }
+
+        public override TrackElement CreateElement() { return new PositionElement(); }
     }
 
     public class PositionElement : TrackElement

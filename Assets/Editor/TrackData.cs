@@ -110,6 +110,8 @@ namespace track_editor
             DrawNameImpl();
         }
 
+        public virtual TrackElement CreateElement() { return null; }
+
 
         protected void DrawNameImpl()
         {
@@ -118,6 +120,8 @@ namespace track_editor
 
         protected void DrawIndexMoveImpl()
         {
+            GUILayout.Space(15);
+
             using (new GUILayout.VerticalScope()) {
                 if (GUILayout.Button("上へ移動")) {
                     var index = parent.childs.IndexOf(this) - 1;
@@ -132,6 +136,8 @@ namespace track_editor
                     }
                 }
             }
+
+            GUILayout.Space(15);
         }
 
         protected void RemoveTrackImpl(string label)
@@ -150,21 +156,35 @@ namespace track_editor
             selectionElement?.HeaderDrawer();
         }
 
-        protected void AddElementImpl<T>(string label) where T : TrackElement, new()
+        protected void AddElementImpl(string label)
         {
             using (new GUILayout.VerticalScope()) {
                 if (GUILayout.Button(label)) {
-                    var element = new T();
+                    var element = CreateElement();
                     element.name = string.Format("{0}:{1}", name, elements.Count);
                     manager.AddElement(this, element);
                 }
             }
         }
 
+        protected void HeaderDrawerImpl(string label)
+        {
+            RemoveTrackImpl(label);
+
+            RemoveElementImpl();
+        }
+
         protected void TrackDrawerImpl(Rect rect, string label)
         {
             Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
             GUI.Label(rectLabel, label, IsSelection ? "flow node 3 on" : "flow node 2");
+        }
+
+        protected void PropertyDrawerImpl(Rect rect, string label)
+        {
+            DrawIndexMoveImpl();
+
+            AddElementImpl(label);
         }
     }
 

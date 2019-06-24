@@ -10,28 +10,22 @@ namespace track_editor
         {
             base.HeaderDrawer();
 
-            RemoveTrackImpl("Remove Activation Track");
-
-            RemoveElementImpl();
-        }
-
-        public override void PropertyDrawer(Rect rect)
-        {
-            base.PropertyDrawer(rect);
-
-            GUILayout.Space(15);
-
-            DrawIndexMoveImpl();
-
-            GUILayout.Space(15);
-
-            AddElementImpl<ActivationElement>("Add Activation Element");
+            HeaderDrawerImpl("Remove Activation Track");
         }
 
         public override void TrackDrawer(Rect rect)
         {
             TrackDrawerImpl(rect, "Activation");
         }
+
+        public override void PropertyDrawer(Rect rect)
+        {
+            base.PropertyDrawer(rect);
+
+            PropertyDrawerImpl(rect, "Add Activation Element");
+        }
+
+        public override TrackElement CreateElement() { return new ActivationElement(); }
     }
 
     public class ActivationElement : TrackElement
