@@ -2,13 +2,11 @@
 
 エディタ拡張でTimeline的なトラック編集を行うためのフレームワークです。
 
-要素(Track,Element)を定義することで、GUIで編集し、アセットを出力(TrackAsset)することが出来ます。
+要素(TrackData,TrackElement)を定義することで、GUIで編集し、アセットを出力(TrackAsset)することが出来ます。
 
 サンプルではGameObjectにTrackAssetを保存し、再生時にTrackAssetPlayerで再生が可能です。
 
 定義の追加は簡単なものでも数箇所の書き換えが必要ですが、基本的にはコピペして修正で済む形になっています。
-
-（シリアライズがポリモーフィズムをサポートしていないため、正直コピペが多いです）
 
 
 ![エディタ画面](Images/TrackEditor.png "エディタ画面")
@@ -16,14 +14,19 @@
 
 ## 処理の大体の説明
 
+要素を追加する場合、以下のクラスの書き換えが必要です。
 
-名前空間track_editorにあるクラスはカスタマイズして使用することが前提になっています。
-
-名前空間track_editor_fwにあるクラスは、エディターの共通処理部で、主にGUIのレイアウト管理を行っています。
-
-データ構造は、Asset内に複数のTrackがあり、Track内にElementが複数存在する構造で、TrackやElementが機能ごとにオブジェクト化されています。
-
-さらにエディター内部で使用するデータと、アセット用のデータは別のオブジェクトになっており、ランタイムでの処理も別のため、要素を増やす場合、それぞれを適切に書き換える必要があります。
+- TrackAsset 読み書きされるデータ
+- TrackAssetWriter TrackAssetへの書き出し
+- TrackAssetReader TrackAssetからの読み出し
+- TrackDrawer エディターGUI
+- Tracks TrackAssetPlayerでの再生時処理
 
 
+以下のクラスは基本的に触らなくてよいはず。
+
+- TrackEditor エディターの各種GUI制御
+- TrackData トラック情報
+- TrackElement トラック内の要素
+- TrackEditorWindow
 
