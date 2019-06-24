@@ -12,21 +12,9 @@
 ![エディタ画面](Images/TrackEditor.png "エディタ画面")
 
 
-## 処理の大体の説明
+## 要素の追加方法
 
-要素を追加する場合、以下のクラスの書き換えが必要です。
+TrackDrawerとTracksのソースをコピーしてエディター用とランタイム用のソースを作成し、それらを各所に登録することで使用できるようになります。
 
-- TrackAsset 読み書きされるデータ
-- TrackAssetWriter TrackAssetへの書き出し
-- TrackAssetReader TrackAssetからの読み出し
-- TrackDrawer エディターGUI
-- Tracks TrackAssetPlayerでの再生時処理
-
-
-以下のクラスは基本的に触らなくてよいはず。
-
-- TrackEditor エディターの各種GUI制御
-- TrackData トラック情報
-- TrackElement トラック内の要素
-- TrackEditorWindow
+各所への登録は本来煩雑な部分ですが、Generate.csに定義を追加して実行することでコードが生成されます。
 
