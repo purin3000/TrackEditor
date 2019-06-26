@@ -11,26 +11,21 @@ namespace track_editor
         readonly static string[] trackTable = {
             "Root",
             "GameObject",
-            "Camera",
 
             "Activation",
             "Transform",
             "Animation",
-            "CameraChange",
-            "ChangeBgMaterial",
         };
 
         readonly static string[] elementTable = {
             "Activation",
             "Transform",
             "Animation",
-            "CameraChange",
-            "ChangeBgMaterial",
         };
 
-        const string pathTrackEditorAsset = "Assets/App/Tools/CutSceneEditor/Editor/TrackEditorAsset_gen.cs";
-        const string pathTrackAsset = "Assets/App/Tools/CutSceneEditor/Scripts/TrackAsset_gen.cs";
-        const string pathTrackAssetPlayer = "Assets/App/Tools/CutSceneEditor/Scripts/TrackAssetPlayer_gen.cs";
+        const string pathTrackEditorAsset = "Assets/Editor/TrackEditorAsset_gen.cs";
+        const string pathTrackAsset       = "Assets/Scripts/TrackAsset_gen.cs";
+        const string pathTrackAssetPlayer = "Assets/Scripts/TrackAssetPlayer_gen.cs";
 
         [MenuItem("Test/TrackEditorGenerate")]
         static void genTest()

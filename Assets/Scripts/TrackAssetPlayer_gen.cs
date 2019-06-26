@@ -12,17 +12,12 @@ namespace track_editor {
 #if ENABLE_GEN_CODE
 addTrack(asset.RootTracks);
 addTrack(asset.GameObjectTracks);
-addTrack(asset.CameraTracks);
 addTrack(asset.ActivationTracks);
 addTrack(asset.TransformTracks);
 addTrack(asset.AnimationTracks);
-addTrack(asset.CameraChangeTracks);
-addTrack(asset.ChangeBgMaterialTracks);
 addElement(asset.ActivationElements);
 addElement(asset.TransformElements);
 addElement(asset.AnimationElements);
-addElement(asset.CameraChangeElements);
-addElement(asset.ChangeBgMaterialElements);
 
 #endif
 

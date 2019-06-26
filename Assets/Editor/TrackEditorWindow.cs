@@ -148,11 +148,6 @@ namespace track_editor
                                 manager.SetSelectionTrack(track);
 
                             }
-                            if (GUILayout.Button("Add Camera Track")) {
-                                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), CameraTrackEditor.CreateTrack());
-                                manager.SetSelectionTrack(track);
-
-                            }
                         }
                     }
                 }
