@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace track_editor
 {
-    using ElementPlayerImpl = GameObjectTrack.ElementPlayerImpl;
+    using ElementPlayerImpl = CameraTrack.ElementPlayerImpl;
 
-    public class ActivationTrack
+    public class CameraChangeTrack
     {
         [System.Serializable]
         public class SerializeTrack : SerializeTrackBase
@@ -16,6 +16,10 @@ namespace track_editor
         [System.Serializable]
         public class SerializeElement : SerializeElementBase
         {
+            //public string startCameraName;
+            //public string endCameraName;
+            //public DG.Tweening.Ease easeType = DG.Tweening.Ease.Linear;
+
             public override ElementPlayerBase CreatePlayer()
             {
                 return new ElementPlayer(this);
@@ -33,18 +37,18 @@ namespace track_editor
 
             public override void OnStart(TrackAssetPlayer context)
             {
-                var go = GetGameObject();
+                //FieldManager.Instance.cameraSwitcher.SwitchCameraFromName(serializeElement.startCameraName);
 
-                go.SetActive(true);
+                //if (!string.IsNullOrEmpty(serializeElement.endCameraName)) {
+                //    FieldManager.Instance.cameraSwitcher.SwitchCameraFromName(serializeElement.endCameraName, serializeElement.length / 60.0f * context.GetPlayScale(), serializeElement.easeType);
+                //}
             }
 
             public override void OnEnd(TrackAssetPlayer context)
             {
-                var go = GetGameObject();
-
-                go.SetActive(false);
             }
         }
+
     }
 }
 

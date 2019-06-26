@@ -7,7 +7,11 @@ namespace track_editor
     /// <summary>
     /// トラック情報
     /// </summary>
-    public class RootTrackData : TrackData
+    public class RootTrackEditor
     {
+        public class Track : TrackData
+        {
+        }
     }
+    
 }

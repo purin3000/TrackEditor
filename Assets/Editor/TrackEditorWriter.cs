@@ -31,7 +31,7 @@ namespace track_editor
         /// <param name="serializeTracks"></param>
         public void writeTracks<TrackDataClass, SerializeTrackClass>(List<TrackDataClass> tracks, List<SerializeTrackClass> serializeTracks)
             where TrackDataClass : TrackData
-            where SerializeTrackClass : SerializeTrack, new()
+            where SerializeTrackClass : SerializeTrackBase, new()
         {
             getEditorTracks(tracks);
 
@@ -52,7 +52,7 @@ namespace track_editor
 
         public void writeElements<TrackElementClass, SerializeElementClass>(List<TrackElementClass> elements, List<SerializeElementClass> serializeElements)
             where TrackElementClass : TrackElement
-            where SerializeElementClass : SerializeElement, new()
+            where SerializeElementClass : SerializeElementBase, new()
         {
             getEditorElements(elements);
 

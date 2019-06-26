@@ -1,27 +1,41 @@
 
 // Auto Generate Code
+#define ENABLE_GEN_CODE
+
 using System.Collections.Generic;
 using UnityEngine;
 namespace track_editor {
     public partial class TrackAsset {
 
+#if ENABLE_GEN_CODE
 [HideInInspector]
-public List<RootSerializeTrack> RootTracks = new List<RootSerializeTrack>();
+public List<RootTrack.SerializeTrack> RootTracks = new List<RootTrack.SerializeTrack>();
 [HideInInspector]
-public List<GameObjectSerializeTrack> GameObjectTracks = new List<GameObjectSerializeTrack>();
+public List<GameObjectTrack.SerializeTrack> GameObjectTracks = new List<GameObjectTrack.SerializeTrack>();
 [HideInInspector]
-public List<ActivationSerializeTrack> ActivationTracks = new List<ActivationSerializeTrack>();
+public List<CameraTrack.SerializeTrack> CameraTracks = new List<CameraTrack.SerializeTrack>();
 [HideInInspector]
-public List<PositionSerializeTrack> PositionTracks = new List<PositionSerializeTrack>();
+public List<ActivationTrack.SerializeTrack> ActivationTracks = new List<ActivationTrack.SerializeTrack>();
 [HideInInspector]
-public List<AnimationSerializeTrack> AnimationTracks = new List<AnimationSerializeTrack>();
+public List<TransformTrack.SerializeTrack> TransformTracks = new List<TransformTrack.SerializeTrack>();
 [HideInInspector]
-public List<ActivationSerializeElement> ActivationElements = new List<ActivationSerializeElement>();
+public List<AnimationTrack.SerializeTrack> AnimationTracks = new List<AnimationTrack.SerializeTrack>();
 [HideInInspector]
-public List<PositionSerializeElement> PositionElements = new List<PositionSerializeElement>();
+public List<CameraChangeTrack.SerializeTrack> CameraChangeTracks = new List<CameraChangeTrack.SerializeTrack>();
 [HideInInspector]
-public List<AnimationSerializeElement> AnimationElements = new List<AnimationSerializeElement>();
+public List<ChangeBgMaterialTrack.SerializeTrack> ChangeBgMaterialTracks = new List<ChangeBgMaterialTrack.SerializeTrack>();
+[HideInInspector]
+public List<ActivationTrack.SerializeElement> ActivationElements = new List<ActivationTrack.SerializeElement>();
+[HideInInspector]
+public List<TransformTrack.SerializeElement> TransformElements = new List<TransformTrack.SerializeElement>();
+[HideInInspector]
+public List<AnimationTrack.SerializeElement> AnimationElements = new List<AnimationTrack.SerializeElement>();
+[HideInInspector]
+public List<CameraChangeTrack.SerializeElement> CameraChangeElements = new List<CameraChangeTrack.SerializeElement>();
+[HideInInspector]
+public List<ChangeBgMaterialTrack.SerializeElement> ChangeBgMaterialElements = new List<ChangeBgMaterialTrack.SerializeElement>();
 
+#endif
 
     }
 }

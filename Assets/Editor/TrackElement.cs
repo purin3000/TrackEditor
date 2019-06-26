@@ -47,11 +47,11 @@ namespace track_editor
             this.length = length;
         }
 
-        public virtual void WriteAsset(SerializeElement serializeElement)
+        public virtual void WriteAsset(SerializeElementBase serializeElement)
         {
         }
 
-        public virtual void ReadAsset(SerializeElement serializeElement)
+        public virtual void ReadAsset(SerializeElementBase serializeElement)
         {
         }
 

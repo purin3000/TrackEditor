@@ -24,7 +24,7 @@ namespace track_editor
     /// トラックは一意な名前で保持し、あとで関連付けます
     /// </summary>
     [System.Serializable]
-    public abstract class SerializeTrack
+    public abstract class SerializeTrackBase
     {
         public string uniqueName;
 
@@ -32,6 +32,8 @@ namespace track_editor
         public string parent;
         public string[] childs;
         public string[] elements;
+
+        public virtual TrackPlayerBase CreatePlayer() { return new TrackPlayerBase(); }
     }
 
     /// <summary>
@@ -41,7 +43,7 @@ namespace track_editor
     /// トラックは一意な名前で保持し、あとで関連付けます
     /// </summary>
     [System.Serializable]
-    public abstract class SerializeElement
+    public abstract class SerializeElementBase
     {
         public string uniqueName;
 
@@ -52,7 +54,7 @@ namespace track_editor
 
         public int end { get => start + length; }
 
-        public abstract IElementPlayer CreatePlayer();
+        public abstract ElementPlayerBase CreatePlayer();
     }
 
 }

@@ -4,66 +4,63 @@ using UnityEngine;
 
 namespace track_editor
 {
-    [System.Serializable]
-    public class AnimationSerializeTrack : SerializeTrack
-    {
-    }
+    using ElementPlayerImpl = GameObjectTrack.ElementPlayerImpl;
 
-    [System.Serializable]
-    public class AnimationSerializeElement : SerializeElement
+    public class AnimationTrack
     {
-        public int blend;
-        public float speed = 1.0f;
-        public AnimationClip clip;
-
-        public override IElementPlayer CreatePlayer()
+        [System.Serializable]
+        public class SerializeTrack : SerializeTrackBase
         {
-            return new AnimationElementPlayer(this);
-        }
-    }
-
-    public class AnimationElementPlayer : IElementPlayer
-    {
-        AnimationSerializeElement elementSerialize;
-
-        public AnimationElementPlayer(AnimationSerializeElement trackSerialize) { this.elementSerialize = trackSerialize; }
-
-        public override int start { get => elementSerialize.start; }
-        public override int end { get => elementSerialize.end; }
-
-        public override void OnStart(TrackAssetPlayer context)
-        {
-            var gameObjectTrack = context.GetParentTrack<GameObjectSerializeTrack>(elementSerialize);
-
-            Debug.LogFormat("Animation start:{0}", start);
-
-
-            //var anim = gameObjectTrack.target.GetComponent<Animator>();
-            //var info = anim.GetCurrentAnimatorStateInfo(0);
-
-
-            //ModelResource model = null;
-
-            //var walker = gameObjectTrack.target.GetComponent<FieldWalker>();
-            //if (walker) {
-            //    model = walker.characterModel;
-            //} else {
-            //    model = gameObjectTrack.target.GetComponent<ModelResource>();
-            //}
-
-            //if (model) {
-            //    model.animator.speed = elementSerialize.speed * context.speed;
-            //    model.PlayAnimationClip(elementSerialize.clip, elementSerialize.blend / 60.0f, 0.0f);
-            //}
         }
 
-        public override void OnEnd(TrackAssetPlayer context)
+        [System.Serializable]
+        public class SerializeElement : SerializeElementBase
         {
-            var gameObjectTrack = context.GetParentTrack<GameObjectSerializeTrack>(elementSerialize);
+            public int blend;
+            public float speed = 1.0f;
+            public AnimationClip clip;
 
-            Debug.LogFormat("Position end:{0}", end);
+            public override ElementPlayerBase CreatePlayer()
+            {
+                return new ElementPlayer(this);
+            }
+        }
+
+        public class ElementPlayer : ElementPlayerImpl
+        {
+            SerializeElement serializeElement;
+
+            public ElementPlayer(SerializeElement serializeElement) {
+                this.serializeElement = serializeElement;
+            }
+
+            public override int start { get => serializeElement.start; }
+            public override int end { get => serializeElement.end; }
+
+            public override void OnStart(TrackAssetPlayer context)
+            {
+                //var model = GetModel();
+                ////Debug.LogFormat("Animation start:{0}", start);
+
+                //if (model) {
+                //    model.animator.speed = serializeElement.speed * context.GetPlaySpeed();
+                //    model.PlayAnimationClip(serializeElement.clip, serializeElement.blend / 60.0f, 0.0f);
+
+                //    context.latestPlayRequest[model] = this;
+                //}
+            }
+
+            public override void OnEnd(TrackAssetPlayer context)
+            {
+                //var model = GetModel();
+                //if (model) {
+                //    if (context.latestPlayRequest[model] == this) {
+                //        // アニメーションが変化していなければ終了処理を呼ぶ
+                //        Debug.LogFormat("Animation end:{0}", end);
+                //    }
+                //}
+            }
         }
     }
-
 }
 

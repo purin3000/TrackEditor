@@ -6,25 +6,31 @@ using System.Text;
 
 namespace track_editor
 {
-    public class Generator
+    public class TrackEditorGenerator
     {
         readonly static string[] trackTable = {
             "Root",
             "GameObject",
+            "Camera",
+
             "Activation",
-            "Position",
+            "Transform",
             "Animation",
+            "CameraChange",
+            "ChangeBgMaterial",
         };
 
         readonly static string[] elementTable = {
             "Activation",
-            "Position",
+            "Transform",
             "Animation",
+            "CameraChange",
+            "ChangeBgMaterial",
         };
 
-        const string pathTrackEditorAsset = "Assets/Editor/TrackEditorAsset_gen.cs";
-        const string pathTrackAsset       = "Assets/Scripts/TrackAsset_gen.cs";
-        const string pathTrackAssetPlayer = "Assets/Scripts/TrackAssetPlayer_gen.cs";
+        const string pathTrackEditorAsset = "Assets/App/Tools/CutSceneEditor/Editor/TrackEditorAsset_gen.cs";
+        const string pathTrackAsset = "Assets/App/Tools/CutSceneEditor/Scripts/TrackAsset_gen.cs";
+        const string pathTrackAssetPlayer = "Assets/App/Tools/CutSceneEditor/Scripts/TrackAssetPlayer_gen.cs";
 
         [MenuItem("Test/TrackEditorGenerate")]
         static void genTest()
@@ -41,11 +47,11 @@ namespace track_editor
             {
                 StringBuilder stringBuilder = new StringBuilder();
                 foreach (var dat in trackTable) {
-                    stringBuilder.AppendLine($"List<{dat}TrackData> {dat}Tracks = new List<{dat}TrackData>();");
+                    stringBuilder.AppendLine($"List<{dat}TrackEditor.Track> {dat}Tracks = new List<{dat}TrackEditor.Track>();");
                 }
 
                 foreach (var dat in elementTable) {
-                    stringBuilder.AppendLine($"List<{dat}Element> {dat}Elements = new List<{dat}Element>();");
+                    stringBuilder.AppendLine($"List<{dat}TrackEditor.Element> {dat}Elements = new List<{dat}TrackEditor.Element>();");
                 }
                 strVariable = stringBuilder.ToString();
             }
@@ -77,23 +83,31 @@ namespace track_editor
 
             string template = @"
 // Auto Generate Code
+#define ENABLE_GEN_CODE
+
 using System.Collections.Generic;
 using UnityEditor;
 namespace track_editor {
     public partial class TrackEditorAsset {
 
+#if ENABLE_GEN_CODE
 @@VARIABLE
+#endif
 
         void readAssetInternal(TrackEditorReader reader) {
 
+#if ENABLE_GEN_CODE
 @@READER
+#endif
 
             reader.updateHierarchy(manager);
         }
 
         void writeAssetInternal(TrackEditorWriter writer) {
 
+#if ENABLE_GEN_CODE
 @@WRITER
+#endif
 
         }
     }
@@ -106,6 +120,7 @@ namespace track_editor {
 
             System.IO.File.WriteAllText(pathTrackEditorAsset, str);
             AssetDatabase.ImportAsset(pathTrackEditorAsset);
+            Debug.Log(pathTrackEditorAsset);
         }
 
         static void genTrackAsset()
@@ -117,12 +132,12 @@ namespace track_editor {
 
                 foreach (var dat in trackTable) {
                     stringBuilder.AppendLine($"[HideInInspector]");
-                    stringBuilder.AppendLine($"public List<{dat}SerializeTrack> {dat}Tracks = new List<{dat}SerializeTrack>();");
+                    stringBuilder.AppendLine($"public List<{dat}Track.SerializeTrack> {dat}Tracks = new List<{dat}Track.SerializeTrack>();");
                 }
 
                 foreach (var dat in elementTable) {
                     stringBuilder.AppendLine($"[HideInInspector]");
-                    stringBuilder.AppendLine($"public List<{dat}SerializeElement> {dat}Elements = new List<{dat}SerializeElement>();");
+                    stringBuilder.AppendLine($"public List<{dat}Track.SerializeElement> {dat}Elements = new List<{dat}Track.SerializeElement>();");
                 }
 
                 strVariable = stringBuilder.ToString();
@@ -130,12 +145,16 @@ namespace track_editor {
 
             string template = @"
 // Auto Generate Code
+#define ENABLE_GEN_CODE
+
 using System.Collections.Generic;
 using UnityEngine;
 namespace track_editor {
     public partial class TrackAsset {
 
+#if ENABLE_GEN_CODE
 @@VARIABLE
+#endif
 
     }
 }
@@ -145,6 +164,7 @@ namespace track_editor {
 
             System.IO.File.WriteAllText(pathTrackAsset, str);
             AssetDatabase.ImportAsset(pathTrackAsset);
+            Debug.Log(pathTrackAsset);
         }
 
         static void genTrackAssetPlayer()
@@ -167,6 +187,8 @@ namespace track_editor {
 
             string template = @"
 // Auto Generate Code
+#define ENABLE_GEN_CODE
+
 using System.Collections.Generic;
 using UnityEngine;
 namespace track_editor {
@@ -174,7 +196,9 @@ namespace track_editor {
         void addTrackAndElement()        
         {
 
+#if ENABLE_GEN_CODE
 @@INIT
+#endif
 
         }
     }
@@ -185,6 +209,7 @@ namespace track_editor {
 
             System.IO.File.WriteAllText(pathTrackAssetPlayer, str);
             AssetDatabase.ImportAsset(pathTrackAssetPlayer);
+            Debug.Log(pathTrackAssetPlayer);
         }
     }
 }

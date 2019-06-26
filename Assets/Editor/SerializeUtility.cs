@@ -82,7 +82,7 @@ namespace track_editor
         }
 #endif
 
-        public static void InitializeTrackSerialize(SerializeTrack trackSerialize, TrackData track, TrackEditorWriter context)
+        public static void InitializeTrackSerialize(SerializeTrackBase trackSerialize, TrackData track, TrackEditorWriter context)
         {
             trackSerialize.uniqueName = context.MakeTrackName(track);
             trackSerialize.name = track.name;
@@ -91,7 +91,7 @@ namespace track_editor
             trackSerialize.elements = track.elements.Select(element => context.MakeElementName(element)).ToArray();
         }
 
-        public static void InitializeElementSerialize(SerializeElement elementSerialize, TrackElement element, TrackEditorWriter context)
+        public static void InitializeElementSerialize(SerializeElementBase elementSerialize, TrackElement element, TrackEditorWriter context)
         {
             elementSerialize.uniqueName = context.MakeElementName(element);
             elementSerialize.name = element.name;

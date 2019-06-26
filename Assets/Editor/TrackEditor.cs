@@ -49,6 +49,8 @@ namespace track_editor
 
         Vector2 scrPos = Vector2.zero;
 
+        bool isMouseDown;
+        
         /// <summary>
         /// 値が変化したらvalueChangedがtrueになるスコープ
         /// ついでにlockModeでDisableもかけます
@@ -108,17 +110,17 @@ namespace track_editor
         public TrackEditor(TrackEditorSettings settings)
         {
             this.settings = settings;
-            this.top = new RootTrackData();
+            this.top = new RootTrackEditor.Track();
 
             top.Initialize(this, "top", null);
         }
 
  
-        public virtual void WriteAsset(SerializeElement serializeElement)
+        public virtual void WriteAsset(SerializeElementBase serializeElement)
         {
         }
 
-        public virtual void ReadAsset(SerializeElement serializeElement)
+        public virtual void ReadAsset(SerializeElementBase serializeElement)
         {
         }
 
@@ -281,19 +283,21 @@ namespace track_editor
         void drawFrameLine(Rect rect)
         {
             // カレントフレーム変更
-            if ((Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag) && Event.current.button == 0) {
-                var mousePos = Event.current.mousePosition;
+            var mousePos = Event.current.mousePosition;
+            if (rect.Contains(mousePos) && (Event.current.type == EventType.MouseDown || (isMouseDown && Event.current.type == EventType.MouseDrag)) && Event.current.button == 0) {
+                isMouseDown = true;
 
-                if (rect.Contains(mousePos)) {
-                    var relativePos = mousePos.x - rect.x + scrollPos.x;
-                    int frame = (int)(relativePos / pixelScale);
+                var relativePos = mousePos.x - rect.x + scrollPos.x;
+                int frame = (int)(relativePos / pixelScale);
 
-                    currentFrame = frame;
-                    GUI.FocusControl("");
-                    valueChanged = true;
+                currentFrame = frame;
+                GUI.FocusControl("");
+                valueChanged = true;
 
-                    Event.current.Use();
-                }
+                Event.current.Use();
+
+            } else if (Event.current.type == EventType.MouseUp) {
+                isMouseDown = false;
             }
 
             // カレントフレームの縦線
@@ -476,6 +480,23 @@ namespace track_editor
                     }
 
                     //Event.current.Use();
+                }
+            }
+
+            if (Event.current.type == EventType.KeyUp && selectionTrack != null) {
+                var mousePos = Event.current.mousePosition;
+
+                Rect mouseRect = new Rect(0, 0, rect.width, rect.height);
+                if (mouseRect.Contains(mousePos)) {
+                    if (selectionTrack.selectionElement != null && Event.current.keyCode == KeyCode.Delete) {
+                        RemoveElement(selectionTrack, selectionTrack.selectionElement);
+                        Event.current.Use();
+                    }
+
+                    if (Event.current.keyCode == KeyCode.Insert) {
+                        AddElement(selectionTrack, selectionTrack.CreateElement());
+                        Event.current.Use();
+                    }
                 }
             }
         }

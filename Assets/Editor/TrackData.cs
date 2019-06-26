@@ -66,11 +66,11 @@ namespace track_editor
             }
         }
 
-        public virtual void WriteAsset(SerializeTrack serializeTrack)
+        public virtual void WriteAsset(SerializeTrackBase serializeTrack)
         {
         }
 
-        public virtual void ReadAsset(SerializeTrack serializeTrack)
+        public virtual void ReadAsset(SerializeTrackBase serializeTrack)
         {
         }
 
@@ -82,7 +82,7 @@ namespace track_editor
         public virtual void TrackDrawer(Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
-            GUI.Label(rectLabel, "DrawTrack:" + name, IsSelection ? "flow node 0 on" : "flow node 0");
+            GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
         }
 
         public virtual float CalcElementWidth()

@@ -142,10 +142,17 @@ namespace track_editor
                     }
 
                     using (manager.CreateValueChangedScope()) {
-                        if (GUILayout.Button("Add GameObject Track")) {
-                            var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new GameObjectTrackData());
-                            manager.SetSelectionTrack(track);
+                        using (new GUILayout.HorizontalScope()) {
+                            if (GUILayout.Button("Add GameObject Track")) {
+                                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), GameObjectTrackEditor.CreateTrack());
+                                manager.SetSelectionTrack(track);
 
+                            }
+                            if (GUILayout.Button("Add Camera Track")) {
+                                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), CameraTrackEditor.CreateTrack());
+                                manager.SetSelectionTrack(track);
+
+                            }
                         }
                     }
                 }
@@ -170,7 +177,7 @@ namespace track_editor
                                 
                                 player = inst.gameObject.AddComponent<TrackAssetPlayer>();
                                 player.Play(inst);
-                                player.playSpeed = playSpeed;
+                                player.SetPlaySpeed(playSpeed);
                             }
 
                             if (player != null && player.IsPlaying) {

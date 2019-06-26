@@ -31,7 +31,7 @@ namespace track_editor
         /// <param name="serializeTracks"></param>
         /// <param name="tracks"></param>
         public void readTracks<SerializeTrackClass, TrackDataClass>(List<SerializeTrackClass> serializeTracks, List<TrackDataClass> tracks)
-            where SerializeTrackClass : SerializeTrack
+            where SerializeTrackClass : SerializeTrackBase
             where TrackDataClass : TrackData, new()
         {
             foreach (var serializeTrack in serializeTracks) {
@@ -46,7 +46,7 @@ namespace track_editor
         }
 
         public void readElements<SerializeElementClass, ElementClass>(List<SerializeElementClass> serializeElements, List<ElementClass> elements)
-            where SerializeElementClass : SerializeElement
+            where SerializeElementClass : SerializeElementBase
             where ElementClass : TrackElement, new()
         {
             foreach (var serializeElement in serializeElements) {
@@ -65,18 +65,21 @@ namespace track_editor
         /// <param name="manager"></param>
         public void updateHierarchy(TrackEditor manager)
         {
+   
             // 親子階層を設定
             foreach (var trackPair in allTracks) {
                 var serializeTrack = trackPair.serializeTrack;
                 TrackData parent;
 
                 if (trackTable.TryGetValue(serializeTrack.parent, out parent)) {
-                    //parent =
+                    // parentが無効な場合はnullになれば良い
                 }
+
+                // 無効な親を持つエレメントを削除
+                serializeTrack.childs = serializeTrack.childs.Where(dat => trackTable.ContainsKey(dat)).ToArray();
 
                 List<TrackData> childs = new List<TrackData>();
                 foreach (var child in serializeTrack.childs) {
-                    //Debug.Log(child);
                     childs.Add(trackTable[child]);
                 }
 
@@ -98,26 +101,26 @@ namespace track_editor
 
         struct TrackPair
         {
-            public TrackPair(TrackData track, SerializeTrack serializeTrack)
+            public TrackPair(TrackData track, SerializeTrackBase serializeTrack)
             {
                 this.track = track;
                 this.serializeTrack = serializeTrack;
             }
 
             public TrackData track;
-            public SerializeTrack serializeTrack;
+            public SerializeTrackBase serializeTrack;
         }
 
         struct ElementPair
         {
-            public ElementPair(TrackElement element, SerializeElement serializeElement)
+            public ElementPair(TrackElement element, SerializeElementBase serializeElement)
             {
                 this.element = element;
                 this.serializeElement = serializeElement;
             }
 
             public TrackElement element;
-            public SerializeElement serializeElement;
+            public SerializeElementBase serializeElement;
         }
 
     }

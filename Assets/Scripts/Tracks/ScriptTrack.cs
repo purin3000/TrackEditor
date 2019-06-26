@@ -4,15 +4,17 @@ using UnityEngine;
 
 namespace track_editor
 {
-    using ElementPlayerImpl = GameObjectTrack.ElementPlayerImpl;
-
-    public class ActivationTrack
+    public class ScriptTrack
     {
+
         [System.Serializable]
         public class SerializeTrack : SerializeTrackBase
         {
         }
 
+        /// <summary>
+        /// エレメントのシリアライズデータ
+        /// </summary>
         [System.Serializable]
         public class SerializeElement : SerializeElementBase
         {
@@ -22,27 +24,23 @@ namespace track_editor
             }
         }
 
-        public class ElementPlayer : ElementPlayerImpl
+        public class ElementPlayer : ElementPlayerBase
         {
-            SerializeElement serializeElement;
+            SerializeElement elementSerialize;
 
-            public ElementPlayer(SerializeElement serializeElement) { this.serializeElement = serializeElement; }
+            public ElementPlayer(SerializeElement trackSerialize) { this.elementSerialize = trackSerialize; }
 
-            public override int start { get => serializeElement.start; }
-            public override int end { get => serializeElement.end; }
+            public override int start { get => elementSerialize.start; }
+            public override int end { get => elementSerialize.end; }
 
             public override void OnStart(TrackAssetPlayer context)
             {
-                var go = GetGameObject();
-
-                go.SetActive(true);
+                //Debug.LogFormat("Activation start:{0} {1}", start, gameObjectTrack.target);
             }
 
             public override void OnEnd(TrackAssetPlayer context)
             {
-                var go = GetGameObject();
-
-                go.SetActive(false);
+                //Debug.LogFormat("Activation end:{0} {1}", end, gameObjectTrack.target);
             }
         }
     }
