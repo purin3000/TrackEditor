@@ -87,10 +87,6 @@ namespace track_editor
                 if (GUILayout.Button($"Add {AnimationTrackEditor.name} Track")) {
                     manager.AddTrack(this, AnimationTrackEditor.name, AnimationTrackEditor.CreateTrack());
                 }
-
-                if (GUILayout.Button($"Add {ScriptTrackEditor.name} Track")) {
-                    manager.AddTrack(this, ScriptTrackEditor.name, ScriptTrackEditor.CreateTrack());
-                }
             }
 
             public override void WriteAsset(SerializeTrackBase serializeTrack)

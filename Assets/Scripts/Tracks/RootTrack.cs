@@ -6,6 +6,12 @@ namespace track_editor
 {
     public class RootTrack
     {
+
+        [System.Serializable]
+        public class TrackData
+        {
+        }
+
         /// <summary>
         /// トラックのシリアライズデータ
         /// </summary>
@@ -14,6 +20,5 @@ namespace track_editor
         {
         }
     }
-    
 }
 

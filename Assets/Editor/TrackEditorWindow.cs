@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
-using track_editor;
-
 namespace track_editor
 {
     public class TrackEditorWindow : EditorWindow

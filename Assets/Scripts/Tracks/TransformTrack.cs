@@ -9,6 +9,24 @@ namespace track_editor
     public class TransformTrack
     {
         [System.Serializable]
+        public class TrackData
+        {
+        }
+
+        [System.Serializable]
+        public class ElementData
+        {
+            public Vector3 localPosition;
+            public Quaternion localRotation = Quaternion.identity;
+            public Vector3 localScale = Vector3.one;
+
+            public bool usePosition = true;
+            public bool useRotation = true;
+            public bool useScale = true;
+        }
+
+
+        [System.Serializable]
         public class SerializeTrack : SerializeTrackBase
         {
         }
