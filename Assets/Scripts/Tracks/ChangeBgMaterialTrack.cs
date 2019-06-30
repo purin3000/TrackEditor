@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace track_editor2
 {
-    public class ActivationTrack
+    public class ChangeBgMaterialTrack
     {
         [System.Serializable]
         public class TrackData
@@ -14,6 +14,7 @@ namespace track_editor2
         [System.Serializable]
         public class ElementData
         {
+            public Material material;
         }
 
         public class PlayerTrack : TrackAssetPlayer.PlayerTrackBase
@@ -24,6 +25,11 @@ namespace track_editor2
         public class PlayerElement : TrackAssetPlayer.PlayerElementBase
         {
             public ElementData elementData;
+
+            public override void OnElementStart(TrackAssetPlayer context)
+            {
+                //FieldManager.Instance.cameraSwitcher.ChangeBgMaterial(elementData.material);
+            }
         }
     }
 }

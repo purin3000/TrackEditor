@@ -6,9 +6,6 @@ using System.Linq;
 
 namespace track_editor2
 {
-    using TrackAsset = TrackAsset2;
-    using TrackAssetPlayer = TrackAssetPlayer2;
-
     public class TrackEditorWindow : EditorWindow
     {
         [MenuItem("Test/TrackEditorWindow")]
@@ -223,7 +220,7 @@ namespace track_editor2
             }
         }
 
-        TrackAsset2 CreateNewTrackData()
+        TrackAsset CreateNewTrackData()
         {
             var rootTrack = new RootEditorTrack();
             manager.SetRootTrack(rootTrack);
@@ -260,7 +257,7 @@ namespace track_editor2
 
             var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
 
-            var asset = new GameObject(path).AddComponent<TrackAsset2>();
+            var asset = new GameObject(path).AddComponent<track_editor2.TrackAsset>();
 
             TrackSerializer.EditorToAsset(manager, asset);
 

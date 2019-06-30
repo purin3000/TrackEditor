@@ -3,14 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace track_editor
+namespace track_editor2
 {
-    public delegate void OnPlayEnd(TrackAssetPlayer player);
-    public delegate void OnPlayStart(TrackAssetPlayer player);
-
-    public class ModelResource { }
-
-
     public partial class TrackAssetPlayer : MonoBehaviour
     {
         public TrackAsset asset;
@@ -25,7 +19,8 @@ namespace track_editor
         public void SetPlaySpeed(float speed) => playSpeed = speed;
 
         public float GetPlaySpeed() => playSpeed * asset.playSpeed;
-        public float GetPlayScale() {
+        public float GetPlayScale()
+        {
             var speed = GetPlaySpeed();
             if (speed != 0.0f) {
                 return 1.0f / speed;
@@ -40,19 +35,21 @@ namespace track_editor
 
         public bool IsPlayEnd { get => !isPlaying || asset.frameLength <= currentFrame; }
 
+
+        public delegate void OnPlayEnd(TrackAssetPlayer player);
+        public delegate void OnPlayStart(TrackAssetPlayer player);
+
         public event OnPlayStart onPlayStart;
         public event OnPlayEnd onPlayEnd;
 
 
-        public Dictionary<ModelResource, AnimationTrack.ElementPlayer> latestPlayRequest = new Dictionary<ModelResource, AnimationTrack.ElementPlayer>();
+        public Dictionary<ModelResource, AnimationTrack.PlayerElement> latestPlayRequest = new Dictionary<ModelResource, AnimationTrack.PlayerElement>();
 
-        Dictionary<string, TrackInfo> trackInfoTable = new Dictionary<string, TrackInfo>();
+        PlayerTrackBase[] playerTracks = { };
+        PlayerElementBase[] playerElements = { };
 
-        List<TrackPlayerBase> trackPlayers = new List<TrackPlayerBase>();
-        List<ElementPlayerBase> elementPlayers = new List<ElementPlayerBase>();
-
-        List<ElementPlayerBase> startCommandList;
-        List<ElementPlayerBase> endCommandList;
+        List<PlayerElementBase> startCommandList;
+        List<PlayerElementBase> endCommandList;
 
         bool isPlaying;
         int startIndex = -1;
@@ -60,48 +57,10 @@ namespace track_editor
 
         float time = 0.0f;
 
-
-        class TrackInfo
+        private void Start()
         {
-            public TrackInfo(SerializeTrackBase serializeTrack, TrackPlayerBase trackPlayer)
-            {
-                this.serializeTrack = serializeTrack;
-                this.trackPlayer = trackPlayer;
-            }
-
-            public SerializeTrackBase serializeTrack;
-            public TrackPlayerBase trackPlayer;
-        }
-
-
-        public void Play(TrackAsset asset)
-        {
-            this.asset = asset;
-
-            Play();
-        }
-
-        public void Play()
-        {
-            isPlaying = true;
-            startIndex = 0;
-            endIndex = 0;
-            time = 0.0f;
-
-            createCommandList();
-
-            playStart();
-        }
-
-        public void Stop()
-        {
-            isPlaying = false;
-        }
-
-        void Start()
-        {
-            if (playOnAwake) {
-                Play();
+            if (playOnAwake && asset) {
+                Play(asset);
             }
         }
 
@@ -116,7 +75,7 @@ namespace track_editor
                             break;
                         }
 
-                        element.OnStart(this);
+                        element.OnElementStart(this);
                         ++startIndex;
                     }
 
@@ -128,7 +87,7 @@ namespace track_editor
                             break;
                         }
 
-                        element.OnEnd(this);
+                        element.OnElementEnd(this);
                         ++endIndex;
                     }
 
@@ -143,10 +102,37 @@ namespace track_editor
             }
         }
 
+        public void Play()
+        {
+            isPlaying = true;
+            startIndex = 0;
+            endIndex = 0;
+            time = 0.0f;
+
+            initalizeTracksAndElements();
+
+            startCommandList = playerElements.OrderBy(element => element.start).ToList();
+            endCommandList = playerElements.OrderBy(element => element.end).ToList();
+
+        }
+
+        public void Play(TrackAsset asset)
+        {
+            this.asset = asset;
+
+            Play();
+        }
+
+        public void Stop()
+        {
+            isPlaying = false;
+        }
+
+
         void playStart()
         {
-            foreach (var trackPlayer in trackPlayers) {
-                trackPlayer.OnTrackStart(this);
+            foreach (var playerTrack in playerTracks) {
+                playerTrack.OnTrackStart(this);
             }
 
             onPlayStart?.Invoke(this);
@@ -154,61 +140,72 @@ namespace track_editor
 
         void playEnd()
         {
-            foreach (var trackPlayer in trackPlayers) {
-                trackPlayer.OnTrackEnd(this);
+            foreach (var playerTrack in playerTracks) {
+                playerTrack.OnTrackEnd(this);
             }
 
             onPlayEnd?.Invoke(this);
         }
 
-        void createCommandList()
+        PlayerTrackBase getTrackPlayer(int trackIndex)
         {
-            trackInfoTable.Clear();
-
-            trackPlayers.Clear();
-            elementPlayers.Clear();
-
-            addTrackAndElement();
-
-            // トラック同士の親を設定。エレメントはaddElement時に設定済み
-            foreach (var trackInfo in trackInfoTable) {
-                var serializeTrack = trackInfo.Value.serializeTrack;
-                var trackPlayer = trackInfo.Value.trackPlayer;
-
-                TrackInfo parent;
-                if (trackInfoTable.TryGetValue(serializeTrack.parent, out parent)) {
-                    trackPlayer.Initialize(parent.trackPlayer, this);
-                } else {
-                    trackPlayer.Initialize(null, this);
-                }
+            if (trackIndex != -1) {
+                return playerTracks[trackIndex];
             }
-
-            startCommandList = elementPlayers.OrderBy(elem => elem.start).ToList();
-            endCommandList = elementPlayers.OrderBy(elem => elem.end).ToList();
-
+            return null;
         }
 
-        void addTrack<SerializeTrackClass>(List<SerializeTrackClass> serializeList) where SerializeTrackClass : SerializeTrackBase
+        PlayerTrackClass createPlayerTrack<PlayerTrackClass>(AssetTrack assetTrack) where PlayerTrackClass : PlayerTrackBase, new()
         {
-            foreach (var serializeTrack in serializeList) {
-                var trackPlayer = serializeTrack.CreatePlayer();
-
-                trackPlayers.Add(trackPlayer);
-
-                trackInfoTable.Add(serializeTrack.uniqueName, new TrackInfo(serializeTrack, trackPlayer));
-            }
+            var playerTrack = new PlayerTrackClass();
+            playerTrack.Initialize(assetTrack.name, assetTrack.parentTrackIndex);
+            return playerTrack;
         }
 
-        void addElement<SerializeElementClass>(List<SerializeElementClass> serializeList) where SerializeElementClass : SerializeElementBase
+        PlayerElementClass createPlayerElement<PlayerElementClass>(AssetElement assetElement) where PlayerElementClass : PlayerElementBase, new()
         {
-            foreach (var serializeElement in serializeList) {
-                var elementPlayer = serializeElement.CreatePlayer();
+            var playerElement = new PlayerElementClass();
+            playerElement.Initialize(assetElement.name, assetElement.parentTrackIndex, assetElement.start, assetElement.length);
+            return playerElement;
+        }
 
-                elementPlayers.Add(elementPlayer);
+        public abstract class PlayerTrackBase
+        {
+            public string name;
+            public PlayerTrackBase parent;
+            public int parentTrackIndex;
 
-                elementPlayer.Initialize(trackInfoTable[serializeElement.parent].trackPlayer, this);
+            public void Initialize(string name, int parentTrackIndex)
+            {
+                this.name = name;
+                this.parentTrackIndex = parentTrackIndex;
             }
+
+            public virtual void OnTrackInitialize(TrackAssetPlayer player) { }
+            public virtual void OnTrackStart(TrackAssetPlayer player) { }
+            public virtual void OnTrackEnd(TrackAssetPlayer player) { }
+        }
+
+        public abstract class PlayerElementBase
+        {
+            public string name;
+            public PlayerTrackBase parent;
+            public int start;
+            public int length;
+            public int parentTrackIndex;
+
+            public int end => start + end;
+
+            public void Initialize(string name, int parentTrackIndex, int start, int length)
+            {
+                this.name = name;
+                this.parentTrackIndex = parentTrackIndex;
+                this.start = start;
+                this.length = length;
+            }
+
+            public virtual void OnElementStart(TrackAssetPlayer player) { }
+            public virtual void OnElementEnd(TrackAssetPlayer player) { }
         }
     }
 }
-

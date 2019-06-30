@@ -2,65 +2,64 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace track_editor
+namespace track_editor2
 {
-    using ElementPlayerImpl = GameObjectTrack.ElementPlayerImpl;
+    public class ModelResource : MonoBehaviour
+    {
+        public Animator animator => null;
+        public void PlayAnimationClip(AnimationClip clip, float per, float fff) { }
+
+    }
 
     public class AnimationTrack
     {
         [System.Serializable]
-        public class SerializeTrack : SerializeTrackBase
+        public class TrackData
         {
         }
 
         [System.Serializable]
-        public class SerializeElement : SerializeElementBase
+        public class ElementData
         {
             public int blend;
             public float speed = 1.0f;
             public AnimationClip clip;
-
-            public override ElementPlayerBase CreatePlayer()
-            {
-                return new ElementPlayer(this);
-            }
         }
 
-        public class ElementPlayer : ElementPlayerImpl
+        public class PlayerTrack : TrackAssetPlayer.PlayerTrackBase
         {
-            SerializeElement serializeElement;
+            public TrackData trackData;
+        }
 
-            public ElementPlayer(SerializeElement serializeElement) {
-                this.serializeElement = serializeElement;
+        public class PlayerElement : TrackAssetPlayer.PlayerElementBase
+        {
+            public ElementData elementData;
+
+            GameObject gameObject => (parent.parent as GameObjectTrack.PlayerTrack).gameObject;
+
+            ModelResource model => (parent.parent as GameObjectTrack.PlayerTrack).model;
+
+            public override void OnElementStart(TrackAssetPlayer context)
+            {
+                //Debug.LogFormat("Animation start:{0}", start);
+
+                if (model) {
+                    model.animator.speed = elementData.speed * context.GetPlaySpeed();
+                    model.PlayAnimationClip(elementData.clip, elementData.blend / 60.0f, 0.0f);
+
+                    context.latestPlayRequest[model] = this;
+                }
             }
 
-            public override int start { get => serializeElement.start; }
-            public override int end { get => serializeElement.end; }
-
-            public override void OnStart(TrackAssetPlayer context)
+            public override void OnElementEnd(TrackAssetPlayer context)
             {
-                //var model = GetModel();
-                ////Debug.LogFormat("Animation start:{0}", start);
-
-                //if (model) {
-                //    model.animator.speed = serializeElement.speed * context.GetPlaySpeed();
-                //    model.PlayAnimationClip(serializeElement.clip, serializeElement.blend / 60.0f, 0.0f);
-
-                //    context.latestPlayRequest[model] = this;
-                //}
-            }
-
-            public override void OnEnd(TrackAssetPlayer context)
-            {
-                //var model = GetModel();
-                //if (model) {
-                //    if (context.latestPlayRequest[model] == this) {
-                //        // アニメーションが変化していなければ終了処理を呼ぶ
-                //        Debug.LogFormat("Animation end:{0}", end);
-                //    }
-                //}
+                if (model) {
+                    if (context.latestPlayRequest[model] == this) {
+                        // アニメーションが変化していなければ終了処理を呼ぶ
+                        Debug.LogFormat("Animation end:{0}", end);
+                    }
+                }
             }
         }
     }
 }
-

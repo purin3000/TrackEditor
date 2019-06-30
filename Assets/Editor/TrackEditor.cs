@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using UnityEditor;
 
-namespace track_editor
+namespace track_editor2
 {
     /// <summary>
     /// GUI描画のメイン部分
@@ -39,9 +38,9 @@ namespace track_editor
 
         private TrackEditorSettings settings { get; set; }
 
-        public TrackData top { get; set; }
+        public EditorTrack top { get; set; }
 
-        public TrackData selectionTrack { get; private set; }
+        public EditorTrack selectionTrack { get; private set; }
 
         public float elementWidth { get; private set; }
 
@@ -50,7 +49,7 @@ namespace track_editor
         Vector2 scrPos = Vector2.zero;
 
         bool isMouseDown;
-        
+
         /// <summary>
         /// 値が変化したらvalueChangedがtrueになるスコープ
         /// ついでにlockModeでDisableもかけます
@@ -110,19 +109,19 @@ namespace track_editor
         public TrackEditor(TrackEditorSettings settings)
         {
             this.settings = settings;
-            this.top = new RootTrackEditor.Track();
+            this.top = new RootEditorTrack();
 
-            top.Initialize(this, "top", null);
+            top.Initialize(this, "top", -1);
         }
 
- 
-        public virtual void WriteAsset(SerializeElementBase serializeElement)
-        {
-        }
 
-        public virtual void ReadAsset(SerializeElementBase serializeElement)
-        {
-        }
+        //public virtual void WriteAsset(SerializeElementBase serializeElement)
+        //{
+        //}
+
+        //public virtual void ReadAsset(SerializeElementBase serializeElement)
+        //{
+        //}
 
         public void OnGUI(Rect rect)
         {
@@ -180,8 +179,17 @@ namespace track_editor
             }
         }
 
+        public void LoadAsset(TrackAsset asset)
+        {
+            TrackSerializer.AssetToEditor(this, asset);
+        }
 
-        public void SetSelectionTrack(TrackData track)
+        public void SaveAsset(TrackAsset asset)
+        {
+            TrackSerializer.EditorToAsset(this, asset);
+        }
+
+        public void SetSelectionTrack(EditorTrack track)
         {
             if (selectionTrack != null) {
                 selectionTrack.selectionElement = null;
@@ -192,7 +200,7 @@ namespace track_editor
             valueChanged = true;
         }
 
-        public void SetSelectionElement(TrackData track, TrackElement element)
+        public void SetSelectionElement(EditorTrack track, EditorElement element)
         {
             SetSelectionTrack(track);
 
@@ -207,14 +215,20 @@ namespace track_editor
             valueChanged = true;
         }
 
-        public T AddTrack<T>(TrackData parent, string name, T child) where T : TrackData
+        public T SetRootTrack<T>(T track) where T : EditorTrack
         {
-            parent.childs.Add(child);
-            child.Initialize(this, name, parent);
+            top = track;
+            track.manager = this;
+            return track;
+        }
+
+        public T AddTrack<T>(EditorTrack parent, T child) where T : EditorTrack
+        {
+            parent.AddTrack(child);
             return child;
         }
 
-        public void RemoveTrack(TrackData parent, TrackData track)
+        public void RemoveTrack(EditorTrack parent, EditorTrack track)
         {
             parent.removeTracks.Add(track);
 
@@ -234,15 +248,14 @@ namespace track_editor
             }
         }
 
-        public T AddElement<T>(TrackData track, T element) where T : TrackElement
+        public T AddElement<T>(EditorTrack parent, T element) where T : EditorElement
         {
-            track.elements.Add(element);
-            element.Initialize(track);
-            SetSelectionElement(track, element);
+            parent.AddElement(element);
+            SetSelectionElement(parent, element);
             return element;
         }
 
-        public void RemoveElement(TrackData track, TrackElement element)
+        public void RemoveElement(EditorTrack track, EditorElement element)
         {
             track.removeElements.Add(element);
 
@@ -359,10 +372,10 @@ namespace track_editor
 
             // フレーム数表示
             using (new GUI.ClipScope(new Rect(0, 0, rect.width - 16, rect.height))) {   // スクロールバー端の描画の都合で範囲調整
-                var start= (int)(scrollPos.x / pixelScale);
+                var start = (int)(scrollPos.x / pixelScale);
                 var end = (int)((scrollPos.x + rect.width - 16) / pixelScale);
 
-                for (int frame=0; frame<end; frame += baseFrame) {
+                for (int frame = 0; frame < end; frame += baseFrame) {
                     var x = frame * pixelScale - scrollPos.x;
                     if (0 <= x && x < rect.width) {
                         GUI.Label(new Rect(x, 0, 40, 40), frame.ToString());
@@ -501,7 +514,7 @@ namespace track_editor
             }
         }
 
-        void drawTrack(TrackData track, Rect rect)
+        void drawTrack(EditorTrack track, Rect rect)
         {
             if (0 < track.nestLevel) {
                 track.TrackDrawer(rect);
@@ -558,13 +571,13 @@ namespace track_editor
             track.removeElements.Clear();
         }
 
-        void drawElement(TrackData track, Rect rect)
+        void drawElement(EditorTrack track, Rect rect)
         {
             Rect rectElement = new Rect(rect.x, rect.y, rect.width, trackHeight);
 
-            if (!lockMode ) {
+            if (!lockMode) {
                 // 内部で要素の入れ替えを行うのでforeachではダメ！
-                for (int i = 0; i < track.elements.Count; ++i) { 
+                for (int i = 0; i < track.elements.Count; ++i) {
                     updateElement(track, track.elements[i], rectElement);
                 }
             }
@@ -573,7 +586,7 @@ namespace track_editor
             //    drawElement(track.elements[i], rectElement);
             //}
             if (0 < track.elements.Count) {
-                for (int i = 1; i< track.elements.Count; ++i) {
+                for (int i = 1; i < track.elements.Count; ++i) {
                     drawElement(track.elements[i], rectElement);
                 }
                 drawElement(track.elements[0], rectElement);
@@ -589,7 +602,7 @@ namespace track_editor
             }
 
             if (Event.current.type == EventType.MouseDown && Event.current.button == 1) {
-                List<TrackElement> elemList = new List<TrackElement>();
+                List<EditorElement> elemList = new List<EditorElement>();
                 foreach (var element in track.elements) {
                     var rectLabel = calcElementRect(element, rectElement);
                     if (rectLabel.Contains(Event.current.mousePosition)) {
@@ -597,7 +610,7 @@ namespace track_editor
                     }
                 }
 
-                if (0 < elemList.Count ) {
+                if (0 < elemList.Count) {
                     GenericMenu menu = new GenericMenu();
 
                     foreach (var elem in elemList) {
@@ -611,7 +624,14 @@ namespace track_editor
             }
         }
 
-        Rect calcElementRect(TrackElement element, Rect rect)
+        void drawElement(EditorElement element, Rect rect)
+        {
+            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y + 2, pixelScale * element.length, trackHeight - 4);
+
+            element.ElementDrawer(rectLabel);
+        }
+
+        Rect calcElementRect(EditorElement element, Rect rect)
         {
             Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y, pixelScale * element.length, trackHeight);
             return rectLabel;
@@ -622,7 +642,7 @@ namespace track_editor
         /// 描画優先度とイベント優先度が逆のため、DrawElementとUpdateElemenetに関数を分離して回す必要がある
         /// </summary>
         /// <param name="rect"></param>
-        void updateElement(TrackData track, TrackElement element, Rect rect)
+        void updateElement(EditorTrack track, EditorElement element, Rect rect)
         {
             Rect rectLabel = calcElementRect(element, rect);
             Rect rectLength = new Rect(rectLabel.x + rectLabel.width, rect.y - scrollPos.y, Mathf.Max(pixelScale * 1, 8), trackHeight);
@@ -668,13 +688,5 @@ namespace track_editor
                 }
             }
         }
-
-        void drawElement(TrackElement element, Rect rect)
-        {
-            Rect rectLabel = new Rect(rect.x + pixelScale * element.start - scrollPos.x, rect.y - scrollPos.y + 2, pixelScale * element.length, trackHeight - 4);
-
-            element.ElementDrawer(rectLabel);
-        }
     }
 }
-
