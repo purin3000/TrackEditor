@@ -12,15 +12,24 @@ namespace track_editor2
         readonly static string[] Tracks = {
             "Root",
             "GameObject",
+            "Camera",
             "Activation",
+            "Animation",
+            "Transform",
+            "CameraChange",
+            "ChangeBgMaterial",
         };
 
         readonly static string[] Elements = {
             "Activation",
+            "Transform",
+            "Animation",
+            "CameraChange",
+            "ChangeBgMaterial",
         };
 
-        const string pathTrackEditor_gen = "Assets/NewFormat/Editor/TrackEditor_gen.cs";
-        const string pathTrackAsset_gen = "Assets/NewFormat/TrackAsset_gen.cs";
+        const string pathTrackEditor_gen = "Assets/Editor/TrackEditor_gen.cs";
+        const string pathTrackAsset_gen = "Assets/Scripts/TrackAsset_gen.cs";
 
         const string templateTrackEditor_gen = @"// Auto Generate Code
 using System.Collections;
@@ -31,12 +40,12 @@ namespace track_editor2
 {
     public static partial class TrackSerializer
     {
-        static void editorToAssetInternal(TrackAsset2 asset, List<EditorTrack> editorTracks, List<EditorElement> editorElements)
+        static void editorToAssetInternal(TrackAsset asset, List<EditorTrack> editorTracks, List<EditorElement> editorElements)
         {
 @@TO_ASSET
         }
 
-        static void assetToEditorInternal(TrackAsset2 asset, List<EditorTrack> editorTracks, List<EditorElement> editorElements)
+        static void assetToEditorInternal(TrackAsset asset, List<EditorTrack> editorTracks, List<EditorElement> editorElements)
         {
 @@TO_EDITOR
         }
@@ -52,12 +61,12 @@ using UnityEngine;
 
 namespace track_editor2
 {
-    public partial class TrackAsset2 : MonoBehaviour
+    public partial class TrackAsset : MonoBehaviour
     {
 @@MEMBER
     }
 
-    public partial class TrackAssetPlayer2 : MonoBehaviour
+    public partial class TrackAssetPlayer : MonoBehaviour
     {
         void initalizeTracksAndElements()
         {
@@ -266,7 +275,7 @@ namespace track_editor2
 
 #if false
         [MenuItem("Test/Create NewTrackData")]
-        public static TrackAsset2 CreateNewTrackData()
+        public static TrackAsset CreateNewTrackData()
         {
             //string json;
 
@@ -317,7 +326,7 @@ namespace track_editor2
 
                 var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
 
-                var asset = new GameObject(path).AddComponent<TrackAsset2>();
+                var asset = new GameObject(path).AddComponent<TrackAsset>();
 
                 TrackSerializer.EditorToAsset(manager, asset);
 

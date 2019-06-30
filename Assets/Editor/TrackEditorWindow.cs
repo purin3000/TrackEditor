@@ -146,13 +146,14 @@ namespace track_editor2
                                 var track = manager.AddTrack(manager.top, new GameObjectEditorTrack());
                                 track.name = string.Format("Track:{0}", manager.top.childs.Count + 1);
                                 manager.SetSelectionTrack(track);
+                            }
+
+                            if (GUILayout.Button("Add Camera Track")) {
+                                var track = manager.AddTrack(manager.top, new CameraEditorTrack());
+                                track.name = string.Format("Track:{0}", manager.top.childs.Count + 1); 
+                                manager.SetSelectionTrack(track);
 
                             }
-                            //if (GUILayout.Button("Add Camera Track")) {
-                            //    var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new CameraEditorTrack());
-                            //    manager.SetSelectionTrack(track);
-
-                            //}
                         }
                     }
                 }
