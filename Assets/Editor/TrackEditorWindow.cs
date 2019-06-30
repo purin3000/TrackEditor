@@ -4,8 +4,11 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
-namespace track_editor
+namespace track_editor2
 {
+    using TrackAsset = TrackAsset2;
+    using TrackAssetPlayer = TrackAssetPlayer2;
+
     public class TrackEditorWindow : EditorWindow
     {
         [MenuItem("Test/TrackEditorWindow")]
@@ -88,17 +91,19 @@ namespace track_editor
 
         void loadAsset(TrackAsset loadAsset)
         {
-            asset = SerializeUtility.LoadAsset(manager, loadAsset);
-            assetName = asset.name;
+            TrackSerializer.AssetToEditor(manager, loadAsset);
+
+            asset = loadAsset;
+            assetName = loadAsset.name;
         }
 
         void saveAsset()
         {
             if (asset) {
-                SerializeUtility.SaveAsset(manager, asset);
+                TrackSerializer.EditorToAsset(manager, asset);
             }
         }
-
+        
         void drawHeader()
         {
 
@@ -127,8 +132,7 @@ namespace track_editor
                             if (GUILayout.Button("New Data", GUILayout.Width(80))) {
                                 manager = new TrackEditor(new TrackEditorSettings());
 
-                                var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
-                                loadAsset(SerializeUtility.SaveGameObject(manager, path));
+                                loadAsset(CreateNewTrackData());
                             }
                         }
                     }
@@ -142,10 +146,16 @@ namespace track_editor
                     using (manager.CreateValueChangedScope()) {
                         using (new GUILayout.HorizontalScope()) {
                             if (GUILayout.Button("Add GameObject Track")) {
-                                var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), GameObjectTrackEditor.CreateTrack());
+                                var track = manager.AddTrack(manager.top, new GameObjectEditorTrack());
+                                track.name = string.Format("Track:{0}", manager.top.childs.Count + 1);
                                 manager.SetSelectionTrack(track);
 
                             }
+                            //if (GUILayout.Button("Add Camera Track")) {
+                            //    var track = manager.AddTrack(manager.top, string.Format("Track:{0}", manager.top.childs.Count + 1), new CameraEditorTrack());
+                            //    manager.SetSelectionTrack(track);
+
+                            //}
                         }
                     }
                 }
@@ -211,6 +221,52 @@ namespace track_editor
             if (Event.current.type == EventType.Repaint) {
                 rectGUI = GUILayoutUtility.GetLastRect();
             }
+        }
+
+        TrackAsset2 CreateNewTrackData()
+        {
+            var rootTrack = new RootEditorTrack();
+            manager.SetRootTrack(rootTrack);
+
+
+            var gameObjectTrack1 = new GameObjectEditorTrack();
+            gameObjectTrack1.name = "GameObjeTrack1";
+            gameObjectTrack1.trackData.activate = true;
+            manager.AddTrack(rootTrack, gameObjectTrack1);
+
+            var gameObjectTrack2 = new GameObjectEditorTrack();
+            gameObjectTrack2.name = "GameObjeTrack2";
+            gameObjectTrack2.trackData.activate = false;
+            gameObjectTrack2.trackData.currentPlayer = true;
+            manager.AddTrack(rootTrack, gameObjectTrack2);
+
+            var activationTrack1 = new ActivationEditorTrack();
+            activationTrack1.name = "ActivationTrack1";
+            manager.AddTrack(gameObjectTrack2, activationTrack1);
+
+            var activationTrack2 = new ActivationEditorTrack();
+            activationTrack2.name = "ActivationTrack2";
+            manager.AddTrack(gameObjectTrack2, activationTrack2);
+
+            var activationElement1 = new ActivationEditorElement();
+            activationElement1.name = "ActivationElement";
+            manager.AddElement(activationTrack2, activationElement1);
+
+            var activationElement2 = new ActivationEditorElement();
+            activationElement2.name = "ActivationElement2";
+            manager.AddElement(activationTrack2, activationElement2);
+
+
+
+            var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
+
+            var asset = new GameObject(path).AddComponent<TrackAsset2>();
+
+            TrackSerializer.EditorToAsset(manager, asset);
+
+            EditorUtility.SetDirty(asset);
+
+            return asset;
         }
     }
 }

@@ -431,126 +431,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &1195244070
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1195244072}
-  - component: {fileID: 1195244071}
-  m_Layer: 0
-  m_Name: TrackAsset
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1195244071
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1195244070}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc9349632334f6042be2695400234e40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  frameLength: 100
-  playSpeed: 1
-  RootTracks:
-  - uniqueName: Track0
-    name: top
-    parent: Track-1
-    childs:
-    - Track1
-    - Track4
-    elements: []
-  GameObjectTracks:
-  - uniqueName: Track1
-    name: Track:1
-    parent: Track0
-    childs:
-    - Track2
-    - Track3
-    elements: []
-    target: {fileID: 1353747379}
-  - uniqueName: Track4
-    name: Track:2
-    parent: Track0
-    childs:
-    - Track5
-    elements: []
-    target: {fileID: 982688764}
-  ActivationTracks:
-  - uniqueName: Track2
-    name: Activation
-    parent: Track1
-    childs: []
-    elements:
-    - Element0
-    - Element1
-  - uniqueName: Track5
-    name: Activation
-    parent: Track4
-    childs: []
-    elements:
-    - Element2
-    - Element3
-    - Element4
-  PositionTracks:
-  - uniqueName: Track3
-    name: Position
-    parent: Track1
-    childs: []
-    elements: []
-  AnimationTracks: []
-  ActivationElements:
-  - uniqueName: Element0
-    name: Activation:1
-    parent: Track2
-    start: 50
-    length: 40
-  - uniqueName: Element1
-    name: Activation:0
-    parent: Track2
-    start: 0
-    length: 40
-  - uniqueName: Element2
-    name: Activation:2
-    parent: Track5
-    start: 80
-    length: 20
-  - uniqueName: Element3
-    name: Activation:0
-    parent: Track5
-    start: 0
-    length: 20
-  - uniqueName: Element4
-    name: Activation:1
-    parent: Track5
-    start: 40
-    length: 20
-  PositionElements: []
-  AnimationElements: []
---- !u!4 &1195244072
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1195244070}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1353747379
 GameObject:
   m_ObjectHideFlags: 0
@@ -641,4 +521,86 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1551793707
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1551793709}
+  - component: {fileID: 1551793708}
+  m_Layer: 0
+  m_Name: TrackAsset
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1551793708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1551793707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56afe87c6bdfb5c44b078ec14caaf91f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RootTracks:
+  - trackIndex: 0
+    name: 
+    parentTrackIndex: -1
+  GameObjectTracks:
+  - trackIndex: 1
+    name: GameObjeTrack1
+    parentTrackIndex: 0
+    trackData:
+      target: {fileID: 0}
+      activate: 1
+      currentPlayer: 0
+  - trackIndex: 2
+    name: GameObjeTrack2
+    parentTrackIndex: 0
+    trackData:
+      target: {fileID: 0}
+      activate: 0
+      currentPlayer: 1
+  ActivationTracks:
+  - trackIndex: 3
+    name: ActivationTrack1
+    parentTrackIndex: 2
+  - trackIndex: 4
+    name: ActivationTrack2
+    parentTrackIndex: 2
+  ActivationElements:
+  - elementIndex: 0
+    name: ActivationElement
+    parentTrackIndex: 4
+    start: 17
+    length: 9
+  - elementIndex: 1
+    name: ActivationElement2
+    parentTrackIndex: 4
+    start: 36
+    length: 18
+  frameLength: 100
+  playSpeed: 1
+--- !u!4 &1551793709
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1551793707}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
