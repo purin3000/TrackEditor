@@ -9,18 +9,22 @@ namespace track_editor2
     {
 
         [SerializeField]
+        [HideInInspector]
         public List<RootAssetTrack> RootTracks = new List<RootAssetTrack>();
 
 
         [SerializeField]
+        [HideInInspector]
         public List<GameObjectAssetTrack> GameObjectTracks = new List<GameObjectAssetTrack>();
 
 
         [SerializeField]
+        [HideInInspector]
         public List<ActivationAssetTrack> ActivationTracks = new List<ActivationAssetTrack>();
 
 
         [SerializeField]
+        [HideInInspector]
         public List<ActivationAssetElement> ActivationElements = new List<ActivationAssetElement>();
 
 

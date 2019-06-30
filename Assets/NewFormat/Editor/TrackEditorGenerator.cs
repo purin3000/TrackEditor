@@ -19,8 +19,8 @@ namespace track_editor2
             "Activation",
         };
 
-        const string pathTrackEditor_gen = "Assets/App/Tools/CutSceneEditor/NewFormat/Editor/TrackEditor_gen.cs";
-        const string pathTrackAsset_gen = "Assets/App/Tools/CutSceneEditor/NewFormat/TrackAsset_gen.cs";
+        const string pathTrackEditor_gen = "Assets/NewFormat/Editor/TrackEditor_gen.cs";
+        const string pathTrackAsset_gen = "Assets/NewFormat/TrackAsset_gen.cs";
 
         const string templateTrackEditor_gen = @"// Auto Generate Code
 using System.Collections;
