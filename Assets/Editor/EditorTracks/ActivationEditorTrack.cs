@@ -5,13 +5,14 @@ using UnityEditor;
 
 namespace track_editor2
 {
+    using CurrentTrackData = ActivationTrack.TrackData;
     using CurrentElementData = ActivationTrack.ElementData;
 
     public class ActivationEditorTrack : EditorTrack
     {
         public const string labelName = "Activate";
 
-        public ActivationTrack.TrackData trackData = new ActivationTrack.TrackData();
+        public CurrentTrackData trackData = new CurrentTrackData();
 
         public ActivationEditorTrack()
         {

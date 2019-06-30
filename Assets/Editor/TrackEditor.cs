@@ -475,7 +475,7 @@ namespace track_editor2
 
                     int index = 0;
                     foreach (var track in top.childs) {
-                        if (track.expand) {
+                        if (track.expand && track.childs.Count != 0) {
                             foreach (var child in track.childs) {
                                 if (index == trackIndex) {
                                     SetSelectionTrack(child);

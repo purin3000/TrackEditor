@@ -10,7 +10,7 @@ namespace track_editor2
         public string name;
         public EditorTrack parent;
         public int start;
-        public int length;
+        public int length = 1;
 
         public int end => start + end;
 
@@ -39,15 +39,6 @@ namespace track_editor2
             this.start = start;
             this.length = length;
         }
-
-        //public virtual void WriteAsset(SerializeElementBase serializeElement)
-        //{
-        //}
-
-        //public virtual void ReadAsset(SerializeElementBase serializeElement)
-        //{
-        //}
-
 
         public virtual void HeaderDrawer()
         {

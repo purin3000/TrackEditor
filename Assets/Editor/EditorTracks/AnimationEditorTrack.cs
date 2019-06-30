@@ -38,7 +38,7 @@ namespace track_editor2
             PropertyDrawerImpl(rect, $"Add {labelName} Element");
         }
 
-        public override EditorElement CreateElement() { return new ActivationEditorElement(); }
+        public override EditorElement CreateElement() { return new AnimationEditorElement(); }
     }
 
     class AnimationEditorElement : EditorElement

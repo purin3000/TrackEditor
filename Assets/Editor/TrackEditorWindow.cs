@@ -204,7 +204,12 @@ namespace track_editor2
 
                             if (manager.selectionTrack != null) {
                                 using (new GUILayout.VerticalScope()) {
-                                    manager.selectionTrack.HeaderDrawer();
+                                    if (manager.selectionTrack.selectionElement != null) {
+                                        manager.selectionTrack.selectionElement.HeaderDrawer();
+
+                                    } else {
+                                        manager.selectionTrack.HeaderDrawer();
+                                    }
                                 }
 
                             } else {
