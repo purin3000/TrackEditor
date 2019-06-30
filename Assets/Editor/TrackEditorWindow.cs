@@ -232,28 +232,9 @@ namespace track_editor2
             gameObjectTrack1.trackData.activate = true;
             manager.AddTrack(rootTrack, gameObjectTrack1);
 
-            var gameObjectTrack2 = new GameObjectEditorTrack();
-            gameObjectTrack2.name = "GameObjeTrack2";
-            gameObjectTrack2.trackData.activate = false;
-            gameObjectTrack2.trackData.currentPlayer = true;
-            manager.AddTrack(rootTrack, gameObjectTrack2);
-
             var activationTrack1 = new ActivationEditorTrack();
             activationTrack1.name = "ActivationTrack1";
-            manager.AddTrack(gameObjectTrack2, activationTrack1);
-
-            var activationTrack2 = new ActivationEditorTrack();
-            activationTrack2.name = "ActivationTrack2";
-            manager.AddTrack(gameObjectTrack2, activationTrack2);
-
-            var activationElement1 = new ActivationEditorElement();
-            activationElement1.name = "ActivationElement";
-            manager.AddElement(activationTrack2, activationElement1);
-
-            var activationElement2 = new ActivationEditorElement();
-            activationElement2.name = "ActivationElement2";
-            manager.AddElement(activationTrack2, activationElement2);
-
+            manager.AddTrack(gameObjectTrack1, activationTrack1);
 
 
             var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
