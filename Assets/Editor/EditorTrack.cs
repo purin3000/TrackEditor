@@ -154,6 +154,7 @@ namespace track_editor2
                 if (GUILayout.Button(label)) {
                     var element = CreateElement();
                     element.name = string.Format("{0}:{1}", name, elements.Count);
+                    element.start = manager.currentFrame;
                     manager.AddElement(this, element);
                 }
             }

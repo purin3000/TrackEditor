@@ -45,11 +45,6 @@ namespace track_editor2
     {
         public CurrentElementData elementData = new CurrentElementData();
 
-        public override void HeaderDrawer()
-        {
-            RemoveElementImpl($"Remove {name} Elememnt");
-        }
-
         public override void PropertyDrawer(Rect rect)
         {
             base.PropertyDrawer(rect);

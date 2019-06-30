@@ -50,11 +50,6 @@ namespace track_editor2
             isFixedLength = true;
         }
 
-        public override void HeaderDrawer()
-        {
-            RemoveElementImpl($"Remove {name} Elememnt");
-        }
-
         public override void PropertyDrawer(Rect rect)
         {
             //base.PropertyDrawer(rect);

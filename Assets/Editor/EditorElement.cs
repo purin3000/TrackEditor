@@ -42,7 +42,7 @@ namespace track_editor2
 
         public virtual void HeaderDrawer()
         {
-
+            RemoveElementImpl($"Remove {name} Elememnt");
         }
 
         public virtual void ElementDrawer(Rect rect)
