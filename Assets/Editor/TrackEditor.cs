@@ -241,9 +241,11 @@ namespace track_editor2
 
         public T AddElement<T>(EditorTrack parent, T element) where T : EditorElement
         {
-            parent.AddElement(element);
-            SetSelectionElement(parent, element);
-            element.start = currentFrame;
+            if (element != null) {
+                parent.AddElement(element);
+                SetSelectionElement(parent, element);
+                element.start = currentFrame;
+            }
             return element;
         }
 

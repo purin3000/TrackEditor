@@ -18,8 +18,6 @@ namespace track_editor2
         public List<GameObjectAssetTrack> GameObjectTracks = new List<GameObjectAssetTrack>();
 
 
-
-
         [SerializeField]
         //[HideInInspector]
         public List<ActivationAssetTrack> ActivationTracks = new List<ActivationAssetTrack>();
@@ -35,8 +33,6 @@ namespace track_editor2
         public List<TransformAssetTrack> TransformTracks = new List<TransformAssetTrack>();
 
 
-
-
         [SerializeField]
         //[HideInInspector]
         public List<ActivationAssetElement> ActivationElements = new List<ActivationAssetElement>();
@@ -50,7 +46,6 @@ namespace track_editor2
         [SerializeField]
         //[HideInInspector]
         public List<AnimationAssetElement> AnimationElements = new List<AnimationAssetElement>();
-
 
 
     }
@@ -110,7 +105,6 @@ namespace track_editor2
                 playerTrack.trackData = assetTrack.trackData;
                 playerTracks[assetTrack.trackIndex] = playerTrack;
             }
-
 
 
 

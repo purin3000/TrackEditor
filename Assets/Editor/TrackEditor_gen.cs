@@ -26,7 +26,6 @@ namespace track_editor2
             }
 
 
-
             asset.ActivationTracks.Clear();
             foreach (var editorTrack in getEditorTracks<ActivationEditorTrack.EditorTrackData>(editorTracks)) {
                 var assetTrack = Serialize<ActivationAssetTrack>(editorTracks, editorTrack);
@@ -50,6 +49,8 @@ namespace track_editor2
                 asset.TransformTracks.Add(assetTrack);
             }
 
+
+            asset.ActivationElements.Clear();
             foreach (var editorElement in getEditorElements<ActivationEditorTrack.EditorElementData>(editorElements)) {
                 var assetElement = Serialize<ActivationAssetElement>(editorTracks, editorElements, editorElement);
                 assetElement.elementData = editorElement.elementData;
@@ -96,8 +97,6 @@ namespace track_editor2
             }
 
 
-
-
             foreach (var assetTrack in asset.ActivationTracks) {
                 var editorTrack = Deserialize<ActivationEditorTrack.EditorTrackData>(assetTrack);
                 editorTrack.trackData = assetTrack.trackData;
@@ -117,8 +116,6 @@ namespace track_editor2
                 editorTrack.trackData = assetTrack.trackData;
                 editorTracks[assetTrack.trackIndex] = editorTrack;
             }
-
-
 
 
             foreach (var assetElement in asset.ActivationElements) {

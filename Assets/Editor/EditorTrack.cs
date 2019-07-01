@@ -92,7 +92,7 @@ namespace track_editor2
             return trackHeight;
         }
 
-        public virtual EditorElement CreateElement() { throw new System.Exception("Not Implement!"); }
+        public virtual EditorElement CreateElement() { return null; }
 
         protected void MainTrackDrawerImpl(Rect rect, string labelName)
         {
@@ -179,8 +179,10 @@ namespace track_editor2
             using (new GUILayout.VerticalScope()) {
                 if (GUILayout.Button(label)) {
                     var element = CreateElement();
-                    element.name = string.Format("{0}:{1}", name, elements.Count);
-                    manager.AddElement(this, element);
+                    if (element != null) {
+                        element.name = string.Format("{0}:{1}", name, elements.Count);
+                        manager.AddElement(this, element);
+                    }
                 }
             }
         }
