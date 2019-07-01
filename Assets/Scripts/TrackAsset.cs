@@ -8,6 +8,12 @@ namespace track_editor2
     {
         public int frameLength = 100;
         public float playSpeed = 1.0f;
+
+        //[HideInInspector]
+        public int trackCount;
+
+        //[HideInInspector]
+        public int elementCount;
     }
 }
 

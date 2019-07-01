@@ -5,94 +5,90 @@ using UnityEditor;
 
 namespace track_editor2
 {
+    using ParentEditorTrack = GameObjectEditorTrack;
     using CurrentTrackData = TransformTrack.TrackData;
     using CurrentElementData = TransformTrack.ElementData;
 
-    public class TransformEditorTrack : EditorTrack
+    public class TransformEditorTrack
     {
         public const string labelName = "Transform";
 
-        public CurrentTrackData trackData = new CurrentTrackData();
-
-        public TransformEditorTrack()
+        public class EditorTrackData : ParentEditorTrack.ChildEditorTrackBase
         {
-            name = labelName;
-        }
 
-        public override void HeaderDrawer()
-        {
-            base.HeaderDrawer();
+            public CurrentTrackData trackData = new CurrentTrackData();
 
-            HeaderDrawerImpl($"Remove {name} Track");
-            //RemoveTrackImpl($"Remove {labelName} Track");
-        }
-
-        public override void TrackDrawer(Rect rect)
-        {
-            TrackDrawerImpl(rect, labelName);
-        }
-
-        public override void PropertyDrawer(Rect rect)
-        {
-            base.PropertyDrawer(rect);
-
-            PropertyDrawerImpl(rect, $"Add {labelName} Element");
-        }
-
-        public override EditorElement CreateElement() { return new TransformEditorElement(); }
-    }
-
-    class TransformEditorElement : EditorElement
-    {
-        public CurrentElementData elementData = new CurrentElementData();
-
-        GameObject target => (parent.parent as GameObjectEditorTrack).trackData.target;
-
-        public TransformEditorElement()
-        {
-            isFixedLength = true;
-        }
-
-        public override void PropertyDrawer(Rect rect)
-        {
-            base.PropertyDrawer(rect);
-
-            using (new GUILayout.VerticalScope("box")) {
-                elementData.usePosition = EditorGUILayout.Toggle("Use Position", elementData.usePosition);
-                elementData.localPosition = EditorGUILayout.Vector3Field("Local Position", elementData.localPosition);
+            public EditorTrackData()
+            {
+                name = labelName;
             }
 
-            using (new GUILayout.VerticalScope("box")) {
-                elementData.useRotation = EditorGUILayout.Toggle("Use Rotation", elementData.useRotation);
-                elementData.localRotation = Quaternion.Euler(EditorGUILayout.Vector3Field("Local Rotation", elementData.localRotation.eulerAngles));
+            public override void TrackHeaderDrawer()
+            {
+                HeaderDrawerImpl(labelName);
             }
 
-            using (new GUILayout.VerticalScope("box")) {
-                elementData.useScale = EditorGUILayout.Toggle("Use Scale", elementData.useScale);
-                elementData.localScale = EditorGUILayout.Vector3Field("Local Scale", elementData.localScale);
+            public override void TrackLabelDrawer(Rect rect)
+            {
+                SubTrackLabelDrawerImpl(rect, labelName);
             }
 
-            GUILayout.Space(10);
+            public override void TrackPropertyDrawer(Rect rect)
+            {
+                SubTrackPropertyDrawerImpl(rect, labelName);
+            }
 
-            if (GUILayout.Button("オブジェクトから座標取得")) {
-                var go = target;
-                if (go) {
-                    elementData.localPosition = go.transform.localPosition;
-                    elementData.localRotation = go.transform.localRotation;
-                    elementData.localScale = go.transform.localScale;
+            public override EditorElement CreateElement() { return new EditorElementData(); }
+        }
+
+        public class EditorElementData : ParentEditorTrack.ChildEditorElementBase
+        {
+            public CurrentElementData elementData = new CurrentElementData();
+
+            public EditorElementData()
+            {
+                isFixedLength = true;
+            }
+
+            public override void PropertyDrawer(Rect rect)
+            {
+                base.PropertyDrawer(rect);
+
+                using (new GUILayout.VerticalScope("box")) {
+                    elementData.usePosition = EditorGUILayout.Toggle("Use Position", elementData.usePosition);
+                    elementData.localPosition = EditorGUILayout.Vector3Field("Local Position", elementData.localPosition);
                 }
-            }
 
-            if (GUILayout.Button("オブジェクトへ設定")) {
-                var go = target;
-                if (go) {
-                    go.transform.localPosition = elementData.localPosition;
-                    go.transform.localRotation = elementData.localRotation;
-                    go.transform.localScale = elementData.localScale;
+                using (new GUILayout.VerticalScope("box")) {
+                    elementData.useRotation = EditorGUILayout.Toggle("Use Rotation", elementData.useRotation);
+                    elementData.localRotation = Quaternion.Euler(EditorGUILayout.Vector3Field("Local Rotation", elementData.localRotation.eulerAngles));
+                }
+
+                using (new GUILayout.VerticalScope("box")) {
+                    elementData.useScale = EditorGUILayout.Toggle("Use Scale", elementData.useScale);
+                    elementData.localScale = EditorGUILayout.Vector3Field("Local Scale", elementData.localScale);
+                }
+
+                GUILayout.Space(10);
+
+                if (GUILayout.Button("オブジェクトから座標取得")) {
+                    var go = target;
+                    if (go) {
+                        elementData.localPosition = go.transform.localPosition;
+                        elementData.localRotation = go.transform.localRotation;
+                        elementData.localScale = go.transform.localScale;
+                    }
+                }
+
+                if (GUILayout.Button("オブジェクトへ設定")) {
+                    var go = target;
+                    if (go) {
+                        go.transform.localPosition = elementData.localPosition;
+                        go.transform.localRotation = elementData.localRotation;
+                        go.transform.localScale = elementData.localScale;
+                    }
                 }
             }
         }
-
-
     }
 }

@@ -5,44 +5,44 @@ using UnityEditor;
 
 namespace track_editor2
 {
+    using ParentEditorTrack = GameObjectEditorTrack;
     using CurrentTrackData = ActivationTrack.TrackData;
     using CurrentElementData = ActivationTrack.ElementData;
-
-    public class ActivationEditorTrack : EditorTrack
+    
+    public class ActivationEditorTrack
     {
         public const string labelName = "Activate";
 
-        public CurrentTrackData trackData = new CurrentTrackData();
-
-        public ActivationEditorTrack()
+        public class EditorTrackData : ParentEditorTrack.ChildEditorTrackBase
         {
-            name = labelName;
+            public CurrentTrackData trackData = new CurrentTrackData();
+
+            public EditorTrackData()
+            {
+                name = labelName;
+            }
+
+            public override void TrackHeaderDrawer()
+            {
+                HeaderDrawerImpl(labelName);
+            }
+
+            public override void TrackLabelDrawer(Rect rect)
+            {
+                SubTrackLabelDrawerImpl(rect, labelName);
+            }
+
+            public override void TrackPropertyDrawer(Rect rect)
+            {
+                SubTrackPropertyDrawerImpl(rect, labelName);
+            }
+
+            public override EditorElement CreateElement() { return new EditorElementData(); }
         }
 
-        public override void HeaderDrawer()
+        public class EditorElementData : ParentEditorTrack.ChildEditorElementBase
         {
-            base.HeaderDrawer();
-
-            HeaderDrawerImpl($"Remove {labelName} Track");
+            public CurrentElementData elementData = new CurrentElementData();
         }
-
-        public override void TrackDrawer(Rect rect)
-        {
-            TrackDrawerImpl(rect, labelName);
-        }
-
-        public override void PropertyDrawer(Rect rect)
-        {
-            base.PropertyDrawer(rect);
-
-            PropertyDrawerImpl(rect, $"Add {labelName} Element");
-        }
-
-        public override EditorElement CreateElement() { return new ActivationEditorElement(); }
-    }
-
-    public class ActivationEditorElement : EditorElement
-    {
-        public CurrentElementData elementData = new CurrentElementData();
     }
 }

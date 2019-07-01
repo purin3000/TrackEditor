@@ -18,4 +18,29 @@ namespace track_editor2
             this.parentTrackIndex = parentTrackIndex;
         }
     }
+
+    public static class ContainerSwap
+    {
+        public static void SwapAt<T>(this List<T> list, int indexA, int indexB)
+        {
+            var tmp = list[indexB];
+            list[indexB] = list[indexA];
+            list[indexA] = tmp;
+        }
+
+        public static int IndexOf<T>(this IEnumerable<T> list, T obj)
+        {
+            var ite = list.GetEnumerator();
+            int i = 0;
+
+            while (ite.MoveNext()) {
+                if (ite.Current.Equals(obj)) {
+                    return i;
+                }
+                ++i;
+            }
+
+            return -1;
+        }
+    }
 }

@@ -68,7 +68,7 @@ namespace track_editor2
 
             drawHeader();
 
-            manager.OnGUI(new Rect(rectGUI.x + 10 , rectGUI.y + 10 + rectGUI.height, position.width - 20, position.height - rectGUI.y - rectGUI.height - 20));
+            manager.OnGUI(new Rect(rectGUI.x + 10, rectGUI.y + 10 + rectGUI.height, position.width - 20, position.height - rectGUI.y - rectGUI.height - 20));
 
             if (manager.valueChanged) {
                 Repaint();
@@ -100,7 +100,7 @@ namespace track_editor2
                 TrackSerializer.EditorToAsset(manager, asset);
             }
         }
-        
+
         void drawHeader()
         {
 
@@ -141,19 +141,21 @@ namespace track_editor2
                     }
 
                     using (manager.CreateValueChangedScope()) {
+
                         using (new GUILayout.HorizontalScope()) {
-                            if (GUILayout.Button("Add GameObject Track")) {
-                                var track = manager.AddTrack(manager.top, new GameObjectEditorTrack());
-                                track.name = string.Format("Track:{0}", manager.top.childs.Count + 1);
-                                manager.SetSelectionTrack(track);
+                            var table = new[] {
+                                new { Name = "GameObject", Type = typeof(GameObjectEditorTrack.EditorTrackData) },
+                            };
+
+                            foreach (var info in table) {
+
+                                if (GUILayout.Button($"Add [{info.Name}]")) {
+                                    var track = manager.AddTrack(manager.top, (EditorTrack)System.Activator.CreateInstance(info.Type));
+                                    track.name = $"{info.Name} Track";
+                                    manager.SetSelectionTrack(track);
+                                }
                             }
 
-                            if (GUILayout.Button("Add Camera Track")) {
-                                var track = manager.AddTrack(manager.top, new CameraEditorTrack());
-                                track.name = string.Format("Track:{0}", manager.top.childs.Count + 1); 
-                                manager.SetSelectionTrack(track);
-
-                            }
                         }
                     }
                 }
@@ -175,7 +177,7 @@ namespace track_editor2
                                 }
 
                                 var inst = Instantiate(asset);
-                                
+
                                 player = inst.gameObject.AddComponent<TrackAssetPlayer>();
                                 player.Play(inst);
                                 player.SetPlaySpeed(playSpeed);
@@ -204,7 +206,7 @@ namespace track_editor2
 
                             if (manager.selectionTrack != null) {
                                 using (new GUILayout.VerticalScope()) {
-                                    manager.selectionTrack.HeaderDrawer();
+                                    manager.selectionTrack.TrackHeaderDrawer();
                                 }
 
                             } else {
@@ -223,23 +225,23 @@ namespace track_editor2
 
         TrackAsset CreateNewTrackData()
         {
-            var rootTrack = new RootEditorTrack();
+            var rootTrack = new RootEditorTrack.EditorTrackData();
             manager.SetRootTrack(rootTrack);
 
 
-            var gameObjectTrack1 = new GameObjectEditorTrack();
+            var gameObjectTrack1 = new GameObjectEditorTrack.EditorTrackData();
             gameObjectTrack1.name = "GameObjeTrack1";
             gameObjectTrack1.trackData.activate = true;
             manager.AddTrack(rootTrack, gameObjectTrack1);
 
-            var activationTrack1 = new ActivationEditorTrack();
+            var activationTrack1 = new ActivationEditorTrack.EditorTrackData();
             activationTrack1.name = "ActivationTrack1";
             manager.AddTrack(gameObjectTrack1, activationTrack1);
 
 
             var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
 
-            var asset = new GameObject(path).AddComponent<track_editor2.TrackAsset>();
+            var asset = new GameObject(path).AddComponent<TrackAsset>();
 
             TrackSerializer.EditorToAsset(manager, asset);
 

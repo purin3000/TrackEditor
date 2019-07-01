@@ -43,7 +43,7 @@ namespace track_editor2
         public event OnPlayEnd onPlayEnd;
 
 
-        public Dictionary<ModelResource, AnimationTrack.PlayerElement> latestPlayRequest = new Dictionary<ModelResource, AnimationTrack.PlayerElement>();
+        public Dictionary<GameObject, AnimationTrack.PlayerElement> latestPlayRequest = new Dictionary<GameObject, AnimationTrack.PlayerElement>();
 
         PlayerTrackBase[] playerTracks = { };
         PlayerElementBase[] playerElements = { };

@@ -7,68 +7,64 @@ namespace track_editor2
 {
     using CurrentTrackData = GameObjectTrack.TrackData;
 
-    public class GameObjectEditorTrack : EditorTrack
+    public class GameObjectEditorTrack
     {
         const string labelName = "GameObject";
 
-        public CurrentTrackData trackData = new CurrentTrackData();
-
-        public override void HeaderDrawer()
+        public class EditorTrackData : EditorTrack
         {
-            base.HeaderDrawer();
+            public CurrentTrackData trackData = new CurrentTrackData();
 
-            RemoveTrackImpl($"Remove {name} Track");
-        }
+            public override void TrackHeaderDrawer()
+            {
+                HeaderDrawerImpl(labelName);
+            }
 
-        public override void TrackDrawer(Rect rect)
-        {
-            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
-            GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
+            public override void TrackLabelDrawer(Rect rect)
+            {
+                Rect rectLabel = CalcTrackLabelRect(rect);
+                GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
 
-            Rect rectObj = new Rect(rectLabel.x, rect.y + (rectLabel.height - EditorGUIUtility.singleLineHeight) * 0.5f, rectLabel.width * 0.6f, EditorGUIUtility.singleLineHeight);
-            if (trackData.currentPlayer) {
-                EditorGUI.LabelField(rectObj, "Player");
-            } else {
-                using (new EditorGUI.DisabledScope(trackData.currentPlayer)) {
-                    trackData.target = (GameObject)EditorGUI.ObjectField(rectObj, trackData.target, typeof(GameObject), true);
+                Rect rectObj = CalcTrackObjectRect(rect);
+                trackData.target = (GameObject)EditorGUI.ObjectField(rectObj, trackData.target, typeof(GameObject), true);
+
+                if (expand && 2 <= childs.Count) {
+                    EditorGUI.LabelField(rectLabel, $"{name}");
                 }
             }
 
-            if (expand && 2 <= childs.Count) {
-                EditorGUI.LabelField(rectLabel, $"{labelName} GameObject");
+            public override void TrackPropertyDrawer(Rect rect)
+            {
+                name = EditorGUILayout.TextField("Name", name);
+
+                trackData.target = (GameObject)EditorGUILayout.ObjectField(trackData.target, typeof(GameObject), true);
+
+                trackData.activate = EditorGUILayout.Toggle("Activate", trackData.activate);
+
+
+                DrawIndexMoveImpl();
+
+                var table = new[] {
+                    new { Name = "Activation", Type = typeof(ActivationEditorTrack.EditorTrackData) },
+                    new { Name = "Transform", Type = typeof(TransformEditorTrack.EditorTrackData) },
+                    new { Name = "Animation", Type = typeof(AnimationEditorTrack.EditorTrackData) },
+                };
+
+                foreach (var info in table) {
+                    if (GUILayout.Button($"Add Track [{info.Name}]")) {
+                        manager.AddTrack(this, (EditorTrack)System.Activator.CreateInstance(info.Type));
+                    }
+                }
             }
         }
 
-        public override void PropertyDrawer(Rect rect)
+        public abstract class ChildEditorTrackBase : EditorTrack
         {
-            base.PropertyDrawer(rect);
+        }
 
-            using (new EditorGUI.DisabledScope(trackData.currentPlayer)) {
-                trackData.target = (GameObject)EditorGUILayout.ObjectField(trackData.target, typeof(GameObject), true);
-            }
-
-            trackData.activate = EditorGUILayout.Toggle("Activate", trackData.activate);
-
-            trackData.currentPlayer = EditorGUILayout.Toggle("Current Player", trackData.currentPlayer);
-
-
-            DrawIndexMoveImpl();
-
-            if (GUILayout.Button($"Add {ActivationEditorTrack.labelName} Track")) {
-                manager.AddTrack(this, new ActivationEditorTrack());
-            }
-
-            if (GUILayout.Button($"Add {TransformEditorTrack.labelName} Track")) {
-                manager.AddTrack(this, new TransformEditorTrack());
-            }
-
-            if (GUILayout.Button($"Add {AnimationEditorTrack.labelName} Track")) {
-                manager.AddTrack(this, new AnimationEditorTrack());
-            }
-
-            //if (GUILayout.Button($"Add {ScriptTrackEditor.name} Track")) {
-            //    manager.AddTrack(this, ScriptTrackEditor.name, ScriptTrackEditor.CreateTrack());
-            //}
+        public abstract class ChildEditorElementBase : EditorElement
+        {
+            public GameObject target => (parent.parent as EditorTrackData).trackData.target;
         }
     }
 }

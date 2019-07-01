@@ -66,16 +66,11 @@ namespace track_editor2
             element.parent = this;
         }
 
-        public virtual void HeaderDrawer()
-        {
-            GUILayout.Label(string.Format("Track:{0}", name));
-        }
+        public abstract void TrackHeaderDrawer();
 
-        public virtual void TrackDrawer(Rect rect)
-        {
-            Rect rectLabel = new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
-            GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
-        }
+        public abstract void TrackLabelDrawer(Rect rect);
+
+        public abstract void TrackPropertyDrawer(Rect rect);
 
         public virtual float CalcElementWidth()
         {
@@ -97,17 +92,50 @@ namespace track_editor2
             return trackHeight;
         }
 
-        public virtual void PropertyDrawer(Rect rect)
+        public virtual EditorElement CreateElement() { throw new System.Exception("Not Implement!"); }
+
+        protected void MainTrackDrawerImpl(Rect rect, string labelName)
         {
-            DrawNameImpl();
+            Rect rectLabel = CalcTrackLabelRect(rect);
+            GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
+
+            Rect rectObj = CalcTrackObjectRect(rect);
+            EditorGUI.LabelField(rectObj, $"{labelName}");
         }
 
-        public virtual EditorElement CreateElement() { return null; }
+        protected void SubTrackLabelDrawerImpl(Rect rect, string labelName)
+        {
+            Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
+            GUI.Label(rectLabel, labelName, IsSelection ? "flow node 3 on" : "flow node 2");
+        }
 
-
-        protected void DrawNameImpl()
+        protected void SubTrackPropertyDrawerImpl(Rect rect, string labelName)
         {
             name = EditorGUILayout.TextField("Name", name);
+
+            DrawIndexMoveImpl();
+
+            AddElementImpl($"Add Element [{labelName}]");
+        }
+
+        protected Rect CalcTrackLabelRect(Rect rect)
+        {
+            return new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
+        }
+
+        protected Rect CalcTrackObjectRect(Rect rect)
+        {
+            Rect rectLabel = CalcTrackLabelRect(rect);
+            return new Rect(rectLabel.x, rect.y + (rectLabel.height - EditorGUIUtility.singleLineHeight) * 0.5f, rectLabel.width * 0.6f, EditorGUIUtility.singleLineHeight);
+        }
+
+        protected void HeaderDrawerImpl(string labelName)
+        {
+            GUILayout.Label(string.Format("Track:{0}", name));
+
+            RemoveTrackImpl($"Remove Track [{labelName}]");
+
+            RemoveElementImpl();
         }
 
         protected void DrawIndexMoveImpl()
@@ -138,14 +166,12 @@ namespace track_editor2
                 if (GUILayout.Button(label)) {
                     manager.RemoveTrack(parent, this);
                 }
-                //using (new GUILayout.VerticalScope()) {
-                //}
             }
         }
 
         protected void RemoveElementImpl()
         {
-            selectionElement?.HeaderDrawer();
+            selectionElement?.ElementHeaderDrawer();
         }
 
         protected void AddElementImpl(string label)
@@ -154,41 +180,9 @@ namespace track_editor2
                 if (GUILayout.Button(label)) {
                     var element = CreateElement();
                     element.name = string.Format("{0}:{1}", name, elements.Count);
-                    element.start = manager.currentFrame;
                     manager.AddElement(this, element);
                 }
             }
-        }
-
-        protected void HeaderDrawerImpl(string label)
-        {
-            RemoveTrackImpl(label);
-
-            RemoveElementImpl();
-        }
-
-        protected void TrackDrawerImpl(Rect rect, string label)
-        {
-            Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
-            GUI.Label(rectLabel, label, IsSelection ? "flow node 3 on" : "flow node 2");
-        }
-
-        protected void PropertyDrawerImpl(Rect rect, string label)
-        {
-            DrawIndexMoveImpl();
-
-            AddElementImpl(label);
-        }
-
-    }
-
-    static class ContainerSwap
-    {
-        public static void SwapAt<T>(this List<T> list, int indexA, int indexB)
-        {
-            var tmp = list[indexB];
-            list[indexB] = list[indexA];
-            list[indexA] = tmp;
         }
     }
 }

@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace track_editor2
 {
+    using ParentTrack = GameObjectTrack;
+
     public class TransformTrack
     {
         [System.Serializable]
@@ -23,16 +25,14 @@ namespace track_editor2
             public bool useScale = true;
         }
 
-        public class PlayerTrack : TrackAssetPlayer.PlayerTrackBase
+        public class PlayerTrack : ParentTrack.ChildPlayerTrackBase
         {
             public TrackData trackData;
         }
 
-        public class PlayerElement : TrackAssetPlayer.PlayerElementBase
+        public class PlayerElement : ParentTrack.ChildPlayerElementBase
         {
             public ElementData elementData;
-
-            GameObject gameObject => (parent.parent as GameObjectTrack.PlayerTrack).gameObject;
 
             public override void OnElementStart(TrackAssetPlayer context)
             {

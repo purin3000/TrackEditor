@@ -40,7 +40,7 @@ namespace track_editor2
             this.length = length;
         }
 
-        public virtual void HeaderDrawer()
+        public virtual void ElementHeaderDrawer()
         {
             RemoveElementImpl($"Remove {name} Elememnt");
         }

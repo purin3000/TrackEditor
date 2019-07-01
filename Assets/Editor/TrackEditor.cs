@@ -109,19 +109,10 @@ namespace track_editor2
         public TrackEditor(TrackEditorSettings settings)
         {
             this.settings = settings;
-            this.top = new RootEditorTrack();
+            this.top = new RootEditorTrack.EditorTrackData();
 
             top.Initialize(this, "top", -1);
         }
-
-
-        //public virtual void WriteAsset(SerializeElementBase serializeElement)
-        //{
-        //}
-
-        //public virtual void ReadAsset(SerializeElementBase serializeElement)
-        //{
-        //}
 
         public void OnGUI(Rect rect)
         {
@@ -252,6 +243,7 @@ namespace track_editor2
         {
             parent.AddElement(element);
             SetSelectionElement(parent, element);
+            element.start = currentFrame;
             return element;
         }
 
@@ -344,7 +336,7 @@ namespace track_editor2
                     var track = selectionTrack;
 
                     using (new GUILayout.VerticalScope("box")) {
-                        track.PropertyDrawer(rect);
+                        track.TrackPropertyDrawer(rect);
 
                     }
 
@@ -507,7 +499,7 @@ namespace track_editor2
                     }
 
                     if (Event.current.keyCode == KeyCode.Insert) {
-                        AddElement(selectionTrack, selectionTrack.CreateElement());
+                        var element = AddElement(selectionTrack, selectionTrack.CreateElement());
                         Event.current.Use();
                     }
                 }
@@ -517,7 +509,7 @@ namespace track_editor2
         void drawTrack(EditorTrack track, Rect rect)
         {
             if (0 < track.nestLevel) {
-                track.TrackDrawer(rect);
+                track.TrackLabelDrawer(rect);
             }
 
             if (track.expand) {

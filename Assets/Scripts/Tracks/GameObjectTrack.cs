@@ -12,57 +12,36 @@ namespace track_editor2
             public GameObject target;
 
             public bool activate;
-
-            public bool currentPlayer;
         }
 
         public class PlayerTrack : TrackAssetPlayer.PlayerTrackBase
         {
             public TrackData trackData;
 
-            public ModelResource model;
-
             public GameObject gameObject;
 
-            //public override void OnTrackStart(TrackAssetPlayer2 context)
-            //{
-            //    FieldManager.Instance.ChangeMode(FieldManager.Mode.Event);
-            //    FieldManager.Instance.fieldPlayer.moveByEvent = true;
-            //    FieldManager.Instance.fieldPlayer.useNavMeshAgent = false;
+            public override void OnTrackStart(TrackAssetPlayer context)
+            {
+                var go = trackData.target;
+                if (go) {
+                    go.SetActive(trackData.activate);
+                }
 
-            //    if (trackData.currentPlayer) {
-            //        model = FieldManager.Instance.fieldPlayer.characterModel;
-            //        gameObject = FieldManager.Instance.fieldPlayer.gameObject;
+                gameObject = go;
+            }
 
-            //    } else {
-            //        var go = trackData.target;
+            public override void OnTrackEnd(TrackAssetPlayer context)
+            {
+            }
+        }
 
-            //        var walker = go.GetComponent<FieldWalker>();
-            //        if (walker) {
-            //            model = walker.characterModel;
-            //        } else {
-            //            var obj = go.GetComponent<FieldObject>();
-            //            if (obj) {
-            //                model = obj.model.GetComponent<ModelResource>();
-            //            } else {
-            //                model = go.GetComponent<ModelResource>();
-            //            }
-            //        }
+        public class ChildPlayerTrackBase : TrackAssetPlayer.PlayerTrackBase
+        {
+        }
 
-            //        if (go) {
-            //            go.SetActive(trackData.activate);
-            //        }
-
-            //        gameObject = go;
-            //    }
-            //}
-
-            //public override void OnTrackEnd(TrackAssetPlayer2 context)
-            //{
-            //    FieldManager.Instance.ChangeMode(FieldManager.Mode.FreeWalk);
-            //    FieldManager.Instance.fieldPlayer.moveByEvent = false;
-            //    FieldManager.Instance.fieldPlayer.useNavMeshAgent = true;
-            //}
+        public class ChildPlayerElementBase : TrackAssetPlayer.PlayerElementBase
+        {
+            public GameObject gameObject => (parent.parent as PlayerTrack).gameObject;
         }
     }
 }

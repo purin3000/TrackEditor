@@ -27,14 +27,21 @@ namespace track_editor2
             listup(manager.top);
 
             editorToAssetInternal(asset, editorTracks, editorElements);
+
+            EditorUtility.SetDirty(asset);
         }
 
         public static void AssetToEditor(TrackEditor manager, TrackAsset asset)
         {
-            List<EditorTrack> editorTracks = new List<EditorTrack>();
-            List<EditorElement> editorElements = new List<EditorElement>();
+            EditorTrack[] editorTracks = new EditorTrack[asset.trackCount];
+            EditorElement[] editorElements = new EditorElement[asset.elementCount];
 
             assetToEditorInternal(asset, editorTracks, editorElements);
+
+            // 要素が無くなったときはNULLが入っているはずなので、有効なデータだけで再構成しておく
+            editorTracks = editorTracks.Where(obj => obj != null).ToArray();
+            editorElements = editorElements.Where(obj => obj != null).ToArray();
+
 
             foreach (var editorTrack in editorTracks) {
                 editorTrack.parent = GetTrack(editorTrack.parentIndex, editorTracks);
@@ -46,7 +53,7 @@ namespace track_editor2
             }
 
             foreach (var editorElement in editorElements) {
-                editorElement.parent.elements.Add(editorElement); 
+                editorElement.parent.elements.Add(editorElement);
             }
 
             foreach (var editorTrack in editorTracks) {
@@ -56,7 +63,7 @@ namespace track_editor2
             manager.top = editorTracks[0];
         }
 
-        static AssetTrackClass Serialize<AssetTrackClass>(List<EditorTrack> editorTracks, EditorTrack editorTrack) where AssetTrackClass : AssetTrack, new()
+        static AssetTrackClass Serialize<AssetTrackClass>(IEnumerable<EditorTrack> editorTracks, EditorTrack editorTrack) where AssetTrackClass : AssetTrack, new()
         {
             var assetTrack = new AssetTrackClass();
 
@@ -68,7 +75,7 @@ namespace track_editor2
             return assetTrack;
         }
 
-        static EditorTrackClass Deserialize<EditorTrackClass>(AssetTrack assetTrack) where EditorTrackClass:EditorTrack,new()
+        static EditorTrackClass Deserialize<EditorTrackClass>(AssetTrack assetTrack) where EditorTrackClass : EditorTrack, new()
         {
             var editorTrack = new EditorTrackClass();
 
@@ -77,7 +84,7 @@ namespace track_editor2
             return editorTrack;
         }
 
-        static AssetElementClass Serialize<AssetElementClass>(List<EditorTrack> editorTracks, List<EditorElement> editorElements, EditorElement editorElement) where AssetElementClass : AssetElement, new()
+        static AssetElementClass Serialize<AssetElementClass>(IEnumerable<EditorTrack> editorTracks, List<EditorElement> editorElements, EditorElement editorElement) where AssetElementClass : AssetElement, new()
         {
             var assetElement = new AssetElementClass();
 
@@ -89,7 +96,7 @@ namespace track_editor2
             return assetElement;
         }
 
-        static EditorElementClass Deserialize<EditorElementClass>(List<EditorTrack> editorTracks, AssetElement assetElement) where EditorElementClass:EditorElement,new()
+        static EditorElementClass Deserialize<EditorElementClass>(IEnumerable<EditorTrack> editorTracks, AssetElement assetElement) where EditorElementClass : EditorElement, new()
         {
             var editorElement = new EditorElementClass();
 
@@ -98,15 +105,15 @@ namespace track_editor2
             return editorElement;
         }
 
-        static EditorTrack GetTrack(int parentTrackIndex, List<EditorTrack> editorTracks)
+        static EditorTrack GetTrack(int parentTrackIndex, IEnumerable<EditorTrack> editorTracks)
         {
             if (parentTrackIndex != -1) {
-                return editorTracks[parentTrackIndex];
+                return editorTracks.ElementAt(parentTrackIndex);
             }
             return null;
         }
 
-        static int GetTrackIndex(EditorTrack editorTrack, List<EditorTrack> editorTracks)
+        static int GetTrackIndex(EditorTrack editorTrack, IEnumerable<EditorTrack> editorTracks)
         {
             if (editorTrack != null) {
                 return editorTracks.IndexOf(editorTrack);
@@ -114,7 +121,7 @@ namespace track_editor2
             return -1;
         }
 
-        static int GetElementIndex(EditorElement editorElement, List<EditorElement> editorElements)
+        static int GetElementIndex(EditorElement editorElement, IEnumerable<EditorElement> editorElements)
         {
             if (editorElement != null) {
                 return editorElements.IndexOf(editorElement);
