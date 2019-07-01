@@ -234,8 +234,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   frameLength: 100
   playSpeed: 1
-  trackCount: 5
-  elementCount: 6
+  trackCount: 6
+  elementCount: 8
   RootTracks:
   - trackIndex: 0
     name: 
@@ -261,7 +261,10 @@ MonoBehaviour:
     name: Activate
     parentTrackIndex: 3
   AnimationTracks: []
-  TransformTracks: []
+  TransformTracks:
+  - trackIndex: 5
+    name: Transform
+    parentTrackIndex: 3
   ActivationElements:
   - elementIndex: 0
     name: 
@@ -293,7 +296,31 @@ MonoBehaviour:
     parentTrackIndex: 4
     start: 50
     length: 30
-  TransformElements: []
+  TransformElements:
+  - elementIndex: 6
+    name: Transform:0
+    parentTrackIndex: 5
+    start: 20
+    length: 1
+    elementData:
+      localPosition: {x: -1, y: 2, z: 0}
+      localRotation: {x: 0, y: 0, z: 0, w: 1}
+      localScale: {x: 1, y: 1, z: 1}
+      usePosition: 1
+      useRotation: 1
+      useScale: 1
+  - elementIndex: 7
+    name: 
+    parentTrackIndex: 5
+    start: 50
+    length: 1
+    elementData:
+      localPosition: {x: -1, y: 1, z: 0}
+      localRotation: {x: 0, y: 0, z: 0, w: 1}
+      localScale: {x: 1, y: 1, z: 1}
+      usePosition: 1
+      useRotation: 1
+      useScale: 1
   AnimationElements: []
 --- !u!4 &749459615
 Transform:
