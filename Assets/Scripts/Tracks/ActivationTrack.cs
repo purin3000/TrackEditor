@@ -26,6 +26,16 @@ namespace track_editor2
         public class PlayerElement : ParentTrack.ChildPlayerElementBase
         {
             public ElementData elementData;
+
+            public override void OnElementStart(TrackAssetPlayer player)
+            {
+                gameObject.SetActive(true);
+            }
+
+            public override void OnElementEnd(TrackAssetPlayer player)
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 }

@@ -114,6 +114,7 @@ namespace track_editor2
             startCommandList = playerElements.OrderBy(element => element.start).ToList();
             endCommandList = playerElements.OrderBy(element => element.end).ToList();
 
+            playStart();
         }
 
         public void Play(TrackAsset asset)
@@ -194,7 +195,7 @@ namespace track_editor2
             public int length;
             public int parentTrackIndex;
 
-            public int end => start + end;
+            public int end => start + length;
 
             public void Initialize(string name, int parentTrackIndex, int start, int length)
             {
