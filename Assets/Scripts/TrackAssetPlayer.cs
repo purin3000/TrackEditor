@@ -67,7 +67,23 @@ namespace track_editor2
         void Update()
         {
             if (isPlaying) {
-                if (0 <= startIndex && time * 60 <= asset.frameLength) {
+
+
+                // 再生が終わるときにもちゃんとEndを呼ぶ
+                // 同一フレームでEndとStartが来た場合、End優先。そうしないとActiveし直しがうまくいかない
+                while (endIndex < endCommandList.Count) {
+                    var element = endCommandList[endIndex];
+
+                    if (time * 60.0f < element.end) {
+                        break;
+                    }
+
+                    element.OnElementEnd(this);
+                    ++endIndex;
+                }
+
+                bool playContinue = 0 <= startIndex && time * 60 <= asset.frameLength;
+                if (playContinue) {
                     while (startIndex < startCommandList.Count) {
                         var element = startCommandList[startIndex];
 
@@ -78,20 +94,9 @@ namespace track_editor2
                         element.OnElementStart(this);
                         ++startIndex;
                     }
+                }
 
-
-                    while (endIndex < endCommandList.Count) {
-                        var element = endCommandList[endIndex];
-
-                        if (time * 60.0f < element.end) {
-                            break;
-                        }
-
-                        element.OnElementEnd(this);
-                        ++endIndex;
-                    }
-
-
+                if (playContinue) {
                     time += Time.deltaTime * GetPlaySpeed();
 
                 } else {
@@ -126,9 +131,12 @@ namespace track_editor2
 
         public void Stop()
         {
-            isPlaying = false;
-        }
+            if (isPlaying) {
+                isPlaying = false;
 
+                playEnd();
+            }
+        }
 
         void playStart()
         {

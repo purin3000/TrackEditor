@@ -15,6 +15,11 @@ namespace track_editor2
 
         [SerializeField]
         //[HideInInspector]
+        public List<TrackGroupAssetTrack> TrackGroupTracks = new List<TrackGroupAssetTrack>();
+
+
+        [SerializeField]
+        //[HideInInspector]
         public List<GameObjectAssetTrack> GameObjectTracks = new List<GameObjectAssetTrack>();
 
 
@@ -25,7 +30,7 @@ namespace track_editor2
 
         [SerializeField]
         //[HideInInspector]
-        public List<AnimationAssetTrack> AnimationTracks = new List<AnimationAssetTrack>();
+        public List<ActivationAssetElement> ActivationElements = new List<ActivationAssetElement>();
 
 
         [SerializeField]
@@ -35,12 +40,12 @@ namespace track_editor2
 
         [SerializeField]
         //[HideInInspector]
-        public List<ActivationAssetElement> ActivationElements = new List<ActivationAssetElement>();
+        public List<TransformAssetElement> TransformElements = new List<TransformAssetElement>();
 
 
         [SerializeField]
         //[HideInInspector]
-        public List<TransformAssetElement> TransformElements = new List<TransformAssetElement>();
+        public List<AnimationAssetTrack> AnimationTracks = new List<AnimationAssetTrack>();
 
 
         [SerializeField]
@@ -57,12 +62,13 @@ namespace track_editor2
             int trackCount = 0;
             int elementCount = 0;
             trackCount += asset.RootTracks.Count;
+            trackCount += asset.TrackGroupTracks.Count;
             trackCount += asset.GameObjectTracks.Count;
             trackCount += asset.ActivationTracks.Count;
-            trackCount += asset.AnimationTracks.Count;
-            trackCount += asset.TransformTracks.Count;
             elementCount += asset.ActivationElements.Count;
+            trackCount += asset.TransformTracks.Count;
             elementCount += asset.TransformElements.Count;
+            trackCount += asset.AnimationTracks.Count;
             elementCount += asset.AnimationElements.Count;
 
             playerTracks = new PlayerTrackBase[trackCount];
@@ -70,6 +76,14 @@ namespace track_editor2
 
             foreach (var assetTrack in asset.RootTracks) {
                 var playerTrack = createPlayerTrack<RootTrack.PlayerTrack>(assetTrack);
+                playerTrack.trackData = assetTrack.trackData;
+                playerTracks[assetTrack.trackIndex] = playerTrack;
+            }
+
+
+
+            foreach (var assetTrack in asset.TrackGroupTracks) {
+                var playerTrack = createPlayerTrack<TrackGroupTrack.PlayerTrack>(assetTrack);
                 playerTrack.trackData = assetTrack.trackData;
                 playerTracks[assetTrack.trackIndex] = playerTrack;
             }
@@ -86,23 +100,6 @@ namespace track_editor2
 
             foreach (var assetTrack in asset.ActivationTracks) {
                 var playerTrack = createPlayerTrack<ActivationTrack.PlayerTrack>(assetTrack);
-                playerTrack.trackData = assetTrack.trackData;
-                playerTracks[assetTrack.trackIndex] = playerTrack;
-            }
-
-
-
-            foreach (var assetTrack in asset.AnimationTracks) {
-                var playerTrack = createPlayerTrack<AnimationTrack.PlayerTrack>(assetTrack);
-                playerTrack.trackData = assetTrack.trackData;
-                playerTracks[assetTrack.trackIndex] = playerTrack;
-            }
-
-
-
-            foreach (var assetTrack in asset.TransformTracks) {
-                var playerTrack = createPlayerTrack<TransformTrack.PlayerTrack>(assetTrack);
-                playerTrack.trackData = assetTrack.trackData;
                 playerTracks[assetTrack.trackIndex] = playerTrack;
             }
 
@@ -116,10 +113,24 @@ namespace track_editor2
 
 
 
+            foreach (var assetTrack in asset.TransformTracks) {
+                var playerTrack = createPlayerTrack<TransformTrack.PlayerTrack>(assetTrack);
+                playerTracks[assetTrack.trackIndex] = playerTrack;
+            }
+
+
+
             foreach (var assetElement in asset.TransformElements) {
                 var playerElement = createPlayerElement<TransformTrack.PlayerElement>(assetElement);
                 playerElement.elementData = assetElement.elementData;
                 playerElements[assetElement.elementIndex] = playerElement;
+            }
+
+
+
+            foreach (var assetTrack in asset.AnimationTracks) {
+                var playerTrack = createPlayerTrack<AnimationTrack.PlayerTrack>(assetTrack);
+                playerTracks[assetTrack.trackIndex] = playerTrack;
             }
 
 
@@ -149,6 +160,12 @@ namespace track_editor2
 
 
     [System.Serializable]
+    public class TrackGroupAssetTrack : AssetTrack {
+        public TrackGroupTrack.TrackData trackData = new TrackGroupTrack.TrackData();
+    }
+
+
+    [System.Serializable]
     public class GameObjectAssetTrack : AssetTrack {
         public GameObjectTrack.TrackData trackData = new GameObjectTrack.TrackData();
     }
@@ -156,19 +173,6 @@ namespace track_editor2
 
     [System.Serializable]
     public class ActivationAssetTrack : AssetTrack {
-        public ActivationTrack.TrackData trackData = new ActivationTrack.TrackData();
-    }
-
-
-    [System.Serializable]
-    public class AnimationAssetTrack : AssetTrack {
-        public AnimationTrack.TrackData trackData = new AnimationTrack.TrackData();
-    }
-
-
-    [System.Serializable]
-    public class TransformAssetTrack : AssetTrack {
-        public TransformTrack.TrackData trackData = new TransformTrack.TrackData();
     }
 
 
@@ -179,8 +183,18 @@ namespace track_editor2
 
 
     [System.Serializable]
+    public class TransformAssetTrack : AssetTrack {
+    }
+
+
+    [System.Serializable]
     public class TransformAssetElement : AssetElement {
         public TransformTrack.ElementData elementData = new TransformTrack.ElementData();
+    }
+
+
+    [System.Serializable]
+    public class AnimationAssetTrack : AssetTrack {
     }
 
 

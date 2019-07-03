@@ -6,7 +6,6 @@ using UnityEditor;
 namespace track_editor2
 {
     using ParentEditorTrack = GameObjectEditorTrack;
-    using CurrentTrackData = ActivationTrack.TrackData;
     using CurrentElementData = ActivationTrack.ElementData;
     
     public class ActivationEditorTrack
@@ -15,34 +14,32 @@ namespace track_editor2
 
         public class EditorTrackData : ParentEditorTrack.ChildEditorTrackBase
         {
-            public CurrentTrackData trackData = new CurrentTrackData();
+            public EditorTrackData() : base(labelName) { }
 
-            public EditorTrackData()
+            public override EditorElement CreateElement()
             {
-                name = labelName;
+                return CreateElementImpl<EditorElementData>($"{labelName}:{elements.Count}");
             }
-
-            public override void TrackHeaderDrawer()
-            {
-                HeaderDrawerImpl(labelName);
-            }
-
-            public override void TrackLabelDrawer(Rect rect)
-            {
-                SubTrackLabelDrawerImpl(rect, labelName);
-            }
-
-            public override void TrackPropertyDrawer(Rect rect)
-            {
-                SubTrackPropertyDrawerImpl(rect, labelName);
-            }
-
-            public override EditorElement CreateElement() { return new EditorElementData(); }
         }
 
         public class EditorElementData : ParentEditorTrack.ChildEditorElementBase
         {
             public CurrentElementData elementData = new CurrentElementData();
+
+            public override void ElementHeaderDrawer()
+            {
+                ElementHeaderDrawerImpl(labelName);
+            }
+
+            public override void PropertyDrawer(Rect rect)
+            {
+                PropertyDrawerImpl(rect, labelName);
+            }
+
+            public override void ElementDrawer(Rect rect)
+            {
+                ElementDrawerImpl(rect);
+            }
         }
     }
 }

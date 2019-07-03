@@ -34,8 +34,6 @@ namespace track_editor2
 
         public int gridScaleMax { get => settings.gridScaleMax; }
 
-        public float childTrackSlide { get => settings.childTrackSlide; }
-
         private TrackEditorSettings settings { get; set; }
 
         public EditorTrack top { get; set; }
@@ -44,7 +42,7 @@ namespace track_editor2
 
         public float elementWidth { get; private set; }
 
-        public Vector2 scrollPos { get => scrPos; }
+        public Vector2 scrollPos { get => scrPos; set => scrPos = value; }
 
         Vector2 scrPos = Vector2.zero;
 
@@ -111,7 +109,8 @@ namespace track_editor2
             this.settings = settings;
             this.top = new RootEditorTrack.EditorTrackData();
 
-            top.Initialize(this, "top", -1);
+            top.manager = this;
+            top.name = "top";
         }
 
         public void OnGUI(Rect rect)
@@ -209,7 +208,9 @@ namespace track_editor2
         public T SetRootTrack<T>(T track) where T : EditorTrack
         {
             top = track;
-            track.manager = this;
+            top.manager = this;
+
+            top.Initialize();
             return track;
         }
 
@@ -327,25 +328,41 @@ namespace track_editor2
             }
         }
 
+        bool foldoutRootTrack = true;
+        bool foldoutSelectionTrack = true;
+        bool foldoutSelectionElement = true;
+
         void drawProperty(Rect rect)
         {
-            if (selectionTrack == null) return;
-
             Rect rectProperty = new Rect(0, 0, rect.width, rect.height);
 
             using (new GUILayout.AreaScope(rectProperty)) {
                 using (new GUILayout.VerticalScope()) {
-                    var track = selectionTrack;
 
-                    using (new GUILayout.VerticalScope("box")) {
-                        track.TrackPropertyDrawer(rect);
+                    if (selectionTrack != null) {
+                        var selElement = selectionTrack.selectionElement;
+                        if (selElement != null) {
 
+                            foldoutSelectionElement = EditorGUILayout.Foldout(foldoutSelectionElement, "エレメント操作");
+                            if (foldoutSelectionElement) {
+                                using (new GUILayout.VerticalScope("box")) {
+                                    selElement.PropertyDrawer(rect);
+                                }
+                            }
+                        }
+
+                        foldoutSelectionTrack = EditorGUILayout.Foldout(foldoutSelectionTrack, "トラック操作");
+                        if (foldoutSelectionTrack) {
+                            using (new GUILayout.VerticalScope("box")) {
+                                selectionTrack.TrackPropertyDrawer(rect);
+                            }
+                        }
                     }
 
-                    if (track.selectionElement != null) {
+                    foldoutRootTrack = EditorGUILayout.Foldout(foldoutRootTrack, "ルート操作");
+                    if (foldoutRootTrack) {
                         using (new GUILayout.VerticalScope("box")) {
-                            track.selectionElement.PropertyDrawer(rect);
-
+                            top.TrackPropertyDrawer(rect);
                         }
                     }
                 }
@@ -468,22 +485,28 @@ namespace track_editor2
                     int trackIndex = (int)(relativePos / settings.trackHeight);
 
                     int index = 0;
-                    foreach (var track in top.childs) {
+
+                    System.Func<EditorTrack, EditorTrack> checkSelectionTrack = null;
+                    checkSelectionTrack = (track) => {
                         if (track.expand && track.childs.Count != 0) {
                             foreach (var child in track.childs) {
-                                if (index == trackIndex) {
-                                    SetSelectionTrack(child);
-                                    return;
+                                var ret = checkSelectionTrack(child);
+                                if (ret != null) {
+                                    return ret;
                                 }
-                                ++index;
                             }
                         } else {
                             if (index == trackIndex) {
-                                SetSelectionTrack(track);
-                                return;
+                                return track;
                             }
                             ++index;
                         }
+                        return null;
+                    };
+
+                    var result = checkSelectionTrack(top);
+                    if (result != null) {
+                        SetSelectionTrack(result);
                     }
 
                     //Event.current.Use();
@@ -501,7 +524,7 @@ namespace track_editor2
                     }
 
                     if (Event.current.keyCode == KeyCode.Insert) {
-                        var element = AddElement(selectionTrack, selectionTrack.CreateElement());
+                        AddElement(selectionTrack, selectionTrack.CreateElement());
                         Event.current.Use();
                     }
                 }
@@ -510,21 +533,14 @@ namespace track_editor2
 
         void drawTrack(EditorTrack track, Rect rect)
         {
-            if (0 < track.nestLevel) {
-                track.TrackLabelDrawer(rect);
-            }
+            track.TrackLabelDrawer(rect);
 
             if (track.expand) {
-                // 深さに応じて表示位置をずらす
-                var slideSize = (track.nestLevel == 0) ? 0.0f : rect.width * childTrackSlide;
-
-                float x = rect.x + slideSize;
-                float y = rect.y;
-                float width = rect.width - slideSize;
+                float ofsy = 0;
                 foreach (var child in track.childs) {
-                    Rect rectChild = new Rect(x, y, width, child.CalcTrackHeight());
+                    Rect rectChild = track.CalcDrawTrackChildRect(rect, child, ofsy);
                     drawTrack(child, rectChild);
-                    y += rectChild.height;
+                    ofsy += rectChild.height;
                 }
             }
 

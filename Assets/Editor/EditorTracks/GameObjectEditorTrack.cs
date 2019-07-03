@@ -15,6 +15,17 @@ namespace track_editor2
         {
             public CurrentTrackData trackData = new CurrentTrackData();
 
+            public override EditorElement CreateElement()
+            {
+                return null;
+            }
+
+            public override void Initialize()
+            {
+                name = labelName;
+                manager.AddTrack(this, new ActivationEditorTrack.EditorTrackData());
+            }
+
             public override void TrackHeaderDrawer()
             {
                 HeaderDrawerImpl(labelName);
@@ -26,40 +37,80 @@ namespace track_editor2
                 GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
 
                 Rect rectObj = CalcTrackObjectRect(rect);
-                trackData.target = (GameObject)EditorGUI.ObjectField(rectObj, trackData.target, typeof(GameObject), true);
+                if (trackData.currentPlayer) {
+                    EditorGUI.LabelField(rectObj, "Player");
+                } else {
+                    using (new EditorGUI.DisabledScope(trackData.currentPlayer)) {
+                        trackData.target = (GameObject)EditorGUI.ObjectField(rectObj, trackData.target, typeof(GameObject), true);
+                    }
+                }
 
                 if (expand && 2 <= childs.Count) {
                     EditorGUI.LabelField(rectLabel, $"{name}");
+                }
+
+                if (!expand) {
+                    var rectExp = rectObj;
+                    rectExp.x += rect.width * 0.8f;
+                    EditorGUI.LabelField(rectExp, "[+]");
                 }
             }
 
             public override void TrackPropertyDrawer(Rect rect)
             {
-                name = EditorGUILayout.TextField("Name", name);
+                DrawNameImpl(labelName);
 
-                trackData.target = (GameObject)EditorGUILayout.ObjectField(trackData.target, typeof(GameObject), true);
+                using (new EditorGUI.DisabledScope(trackData.currentPlayer)) {
+                    trackData.target = (GameObject)EditorGUILayout.ObjectField(trackData.target, typeof(GameObject), true);
+                }
 
                 trackData.activate = EditorGUILayout.Toggle("Activate", trackData.activate);
 
+                trackData.currentPlayer = EditorGUILayout.Toggle("Current Player", trackData.currentPlayer);
 
+                GUISpace();
                 DrawIndexMoveImpl();
 
                 var table = new[] {
                     new { Name = "Activation", Type = typeof(ActivationEditorTrack.EditorTrackData) },
-                    new { Name = "Transform", Type = typeof(TransformEditorTrack.EditorTrackData) },
-                    new { Name = "Animation", Type = typeof(AnimationEditorTrack.EditorTrackData) },
+                    new { Name = "Transform",  Type = typeof(TransformEditorTrack.EditorTrackData) },
+                    new { Name = "Animation",  Type = typeof(AnimationEditorTrack.EditorTrackData) },
                 };
 
                 foreach (var info in table) {
-                    if (GUILayout.Button($"Add Track [{info.Name}]")) {
-                        manager.AddTrack(this, (EditorTrack)System.Activator.CreateInstance(info.Type));
-                    }
+                    AddTrackImpl(info.Name, info.Type);
                 }
             }
         }
 
         public abstract class ChildEditorTrackBase : EditorTrack
         {
+            string labelName;
+
+            protected ChildEditorTrackBase(string labelName)
+            {
+                this.labelName = labelName;
+            }
+
+            public override void Initialize()
+            {
+                name = labelName;
+            }
+
+            public override void TrackHeaderDrawer()
+            {
+                HeaderDrawerImpl(labelName);
+            }
+
+            public override void TrackLabelDrawer(Rect rect)
+            {
+                SubTrackLabelDrawerImpl(rect, labelName);
+            }
+
+            public override void TrackPropertyDrawer(Rect rect)
+            {
+                SubTrackPropertyDrawerImpl(rect, labelName);
+            }
         }
 
         public abstract class ChildEditorElementBase : EditorElement

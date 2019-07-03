@@ -26,6 +26,12 @@ namespace track_editor2
         [SerializeField]
         float playSpeed = 1.0f;
 
+        [SerializeField]
+        int currentFrame = 0;
+
+        [SerializeField]
+        Vector2 scrPos;
+
         Rect rectGUI;
 
         TrackAssetPlayer player;
@@ -65,10 +71,15 @@ namespace track_editor2
             manager.valueChanged = false;
             manager.lockMode = EditorApplication.isPlayingOrWillChangePlaymode;
 
+            manager.currentFrame = currentFrame;
+            manager.scrollPos = scrPos;
 
             drawHeader();
 
             manager.OnGUI(new Rect(rectGUI.x + 10, rectGUI.y + 10 + rectGUI.height, position.width - 20, position.height - rectGUI.y - rectGUI.height - 20));
+
+            currentFrame = manager.currentFrame;
+            scrPos = manager.scrollPos;
 
             if (manager.valueChanged) {
                 Repaint();
@@ -140,24 +151,27 @@ namespace track_editor2
                         manager.playSpeed = EditorGUILayout.Slider("Play Speed", manager.playSpeed, 0.0f, 5.0f);
                     }
 
-                    using (manager.CreateValueChangedScope()) {
+                    //using (manager.CreateValueChangedScope()) {
 
-                        using (new GUILayout.HorizontalScope()) {
-                            var table = new[] {
-                                new { Name = "GameObject", Type = typeof(GameObjectEditorTrack.EditorTrackData) },
-                            };
+                    //    using (new GUILayout.HorizontalScope()) {
+                    //        var table = new[] {
+                    //            new { Name = "Group",      Type = typeof(TrackGroupEditorTrack.EditorTrackData) },
+                    //            new { Name = "GameObject", Type = typeof(GameObjectEditorTrack.EditorTrackData) },
+                    //            new { Name = "Camera",     Type = typeof(CameraEditorTrack.EditorTrackData) },
+                    //            new { Name = "PostEffect", Type = typeof(PostEffectEditorTrack.EditorTrackData) },
+                    //        };
 
-                            foreach (var info in table) {
+                    //        foreach (var info in table) {
 
-                                if (GUILayout.Button($"Add [{info.Name}]")) {
-                                    var track = manager.AddTrack(manager.top, (EditorTrack)System.Activator.CreateInstance(info.Type));
-                                    track.name = $"{info.Name} Track";
-                                    manager.SetSelectionTrack(track);
-                                }
-                            }
+                    //            if (GUILayout.Button($"Add [{info.Name}]")) {
+                    //                var track = manager.AddTrack(manager.top, (EditorTrack)ReflectionUtil.CreateObject(info.Type));
+                    //                track.name = $"{info.Name} Track";
+                    //                manager.SetSelectionTrack(track);
+                    //            }
+                    //        }
 
-                        }
-                    }
+                    //    }
+                    //}
                 }
 
                 if (EditorApplication.isPlaying) {
@@ -202,8 +216,6 @@ namespace track_editor2
                             gridScale = EditorGUILayout.IntSlider("Grid Scale", gridScale, 1, manager.gridScaleMax);
                             manager.gridScale = gridScale;
 
-                            //GUILayout.Space(5);
-
                             if (manager.selectionTrack != null) {
                                 using (new GUILayout.VerticalScope()) {
                                     manager.selectionTrack.TrackHeaderDrawer();
@@ -227,17 +239,6 @@ namespace track_editor2
         {
             var rootTrack = new RootEditorTrack.EditorTrackData();
             manager.SetRootTrack(rootTrack);
-
-
-            var gameObjectTrack1 = new GameObjectEditorTrack.EditorTrackData();
-            gameObjectTrack1.name = "GameObjeTrack1";
-            gameObjectTrack1.trackData.activate = true;
-            manager.AddTrack(rootTrack, gameObjectTrack1);
-
-            var activationTrack1 = new ActivationEditorTrack.EditorTrackData();
-            activationTrack1.name = "ActivationTrack1";
-            manager.AddTrack(gameObjectTrack1, activationTrack1);
-
 
             var path = GameObjectUtility.GetUniqueNameForSibling(null, "TrackAsset");
 

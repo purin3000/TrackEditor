@@ -9,11 +9,6 @@ namespace track_editor2
     public class TransformTrack
     {
         [System.Serializable]
-        public class TrackData
-        {
-        }
-
-        [System.Serializable]
         public class ElementData
         {
             public Vector3 localPosition;
@@ -27,7 +22,6 @@ namespace track_editor2
 
         public class PlayerTrack : ParentTrack.ChildPlayerTrackBase
         {
-            public TrackData trackData;
         }
 
         public class PlayerElement : ParentTrack.ChildPlayerElementBase

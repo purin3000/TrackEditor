@@ -6,7 +6,6 @@ using UnityEditor;
 namespace track_editor2
 {
     using ParentEditorTrack = GameObjectEditorTrack;
-    using CurrentTrackData = TransformTrack.TrackData;
     using CurrentElementData = TransformTrack.ElementData;
 
     public class TransformEditorTrack
@@ -15,44 +14,31 @@ namespace track_editor2
 
         public class EditorTrackData : ParentEditorTrack.ChildEditorTrackBase
         {
+            public EditorTrackData() : base(labelName) { }
 
-            public CurrentTrackData trackData = new CurrentTrackData();
-
-            public EditorTrackData()
+            public override EditorElement CreateElement()
             {
-                name = labelName;
+                return CreateElementImpl<EditorElementData>($"{labelName}:{elements.Count}");
             }
-
-            public override void TrackHeaderDrawer()
-            {
-                HeaderDrawerImpl(labelName);
-            }
-
-            public override void TrackLabelDrawer(Rect rect)
-            {
-                SubTrackLabelDrawerImpl(rect, labelName);
-            }
-
-            public override void TrackPropertyDrawer(Rect rect)
-            {
-                SubTrackPropertyDrawerImpl(rect, labelName);
-            }
-
-            public override EditorElement CreateElement() { return new EditorElementData(); }
         }
 
         public class EditorElementData : ParentEditorTrack.ChildEditorElementBase
         {
             public CurrentElementData elementData = new CurrentElementData();
 
-            public EditorElementData()
+            public override void Initialize()
             {
                 isFixedLength = true;
             }
 
+            public override void ElementHeaderDrawer()
+            {
+                ElementHeaderDrawerImpl(labelName);
+            }
+
             public override void PropertyDrawer(Rect rect)
             {
-                base.PropertyDrawer(rect);
+                PropertyDrawerImpl(rect, labelName);
 
                 using (new GUILayout.VerticalScope("box")) {
                     elementData.usePosition = EditorGUILayout.Toggle("Use Position", elementData.usePosition);
@@ -69,7 +55,7 @@ namespace track_editor2
                     elementData.localScale = EditorGUILayout.Vector3Field("Local Scale", elementData.localScale);
                 }
 
-                GUILayout.Space(10);
+                GUISpace();
 
                 if (GUILayout.Button("オブジェクトから座標取得")) {
                     var go = target;
@@ -88,6 +74,11 @@ namespace track_editor2
                         go.transform.localScale = elementData.localScale;
                     }
                 }
+            }
+
+            public override void ElementDrawer(Rect rect)
+            {
+                ElementDrawerImpl(rect);
             }
         }
     }

@@ -11,7 +11,9 @@ namespace track_editor2
         {
             public GameObject target;
 
-            public bool activate;
+            public bool activate = true;
+
+            public bool currentPlayer;
         }
 
         public class PlayerTrack : TrackAssetPlayer.PlayerTrackBase
@@ -22,16 +24,9 @@ namespace track_editor2
 
             public override void OnTrackStart(TrackAssetPlayer context)
             {
-                var go = trackData.target;
-                if (go) {
-                    go.SetActive(trackData.activate);
+                if (gameObject) {
+                    gameObject.SetActive(trackData.activate);
                 }
-
-                gameObject = go;
-            }
-
-            public override void OnTrackEnd(TrackAssetPlayer context)
-            {
             }
         }
 

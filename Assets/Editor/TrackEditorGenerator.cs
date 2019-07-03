@@ -20,11 +20,9 @@ namespace track_editor2
         //-------------------------------------------------------------------------------------------------------
         readonly static string[] Tracks = {
             "Root",
-            "GameObject",
+            "TrackGroup",
 
-            "Activation",
-            "Animation",
-            "Transform",
+            "GameObject",
         };
 
         //-------------------------------------------------------------------------------------------------------
@@ -123,6 +121,13 @@ $ASSET_CLASS$
 
                 foreach (var name in Elements) {
                     sb.AppendLine($@"
+            asset.{name}Tracks.Clear();
+            foreach (var editorTrack in getEditorTracks<{name}EditorTrack.EditorTrackData>(editorTracks)) {{
+                var assetTrack = Serialize<{name}AssetTrack>(editorTracks, editorTrack);
+                asset.{name}Tracks.Add(assetTrack);
+            }}
+");
+                    sb.AppendLine($@"
             asset.{name}Elements.Clear();
             foreach (var editorElement in getEditorElements<{name}EditorTrack.EditorElementData>(editorElements)) {{
                 var assetElement = Serialize<{name}AssetElement>(editorTracks, editorElements, editorElement);
@@ -147,6 +152,13 @@ $ASSET_CLASS$
                 }
 
                 foreach (var name in Elements) {
+                    sb.AppendLine($@"
+            foreach (var assetTrack in asset.{name}Tracks) {{
+                var editorTrack = Deserialize<{name}EditorTrack.EditorTrackData>(assetTrack);
+                editorTracks[assetTrack.trackIndex] = editorTrack;
+            }}
+");
+
                     sb.AppendLine($@"
             foreach (var assetElement in asset.{name}Elements) {{
                 var editorElement = Deserialize<{name}EditorTrack.EditorElementData>(editorTracks, assetElement);
@@ -183,6 +195,11 @@ $ASSET_CLASS$
                     sb.AppendLine($@"
         [SerializeField]
         //[HideInInspector]
+        public List<{name}AssetTrack> {name}Tracks = new List<{name}AssetTrack>();
+");
+                    sb.AppendLine($@"
+        [SerializeField]
+        //[HideInInspector]
         public List<{name}AssetElement> {name}Elements = new List<{name}AssetElement>();
 ");
                 }
@@ -196,6 +213,7 @@ $ASSET_CLASS$
                 }
 
                 foreach (var name in Elements) {
+                    sb.AppendLine($@"            trackCount += asset.{name}Tracks.Count;");
                     sb.AppendLine($@"            elementCount += asset.{name}Elements.Count;");
                 }
                 output = output.Replace("$COUNT$", sb.ToString());
@@ -216,6 +234,14 @@ $ASSET_CLASS$
                 }
 
                 foreach (var name in Elements) {
+                    sb.AppendLine($@"
+            foreach (var assetTrack in asset.{name}Tracks) {{
+                var playerTrack = createPlayerTrack<{name}Track.PlayerTrack>(assetTrack);
+                playerTracks[assetTrack.trackIndex] = playerTrack;
+            }}
+
+");
+
                     sb.AppendLine($@"
             foreach (var assetElement in asset.{name}Elements) {{
                 var playerElement = createPlayerElement<{name}Track.PlayerElement>(assetElement);
@@ -241,6 +267,12 @@ $ASSET_CLASS$
                 }
 
                 foreach (var name in Elements) {
+                    sb.AppendLine($@"
+    [System.Serializable]
+    public class {name}AssetTrack : AssetTrack {{
+    }}
+");
+
                     sb.AppendLine($@"
     [System.Serializable]
     public class {name}AssetElement : AssetElement {{

@@ -9,18 +9,12 @@ namespace track_editor2
     public class ActivationTrack
     {
         [System.Serializable]
-        public class TrackData
-        {
-        }
-
-        [System.Serializable]
         public class ElementData
         {
         }
 
         public class PlayerTrack : ParentTrack.ChildPlayerTrackBase
         {
-            public TrackData trackData;
         }
 
         public class PlayerElement : ParentTrack.ChildPlayerElementBase

@@ -6,7 +6,6 @@ using UnityEditor;
 namespace track_editor2
 {
     using ParentEditorTrack = GameObjectEditorTrack;
-    using CurrentTrackData = AnimationTrack.TrackData;
     using CurrentElementData = AnimationTrack.ElementData;
 
     class AnimationEditorTrack
@@ -15,45 +14,31 @@ namespace track_editor2
 
         public class EditorTrackData : ParentEditorTrack.ChildEditorTrackBase
         {
-            public CurrentTrackData trackData = new CurrentTrackData();
+            public EditorTrackData() : base(labelName) { }
 
-            public EditorTrackData()
+            public override EditorElement CreateElement()
             {
-                name = labelName;
+                return CreateElementImpl<EditorElementData>($"{labelName}:{elements.Count}");
             }
-
-            public override void TrackHeaderDrawer()
-            {
-                HeaderDrawerImpl(labelName);
-            }
-
-            public override void TrackLabelDrawer(Rect rect)
-            {
-                SubTrackLabelDrawerImpl(rect, labelName);
-            }
-
-            public override void TrackPropertyDrawer(Rect rect)
-            {
-                SubTrackPropertyDrawerImpl(rect, labelName);
-            }
-
-            public override EditorElement CreateElement() { return new EditorElementData(); }
         }
 
         public class EditorElementData : ParentEditorTrack.ChildEditorElementBase
         {
             public CurrentElementData elementData = new CurrentElementData();
 
-            public EditorElementData()
+            public override void Initialize()
             {
                 isFixedLength = true;
             }
 
+            public override void ElementHeaderDrawer()
+            {
+                ElementHeaderDrawerImpl(labelName);
+            }
+
             public override void PropertyDrawer(Rect rect)
             {
-                //base.PropertyDrawer(rect);
-
-                DrawNameImpl();
+                DrawNameImpl(labelName);
 
                 elementData.clip = (AnimationClip)EditorGUILayout.ObjectField("Clip", elementData.clip, typeof(AnimationClip), false);
 
@@ -75,7 +60,7 @@ namespace track_editor2
 
             public override void ElementDrawer(Rect rect)
             {
-                base.ElementDrawer(rect);
+                ElementDrawerImpl(rect);
 
                 if (elementData.clip) {
                     GUI.Label(rect, elementData.clip.name);

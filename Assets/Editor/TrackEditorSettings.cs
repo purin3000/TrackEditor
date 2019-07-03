@@ -19,14 +19,12 @@ namespace track_editor2
     {
         public float pixelScale = 5.0f;
 
-        public int timeHeight = 20;
+        public int timeHeight = 24;
 
         public int propertyWidth = 300;
 
         public int trackWidth = 200;
         public int trackHeight = 32;
-
-        public float childTrackSlide = 0.6f;
 
         public int gridScaleMax = 30;
     }

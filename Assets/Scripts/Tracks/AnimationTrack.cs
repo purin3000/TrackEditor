@@ -9,11 +9,6 @@ namespace track_editor2
     public class AnimationTrack
     {
         [System.Serializable]
-        public class TrackData
-        {
-        }
-
-        [System.Serializable]
         public class ElementData
         {
             public int blend;
@@ -23,7 +18,6 @@ namespace track_editor2
 
         public class PlayerTrack : ParentTrack.ChildPlayerTrackBase
         {
-            public TrackData trackData;
         }
 
         public class PlayerElement : ParentTrack.ChildPlayerElementBase

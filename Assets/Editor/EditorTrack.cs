@@ -10,7 +10,8 @@ namespace track_editor2
     {
         public string name;
         public EditorTrack parent;
-        public int parentIndex;
+        public int parentIndex = -1;
+        public bool expand = true;
 
         public List<EditorTrack> childs = new List<EditorTrack>();
         public List<EditorElement> elements = new List<EditorElement>();
@@ -27,29 +28,20 @@ namespace track_editor2
 
         public Vector2 scrollPos => manager.scrollPos;
 
-        public bool expand = true;
-
         public List<EditorTrack> removeTracks = new List<EditorTrack>();
 
         public List<EditorElement> removeElements = new List<EditorElement>();
 
-        public int nestLevel { get; set; } = 0;
+        public virtual void Initialize()
+        {
+        }
 
-        public void Initialize(TrackEditor manager, string name, int parentIndex)
+        public void Deserialize(TrackEditor manager, string name, int parentIndex, bool expand)
         {
             this.name = name;
             this.parentIndex = parentIndex;
             this.manager = manager;
-        }
-
-        public void UpdateNestLevel()
-        {
-            nestLevel = 0;
-            var current = parent;
-            while (current != null) {
-                ++nestLevel;
-                current = current.parent;
-            }
+            this.expand = expand;
         }
 
         public void AddTrack(EditorTrack child)
@@ -57,13 +49,14 @@ namespace track_editor2
             childs.Add(child);
             child.parent = this;
             child.manager = manager;
-            child.UpdateNestLevel();
+            child.Initialize();
         }
 
         public void AddElement(EditorElement element)
         {
             elements.Add(element);
             element.parent = this;
+            element.Initialize();
         }
 
         public abstract void TrackHeaderDrawer();
@@ -71,6 +64,131 @@ namespace track_editor2
         public abstract void TrackLabelDrawer(Rect rect);
 
         public abstract void TrackPropertyDrawer(Rect rect);
+
+        public abstract EditorElement CreateElement();
+
+        protected ElementClass CreateElementImpl<ElementClass>(string labelName) where ElementClass : EditorElement, new()
+        {
+            var element = new ElementClass();
+            element.name = labelName;
+            return element;
+        }
+
+        protected void MainTrackLabelDrawerImpl(Rect rect, string labelName)
+        {
+            Rect rectLabel = CalcTrackLabelRect(rect);
+            GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
+
+            Rect rectObj = CalcTrackObjectRect(rect);
+            EditorGUI.LabelField(rectObj, $"{labelName}");
+
+            if (!expand) {
+                var rectExp = rectObj;
+                rectExp.x += rect.width * 0.8f;
+                EditorGUI.LabelField(rectExp, "[+]");
+            }
+        }
+
+        protected void SubTrackLabelDrawerImpl(Rect rect, string labelName)
+        {
+            Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
+            GUI.Label(rectLabel, labelName, IsSelection ? "flow node 3 on" : "flow node 2");
+        }
+
+        protected void SubTrackPropertyDrawerImpl(Rect rect, string labelName)
+        {
+            DrawNameImpl(labelName);
+            DrawIndexMoveImpl();
+            AddElementImpl(labelName);
+        }
+
+        protected void AddElementImpl(string labelName)
+        {
+            using (new GUILayout.VerticalScope()) {
+                if (GUILayout.Button($"Add Element [{labelName}]")) {
+                    var element = CreateElement();
+                    if (element != null) {
+                        manager.AddElement(this, element);
+                    }
+                }
+            }
+        }
+
+        protected void HeaderDrawerImpl(string labelName)
+        {
+            if (selectionElement == null) {
+                GUILayout.Label($"{labelName} Track [{name}]");
+                if (GUILayout.Button($"Remove {labelName} Track [{name}]")) {
+                    manager.RemoveTrack(parent, this);
+                }
+            } else {
+                selectionElement.ElementHeaderDrawer();
+            }
+        }
+
+        protected void DrawNameImpl(string labelName)
+        {
+            EditorGUILayout.LabelField($"{labelName} Track [{name}]");
+            name = EditorGUILayout.TextField("Name", name);
+
+            GUISpace();
+        }
+
+        protected void AddTrackImpl(string name, System.Type t)
+        {
+            if (GUILayout.Button($"Add Track [{name}]")) {
+                var track = (EditorTrack)System.Activator.CreateInstance(t);
+                manager.AddTrack(this, track);
+                manager.SetSelectionTrack(track);
+            }
+        }
+
+        protected void GUISpace()
+        {
+            GUILayout.Space(15);
+        }
+
+        protected void DrawIndexMoveImpl()
+        {
+            using (new GUILayout.VerticalScope()) {
+                if (GUILayout.Button("上へ移動")) {
+                    var index = parent.childs.IndexOf(this) - 1;
+                    if (0 <= index) {
+                        parent.childs.SwapAt(index, index + 1);
+                    }
+                }
+                if (GUILayout.Button("下へ移動")) {
+                    var index = parent.childs.IndexOf(this) + 1;
+                    if (index < parent.childs.Count) {
+                        parent.childs.SwapAt(index, index - 1);
+                    }
+                }
+            }
+
+            GUISpace();
+        }
+        
+        public virtual Rect CalcDrawTrackChildRect(Rect rect, EditorTrack child, float ofsy)
+        {
+            var slideSize = rect.width * 0.6f;
+
+            float x = rect.x + slideSize;
+            float y = rect.y + ofsy;
+            float width = rect.width - slideSize;
+
+            return new Rect(x, y, width, child.CalcTrackHeight());
+        }
+
+        protected Rect CalcTrackLabelRect(Rect rect)
+        {
+            return new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
+        }
+
+        protected Rect CalcTrackObjectRect(Rect rect)
+        {
+            Rect rectLabel = CalcTrackLabelRect(rect);
+            return new Rect(rectLabel.x, rect.y + (rectLabel.height - EditorGUIUtility.singleLineHeight) * 0.5f, rectLabel.width * 0.6f, EditorGUIUtility.singleLineHeight);
+        }
 
         public virtual float CalcElementWidth()
         {
@@ -92,99 +210,5 @@ namespace track_editor2
             return trackHeight;
         }
 
-        public virtual EditorElement CreateElement() { return null; }
-
-        protected void MainTrackDrawerImpl(Rect rect, string labelName)
-        {
-            Rect rectLabel = CalcTrackLabelRect(rect);
-            GUI.Label(rectLabel, "", IsSelection ? "flow node 0 on" : "flow node 0");
-
-            Rect rectObj = CalcTrackObjectRect(rect);
-            EditorGUI.LabelField(rectObj, $"{labelName}");
-        }
-
-        protected void SubTrackLabelDrawerImpl(Rect rect, string labelName)
-        {
-            Rect rectLabel = new Rect(rect.x + 3, rect.y + 3, rect.width - 6, rect.height - 6);
-            GUI.Label(rectLabel, labelName, IsSelection ? "flow node 3 on" : "flow node 2");
-        }
-
-        protected void SubTrackPropertyDrawerImpl(Rect rect, string labelName)
-        {
-            name = EditorGUILayout.TextField("Name", name);
-
-            DrawIndexMoveImpl();
-
-            AddElementImpl($"Add Element [{labelName}]");
-        }
-
-        protected Rect CalcTrackLabelRect(Rect rect)
-        {
-            return new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4);
-        }
-
-        protected Rect CalcTrackObjectRect(Rect rect)
-        {
-            Rect rectLabel = CalcTrackLabelRect(rect);
-            return new Rect(rectLabel.x, rect.y + (rectLabel.height - EditorGUIUtility.singleLineHeight) * 0.5f, rectLabel.width * 0.6f, EditorGUIUtility.singleLineHeight);
-        }
-
-        protected void HeaderDrawerImpl(string labelName)
-        {
-            GUILayout.Label(string.Format("Track:{0}", name));
-
-            RemoveTrackImpl($"Remove Track [{labelName}]");
-
-            RemoveElementImpl();
-        }
-
-        protected void DrawIndexMoveImpl()
-        {
-            GUILayout.Space(15);
-
-            using (new GUILayout.VerticalScope()) {
-                if (GUILayout.Button("上へ移動")) {
-                    var index = parent.childs.IndexOf(this) - 1;
-                    if (0 <= index) {
-                        parent.childs.SwapAt(index, index + 1);
-                    }
-                }
-                if (GUILayout.Button("下へ移動")) {
-                    var index = parent.childs.IndexOf(this) + 1;
-                    if (index < parent.childs.Count) {
-                        parent.childs.SwapAt(index, index - 1);
-                    }
-                }
-            }
-
-            GUILayout.Space(15);
-        }
-
-        protected void RemoveTrackImpl(string label)
-        {
-            if (selectionElement == null) {
-                if (GUILayout.Button(label)) {
-                    manager.RemoveTrack(parent, this);
-                }
-            }
-        }
-
-        protected void RemoveElementImpl()
-        {
-            selectionElement?.ElementHeaderDrawer();
-        }
-
-        protected void AddElementImpl(string label)
-        {
-            using (new GUILayout.VerticalScope()) {
-                if (GUILayout.Button(label)) {
-                    var element = CreateElement();
-                    if (element != null) {
-                        element.name = string.Format("{0}:{1}", name, elements.Count);
-                        manager.AddElement(this, element);
-                    }
-                }
-            }
-        }
     }
 }

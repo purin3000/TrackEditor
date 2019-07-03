@@ -30,8 +30,11 @@ namespace track_editor2
 
         public bool isFixedLength;
 
+        public virtual void Initialize()
+        {
+        }
 
-        public void Initialize(string name, EditorTrack parent, int start, int length)
+        public void Deserialize(string name, EditorTrack parent, int start, int length)
         {
             Debug.Assert(parent != null);
             this.name = name;
@@ -40,26 +43,42 @@ namespace track_editor2
             this.length = length;
         }
 
-        public virtual void ElementHeaderDrawer()
+        public abstract void ElementHeaderDrawer();
+
+        public abstract void PropertyDrawer(Rect rect);
+
+        public abstract void ElementDrawer(Rect rect);
+
+        protected void ElementHeaderDrawerImpl(string labelName)
         {
-            RemoveElementImpl($"Remove {name} Elememnt");
+            GUILayout.Label($"{labelName} Element [{name}]");
+            if (GUILayout.Button($"Remove {labelName} Element [{name}]")) {
+                parent.manager.RemoveElement(parent, this);
+            }
         }
 
-        public virtual void ElementDrawer(Rect rect)
+        protected void PropertyDrawerImpl(Rect rect, string labelName)
+        {
+            DrawNameImpl(labelName);
+            DrawStartImpl();
+            DrawLengthImpl();
+            GUISpace();
+        }
+
+        protected void ElementDrawerImpl(Rect rect)
         {
             Rect labelRect = new Rect(rect.x + pixelScale * start - scrollPos.x, rect.y - scrollPos.y, pixelScale * length, trackHeight);
             GUI.Label(rect, "", IsSelection ? "flow node 5 on" : "flow node 5");
         }
 
-        protected void RemoveElementImpl(string label)
+        protected void GUISpace()
         {
-            if (GUILayout.Button(label)) {
-                parent.manager.RemoveElement(parent, this);
-            }
+            GUILayout.Space(15);
         }
 
-        protected void DrawNameImpl()
+        protected void DrawNameImpl(string labelName)
         {
+            EditorGUILayout.LabelField($"{labelName} Element [{name}]");
             name = EditorGUILayout.TextField("Name", name);
         }
 
@@ -78,32 +97,5 @@ namespace track_editor2
                 }
             }
         }
-
-        protected void DrawIndexMoveImpl()
-        {
-            using (new GUILayout.VerticalScope()) {
-                if (GUILayout.Button("上へ移動")) {
-                    var index = parent.elements.IndexOf(this) - 1;
-                    if (0 <= index) {
-                        parent.elements.SwapAt(index, index + 1);
-                    }
-                }
-                if (GUILayout.Button("下へ移動")) {
-                    var index = parent.elements.IndexOf(this) + 1;
-                    if (index < parent.elements.Count) {
-                        parent.elements.SwapAt(index, index - 1);
-                    }
-                }
-            }
-        }
-
-        public virtual void PropertyDrawer(Rect rect)
-        {
-            //DrawIndexMoveImpl();
-            DrawNameImpl();
-            DrawStartImpl();
-            DrawLengthImpl();
-        }
-
     }
 }

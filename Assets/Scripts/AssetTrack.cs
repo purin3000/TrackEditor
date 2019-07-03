@@ -10,12 +10,14 @@ namespace track_editor2
         public int trackIndex;
         public string name;
         public int parentTrackIndex;
+        public bool expand;
 
-        public void Initialize(int trackIndex, string name, int parentTrackIndex)
+        public void Initialize(int trackIndex, string name, int parentTrackIndex, bool expand)
         {
             this.trackIndex = trackIndex;
             this.name = name;
             this.parentTrackIndex = parentTrackIndex;
+            this.expand = expand;
         }
     }
 

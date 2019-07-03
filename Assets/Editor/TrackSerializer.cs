@@ -28,6 +28,8 @@ namespace track_editor2
 
             editorToAssetInternal(asset, editorTracks, editorElements);
 
+            asset.frameLength = manager.frameLength;
+
             EditorUtility.SetDirty(asset);
         }
 
@@ -56,9 +58,7 @@ namespace track_editor2
                 editorElement.parent.elements.Add(editorElement);
             }
 
-            foreach (var editorTrack in editorTracks) {
-                editorTrack.UpdateNestLevel();
-            }
+            manager.frameLength = asset.frameLength;
 
             manager.top = editorTracks[0];
         }
@@ -70,7 +70,7 @@ namespace track_editor2
             int trackIndex = GetTrackIndex(editorTrack, editorTracks);
             int parentTrackIndex = GetTrackIndex(editorTrack.parent, editorTracks);
 
-            assetTrack.Initialize(trackIndex, editorTrack.name, parentTrackIndex);
+            assetTrack.Initialize(trackIndex, editorTrack.name, parentTrackIndex, editorTrack.expand);
 
             return assetTrack;
         }
@@ -79,7 +79,7 @@ namespace track_editor2
         {
             var editorTrack = new EditorTrackClass();
 
-            editorTrack.Initialize(null, assetTrack.name, assetTrack.parentTrackIndex);
+            editorTrack.Deserialize(null, assetTrack.name, assetTrack.parentTrackIndex, assetTrack.expand);
 
             return editorTrack;
         }
@@ -100,7 +100,7 @@ namespace track_editor2
         {
             var editorElement = new EditorElementClass();
 
-            editorElement.Initialize(assetElement.name, GetTrack(assetElement.parentTrackIndex, editorTracks), assetElement.start, assetElement.length);
+            editorElement.Deserialize(assetElement.name, GetTrack(assetElement.parentTrackIndex, editorTracks), assetElement.start, assetElement.length);
 
             return editorElement;
         }
