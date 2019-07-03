@@ -209,6 +209,37 @@ namespace track_editor2
             }
             return trackHeight;
         }
-
     }
+
+    public abstract class EditorTrackImplBase : EditorTrack
+    {
+        string labelName;
+
+        protected EditorTrackImplBase(string labelName)
+        {
+            this.labelName = labelName;
+        }
+
+        public override void Initialize()
+        {
+            name = labelName;
+        }
+
+        public override void TrackHeaderDrawer()
+        {
+            HeaderDrawerImpl(labelName);
+        }
+
+        public override void TrackLabelDrawer(Rect rect)
+        {
+            SubTrackLabelDrawerImpl(rect, labelName);
+        }
+
+        public override void TrackPropertyDrawer(Rect rect)
+        {
+            SubTrackPropertyDrawerImpl(rect, labelName);
+        }
+    }
+
+
 }

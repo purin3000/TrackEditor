@@ -23,7 +23,7 @@ namespace track_editor2
             public override void Initialize()
             {
                 name = labelName;
-                manager.AddTrack(this, new ActivationEditorTrack.EditorTrackData());
+                manager.AddTrack(this, new ActivationEditorTrackData());
             }
 
             public override void TrackHeaderDrawer()
@@ -72,9 +72,9 @@ namespace track_editor2
                 DrawIndexMoveImpl();
 
                 var table = new[] {
-                    new { Name = "Activation", Type = typeof(ActivationEditorTrack.EditorTrackData) },
-                    new { Name = "Transform",  Type = typeof(TransformEditorTrack.EditorTrackData) },
-                    new { Name = "Animation",  Type = typeof(AnimationEditorTrack.EditorTrackData) },
+                    new { Name = "Activation", Type = typeof(ActivationEditorTrackData) },
+                    new { Name = "Transform",  Type = typeof(TransformEditorTrackData) },
+                    new { Name = "Animation",  Type = typeof(AnimationEditorTrackData) },
                 };
 
                 foreach (var info in table) {

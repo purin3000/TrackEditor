@@ -35,14 +35,14 @@ namespace track_editor2
 
 
             asset.ActivationTracks.Clear();
-            foreach (var editorTrack in getEditorTracks<ActivationEditorTrack.EditorTrackData>(editorTracks)) {
+            foreach (var editorTrack in getEditorTracks<ActivationEditorTrackData>(editorTracks)) {
                 var assetTrack = Serialize<ActivationAssetTrack>(editorTracks, editorTrack);
                 asset.ActivationTracks.Add(assetTrack);
             }
 
 
             asset.ActivationElements.Clear();
-            foreach (var editorElement in getEditorElements<ActivationEditorTrack.EditorElementData>(editorElements)) {
+            foreach (var editorElement in getEditorElements<ActivationEditorElementData>(editorElements)) {
                 var assetElement = Serialize<ActivationAssetElement>(editorTracks, editorElements, editorElement);
                 assetElement.elementData = editorElement.elementData;
                 asset.ActivationElements.Add(assetElement);
@@ -50,14 +50,14 @@ namespace track_editor2
 
 
             asset.TransformTracks.Clear();
-            foreach (var editorTrack in getEditorTracks<TransformEditorTrack.EditorTrackData>(editorTracks)) {
+            foreach (var editorTrack in getEditorTracks<TransformEditorTrackData>(editorTracks)) {
                 var assetTrack = Serialize<TransformAssetTrack>(editorTracks, editorTrack);
                 asset.TransformTracks.Add(assetTrack);
             }
 
 
             asset.TransformElements.Clear();
-            foreach (var editorElement in getEditorElements<TransformEditorTrack.EditorElementData>(editorElements)) {
+            foreach (var editorElement in getEditorElements<TransformEditorElementData>(editorElements)) {
                 var assetElement = Serialize<TransformAssetElement>(editorTracks, editorElements, editorElement);
                 assetElement.elementData = editorElement.elementData;
                 asset.TransformElements.Add(assetElement);
@@ -65,14 +65,14 @@ namespace track_editor2
 
 
             asset.AnimationTracks.Clear();
-            foreach (var editorTrack in getEditorTracks<AnimationEditorTrack.EditorTrackData>(editorTracks)) {
+            foreach (var editorTrack in getEditorTracks<AnimationEditorTrackData>(editorTracks)) {
                 var assetTrack = Serialize<AnimationAssetTrack>(editorTracks, editorTrack);
                 asset.AnimationTracks.Add(assetTrack);
             }
 
 
             asset.AnimationElements.Clear();
-            foreach (var editorElement in getEditorElements<AnimationEditorTrack.EditorElementData>(editorElements)) {
+            foreach (var editorElement in getEditorElements<AnimationEditorElementData>(editorElements)) {
                 var assetElement = Serialize<AnimationAssetElement>(editorTracks, editorElements, editorElement);
                 assetElement.elementData = editorElement.elementData;
                 asset.AnimationElements.Add(assetElement);
@@ -110,39 +110,39 @@ namespace track_editor2
 
 
             foreach (var assetTrack in asset.ActivationTracks) {
-                var editorTrack = Deserialize<ActivationEditorTrack.EditorTrackData>(assetTrack);
+                var editorTrack = Deserialize<ActivationEditorTrackData>(assetTrack);
                 editorTracks[assetTrack.trackIndex] = editorTrack;
             }
 
 
             foreach (var assetElement in asset.ActivationElements) {
-                var editorElement = Deserialize<ActivationEditorTrack.EditorElementData>(editorTracks, assetElement);
+                var editorElement = Deserialize<ActivationEditorElementData>(editorTracks, assetElement);
                 editorElement.elementData = assetElement.elementData;
                 editorElements[assetElement.elementIndex] = editorElement;
             }
 
 
             foreach (var assetTrack in asset.TransformTracks) {
-                var editorTrack = Deserialize<TransformEditorTrack.EditorTrackData>(assetTrack);
+                var editorTrack = Deserialize<TransformEditorTrackData>(assetTrack);
                 editorTracks[assetTrack.trackIndex] = editorTrack;
             }
 
 
             foreach (var assetElement in asset.TransformElements) {
-                var editorElement = Deserialize<TransformEditorTrack.EditorElementData>(editorTracks, assetElement);
+                var editorElement = Deserialize<TransformEditorElementData>(editorTracks, assetElement);
                 editorElement.elementData = assetElement.elementData;
                 editorElements[assetElement.elementIndex] = editorElement;
             }
 
 
             foreach (var assetTrack in asset.AnimationTracks) {
-                var editorTrack = Deserialize<AnimationEditorTrack.EditorTrackData>(assetTrack);
+                var editorTrack = Deserialize<AnimationEditorTrackData>(assetTrack);
                 editorTracks[assetTrack.trackIndex] = editorTrack;
             }
 
 
             foreach (var assetElement in asset.AnimationElements) {
-                var editorElement = Deserialize<AnimationEditorTrack.EditorElementData>(editorTracks, assetElement);
+                var editorElement = Deserialize<AnimationEditorElementData>(editorTracks, assetElement);
                 editorElement.elementData = assetElement.elementData;
                 editorElements[assetElement.elementIndex] = editorElement;
             }
@@ -150,4 +150,44 @@ namespace track_editor2
 
         }
     }
+
+ 
+    public class TransformEditorTrackData : EditorTrackImplBase
+    {
+        public const string labelName = "Transform";
+
+        public TransformEditorTrackData()
+            : base(labelName) { }
+
+        public override EditorElement CreateElement()
+        {
+            return CreateElementImpl<TransformEditorElementData>($"{labelName}:{elements.Count}");
+        }
+    }
+
+    public class ActivationEditorTrackData : EditorTrackImplBase
+    {
+        public const string labelName = "Activate";
+
+        public ActivationEditorTrackData() : base(labelName) { }
+
+        public override EditorElement CreateElement()
+        {
+            return CreateElementImpl<ActivationEditorElementData>($"{labelName}:{elements.Count}");
+        }
+    }
+
+    public class AnimationEditorTrackData : EditorTrackImplBase
+    {
+        public const string labelName = "Animation";
+
+        public AnimationEditorTrackData() : base(labelName) { }
+
+        public override EditorElement CreateElement()
+        {
+            return CreateElementImpl<AnimationEditorElementData>($"{labelName}:{elements.Count}");
+        }
+    }
+
+
 }
